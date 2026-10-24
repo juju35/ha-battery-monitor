@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.2.0';
+var BATTERY_MONITOR_CARD_VERSION = '1.3.0';
 
 const BM_I18N = {
   en: {

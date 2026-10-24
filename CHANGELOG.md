@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.0
+
+### Changes
+- The `batteries` attribute of the **Low batteries** sensor is no longer written to the database: beyond about 60 batteries it went over the recorder's 16 KiB limit. The card still reads it live.
+- A battery hidden, unhidden, renamed or moved to another area, or whose device is renamed or moved, is updated right away instead of within 10 minutes.
+- Card editor: `language` option (English / Français), and the labels switch language at once.
+
+### Fixes
+- Card: "low for X h" moves on every hour instead of staying frozen.
+- The card is back in the dashboard resources after removing and adding the integration again without a restart.
+- Card: the sensor and the **Notify now** button are looked up only when the entity registry changes, not on every state update.
+
+### Maintenance
+- New pytest tests for the fixes.
+- CI hardening: actions pinned by commit SHA, read-only token, Dependabot for actions, duplication check with PR annotations.
+
 ## 1.2.0
 
 ### Changes
