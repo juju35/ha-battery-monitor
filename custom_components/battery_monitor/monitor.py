@@ -203,9 +203,18 @@ class BatteryMonitor:
                 self._below_since[entity_id] = since
         self.async_refresh()
 
+    def _is_battery(self, entity_id: str | None) -> bool:
+        """A battery in the list, or a battery entity (one that was hidden or ignored until now)."""
+        if not entity_id:
+            return False
+        if any(b.entity_id == entity_id for b in self.batteries):
+            return True
+        state = self.hass.states.get(entity_id)
+        return state is not None and state.domain in DOMAINS and state.attributes.get(ATTR_DEVICE_CLASS) == BATTERY
+
     @callback
     def async_listen(self) -> CALLBACK_TYPE:
-        """Refresh when a battery changes."""
+        """Refresh when a battery changes, and when its entity or device is edited (hidden, moved, renamed)."""
 
         @callback
         def changed(event: Event[EventStateChangedData]) -> None:
@@ -213,7 +222,29 @@ class BatteryMonitor:
             if state is not None and state.domain in DOMAINS and state.attributes.get(ATTR_DEVICE_CLASS) == BATTERY:
                 self.async_refresh()
 
-        return self.hass.bus.async_listen(EVENT_STATE_CHANGED, changed)
+        @callback
+        def entity_changed(event: Event[er.EventEntityRegistryUpdatedData]) -> None:
+            data = event.data
+            if self._is_battery(data["entity_id"]) or self._is_battery(data.get("old_entity_id")):
+                self.async_refresh()
+
+        @callback
+        def device_changed(event: Event[dr.EventDeviceRegistryUpdatedData]) -> None:
+            if any(b.device_id == event.data["device_id"] for b in self.batteries):
+                self.async_refresh()
+
+        unsubs = [
+            self.hass.bus.async_listen(EVENT_STATE_CHANGED, changed),
+            self.hass.bus.async_listen(er.EVENT_ENTITY_REGISTRY_UPDATED, entity_changed),
+            self.hass.bus.async_listen(dr.EVENT_DEVICE_REGISTRY_UPDATED, device_changed),
+        ]
+
+        @callback
+        def unsubscribe() -> None:
+            for unsub in unsubs:
+                unsub()
+
+        return unsubscribe
 
     def _ignored(self, entity_id: str, entry: er.RegistryEntry | None) -> bool:
         if entity_id in self.ignored_entities:
@@ -306,17 +337,12 @@ class BatteryMonitor:
         if not due:
             persistent_notification.async_dismiss(self.hass, NOTIFICATION_ID)
             if manual:
-                await self._async_send(
-                    await self._text("none_title"), await self._text("none", threshold=self.threshold), persistent=False
-                )
+                text = await self._texts()
+                await self._async_send(text("none_title"), text("none", threshold=self.threshold), persistent=False)
             self._notify_listeners()
             return
 
-        strings = await async_get_translations(self.hass, self.hass.config.language, "exceptions", [DOMAIN])
-
-        def text(key: str, **values: Any) -> str:
-            template = strings.get(f"component.{DOMAIN}.exceptions.{key}.message", key)
-            return template.format(**values)
+        text = await self._texts()
 
         def key(b: Battery) -> str:
             if b.unavailable:
@@ -330,9 +356,18 @@ class BatteryMonitor:
         await self._async_send(title, "\n".join(lines))
         self._notify_listeners()
 
-    async def _text(self, key: str, **values: Any) -> str:
+    async def _texts(self) -> Callable[..., str]:
+        """Notification texts in the language of Home Assistant.
+
+        They live under `exceptions` in the translation files: hassfest has no category for notification texts,
+        and `exceptions` is the one whose `{placeholders}` Home Assistant loads as plain messages.
+        """
         strings = await async_get_translations(self.hass, self.hass.config.language, "exceptions", [DOMAIN])
-        return strings.get(f"component.{DOMAIN}.exceptions.{key}.message", key).format(**values)
+
+        def text(key: str, **values: Any) -> str:
+            return strings.get(f"component.{DOMAIN}.exceptions.{key}.message", key).format(**values)
+
+        return text
 
     async def _async_send(self, title: str, message: str, *, persistent: bool = True) -> None:
         """Persistent notification (replaced each time), and the notify actions chosen."""

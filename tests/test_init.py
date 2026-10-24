@@ -9,7 +9,9 @@ from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
 from homeassistant.core import HomeAssistant, State
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
@@ -18,6 +20,7 @@ from pytest_homeassistant_custom_component.common import (
 )
 
 from custom_components.battery_monitor.const import (
+    CARD_URL,
     CONF_DURATION,
     CONF_EVENING,
     CONF_IGNORED_ENTITIES,
@@ -347,3 +350,52 @@ async def test_batteries_not_recorded(recorder_mock, hass: HomeAssistant) -> Non
     recorded = states[LOW][-1]
     assert "batteries" not in recorded.attributes
     assert recorded.attributes["threshold"] == 20
+
+
+async def test_registry_changes_refresh_the_list(hass: HomeAssistant) -> None:
+    """Hiding a battery, renaming its device or moving it to a room shows at once, not at the next tick."""
+    door = add_battery(hass, "Door", "15")
+    lock = add_battery(hass, "Lock", "64")
+    await _setup(hass)
+    assert [b["name"] for b in _batteries(hass)] == ["Door", "Lock"]
+
+    entities = er.async_get(hass)
+    entities.async_update_entity(lock, hidden_by=er.RegistryEntryHider.USER)
+    await hass.async_block_till_done()
+    assert [b["name"] for b in _batteries(hass)] == ["Door"]
+
+    entities.async_update_entity(lock, hidden_by=None)
+    await hass.async_block_till_done()
+    assert [b["name"] for b in _batteries(hass)] == ["Door", "Lock"]
+
+    devices = dr.async_get(hass)
+    device_id = entities.async_get(door).device_id
+    devices.async_update_device(device_id, name_by_user="Front door")
+    await hass.async_block_till_done()
+    assert _batteries(hass)[0]["name"] == "Front door"
+
+    from homeassistant.helpers import area_registry as ar
+
+    area = ar.async_get(hass).async_get_or_create("Hall")
+    entities.async_update_entity(door, area_id=area.id)
+    await hass.async_block_till_done()
+    assert _batteries(hass)[0]["area"] == "Hall"
+
+
+async def test_card_resource_back_after_remove_and_add(hass: HomeAssistant) -> None:
+    """Removing the entry drops the card resource; adding it again without a restart brings it back."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = hass.data["lovelace"].resources
+    entry = await _setup(hass)
+
+    def card_urls() -> list[str]:
+        return [i["url"] for i in resources.async_items() if i["url"].split("?")[0] == CARD_URL]
+
+    assert len(card_urls()) == 1
+
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert card_urls() == []
+
+    await _setup(hass)
+    assert len(card_urls()) == 1
