@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0
+
+### Changes
+- Requires Home Assistant 2024.12 or later (was 2024.11): on 2024.11, **Configure** failed with an error.
+
+### Fixes
+- Card: no longer stuck on "Battery Monitor is not set up" when the sensor was not ready yet at the first render (for example right after a Home Assistant restart); the **Notify now** button shows up too.
+- On Home Assistant 2024.12 to 2025.3, the card is added to the dashboard resources again.
+
+### Maintenance
+- Card tests (`node --test`), and tests on Home Assistant 2026.10 and on the minimum version (2024.12), failing on any deprecated call.
+
 ## 1.3.0
 
 ### Changes
