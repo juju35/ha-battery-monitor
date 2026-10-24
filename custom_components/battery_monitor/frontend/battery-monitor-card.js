@@ -82,14 +82,20 @@ const bmEsc = (s) =>
 
 const BM_DEFAULTS = { columns: 1, only_low: false, hide_when_ok: false, notify_button: true };
 
-// The integration's "Low batteries" sensor: the one carrying the battery list.
-const bmFindEntity = (hass) =>
-  Object.keys(hass?.states || {}).find(
-    (id) =>
-      id.startsWith('sensor.') &&
-      hass.entities?.[id]?.platform === 'battery_monitor' &&
-      Array.isArray(hass.states[id].attributes.batteries),
-  );
+// The integration's sensors, from the entity registry.
+const bmCandidates = (registry) =>
+  Object.keys(registry || {}).filter((id) => id.startsWith('sensor.') && registry[id]?.platform === 'battery_monitor');
+
+// The integration's "Low batteries" sensor: the candidate whose state carries the battery list right now.
+const bmPick = (hass, candidates) => candidates.find((id) => Array.isArray(hass?.states?.[id]?.attributes?.batteries));
+
+// The "Notify now" button of the sensor's device.
+const bmFindButton = (registry, entity) => {
+  const device = entity && registry?.[entity]?.device_id;
+  return device
+    ? Object.keys(registry).find((id) => id.startsWith('button.') && registry[id].device_id === device)
+    : undefined;
+};
 
 class BatteryMonitorCard extends HTMLElement {
   static getConfigElement() {
@@ -129,19 +135,28 @@ class BatteryMonitorCard extends HTMLElement {
     return this._t(key, { d: h < 48 ? this._t('hours', { n: Math.floor(h) }) : this._t('days', { n: Math.floor(h / 24) }) });
   }
 
-  // The sensor and the "Notify now" button of its device. Both come from the entity registry: they are looked up
-  // again only when hass.entities changes (entities added, removed or edited), not on every state update.
+  // The sensor and the "Notify now" button of its device. What comes from the entity registry (the integration's
+  // sensors, each sensor's button) is kept until hass.entities changes; the states are read again at each call, so a
+  // sensor missing, restored or without its battery list at the first render is found as soon as its state is there.
+  // An empty registry result is never kept.
   _lookup() {
     const registry = this._hass.entities;
-    const configured = this._config.entity;
-    if (this._found && this._found.registry === registry && this._found.configured === configured) return this._found;
-    const entity = configured || bmFindEntity(this._hass);
-    const device = entity && registry?.[entity]?.device_id;
-    const button = device
-      ? Object.keys(registry).find((id) => id.startsWith('button.') && registry[id].device_id === device)
-      : undefined;
-    this._found = { registry, configured, entity, button };
-    return this._found;
+    if (!this._reg || this._reg.registry !== registry) this._reg = { registry, candidates: null, buttons: {} };
+    const reg = this._reg;
+    let entity = this._config.entity;
+    if (!entity) {
+      const candidates = reg.candidates || bmCandidates(registry);
+      if (candidates.length) reg.candidates = candidates;
+      entity = bmPick(this._hass, candidates);
+    }
+    if (!entity) return {};
+    if (!(entity in reg.buttons)) {
+      const button = bmFindButton(registry, entity);
+      // No button is kept only once the registry knows the sensor (otherwise it may just not be loaded yet).
+      if (!button && !registry?.[entity]) return { entity };
+      reg.buttons[entity] = button;
+    }
+    return { entity, button: reg.buttons[entity] };
   }
 
   _render() {
