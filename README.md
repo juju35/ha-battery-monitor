@@ -37,7 +37,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 
 ## Prerequisites
 
-- Home Assistant 2024.11 or newer
+- Home Assistant 2024.12 or newer
 - Devices that report their battery (Zigbee, Z-Wave, Bluetooth, Matter…), with the `battery` device class
 
 ## Installation
