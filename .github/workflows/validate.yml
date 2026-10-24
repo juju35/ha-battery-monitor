@@ -54,9 +54,9 @@ jobs:
           python-version: "3.13"
 
       # 0.13.190 pins homeassistant==2024.12.0, the minimum in hacs.json, which pins this frontend.
-      # Its cleanup check predates the shutdown thread of pycares 4.10+, which it would report as a leaked thread.
+      # Its cleanup check predates the shutdown thread of pycares 4.9+, which it would report as a leaked thread.
       - name: Install dependencies
-        run: pip install pytest-homeassistant-custom-component==0.13.190 home-assistant-frontend==20241127.4 "pycares<4.10"
+        run: pip install pytest-homeassistant-custom-component==0.13.190 home-assistant-frontend==20241127.4 "pycares<4.9"
 
       - name: Run tests
         run: pytest
