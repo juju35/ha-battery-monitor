@@ -30,16 +30,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      # Latest Home Assistant: releases since 2026.3 need Python 3.14 (3.13 would resolve to 2026.2).
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install dependencies
         run: pip install -r requirements_test.txt
 
+      - name: Home Assistant version
+        run: python -c 'from homeassistant.const import __version__; print(f"::notice::Home Assistant {__version__}")'
+
       - name: Run tests
         run: pytest
+        env:
+          DEPRECATIONS_LOG: ${{ runner.temp }}/deprecations.log
+
+      - name: Annotate deprecated calls
+        if: failure()
+        run: |
+          if [ -f "$RUNNER_TEMP/deprecations.log" ]; then
+            sort -u "$RUNNER_TEMP/deprecations.log" | head -n 20 | while IFS= read -r line; do echo "::error::$line"; done
+          fi
 
   pytest-min-ha:
     name: Tests (minimum Home Assistant, 2024.12.0)
