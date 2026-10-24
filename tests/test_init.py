@@ -330,3 +330,20 @@ async def test_unavailable_batteries_notified(hass: HomeAssistant, freezer: Froz
     await hass.async_block_till_done()
     batteries = {b["name"]: b for b in _batteries(hass)}
     assert batteries["Smoke"]["due"] and batteries["Door"]["due"] and not batteries["Motion"]["alert"]
+
+
+async def test_batteries_not_recorded(recorder_mock, hass: HomeAssistant) -> None:
+    """The batteries list can exceed the recorder's attribute limit: it stays out of the database."""
+    from homeassistant.components.recorder.history import get_significant_states
+    from pytest_homeassistant_custom_component.components.recorder.common import async_wait_recording_done
+
+    start = dt_util.utcnow()
+    add_battery(hass, "Door", "15")
+    await _setup(hass)
+    assert _batteries(hass)
+    await async_wait_recording_done(hass)
+
+    states = await recorder_mock.async_add_executor_job(get_significant_states, hass, start, None, [LOW])
+    recorded = states[LOW][-1]
+    assert "batteries" not in recorded.attributes
+    assert recorded.attributes["threshold"] == 20

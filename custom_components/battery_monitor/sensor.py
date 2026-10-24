@@ -32,6 +32,8 @@ class LowBatteriesSensor(BatteryMonitorEntity, SensorEntity):
     """Number of batteries below the threshold; every monitored battery in the attributes."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
+    # The list holds every battery and changes with any of them: keep it out of the recorder.
+    _unrecorded_attributes = frozenset({"batteries"})
 
     @property
     def native_value(self) -> int:

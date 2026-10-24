@@ -143,7 +143,8 @@ class BatteryMonitorCard extends HTMLElement {
       (id) => id.startsWith('button.') && device && this._hass.entities?.[id]?.device_id === device,
     );
 
-    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, button]);
+    // The current hour too: "low for X h" is computed from the clock, while below_since doesn't change.
+    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, button, Math.floor(Date.now() / 3600000)]);
     if (sig === this._sig) return;
     this._sig = sig;
 
