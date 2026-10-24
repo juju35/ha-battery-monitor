@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
 from homeassistant.core import HomeAssistant, State
@@ -54,6 +55,12 @@ async def _setup(hass: HomeAssistant, **options) -> MockConfigEntry:
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     return entry
+
+
+def _resources(hass: HomeAssistant):
+    """The Lovelace resources collection: hass.data["lovelace"] is a dict before 2025.2, a dataclass after."""
+    lovelace = hass.data["lovelace"]
+    return lovelace["resources"] if isinstance(lovelace, dict) else lovelace.resources
 
 
 def _batteries(hass: HomeAssistant) -> list[dict]:
@@ -385,7 +392,7 @@ async def test_registry_changes_refresh_the_list(hass: HomeAssistant) -> None:
 async def test_card_resource_back_after_remove_and_add(hass: HomeAssistant) -> None:
     """Removing the entry drops the card resource; adding it again without a restart brings it back."""
     assert await async_setup_component(hass, "lovelace", {})
-    resources = hass.data["lovelace"].resources
+    resources = _resources(hass)
     entry = await _setup(hass)
 
     def card_urls() -> list[str]:
@@ -399,3 +406,32 @@ async def test_card_resource_back_after_remove_and_add(hass: HomeAssistant) -> N
 
     await _setup(hass)
     assert len(card_urls()) == 1
+
+
+@pytest.mark.parametrize("key", ["mode", "resource_mode"])
+async def test_card_resource_with_lovelace_data_variants(hass: HomeAssistant, key: str) -> None:
+    """Before 2025.2 hass.data["lovelace"] is a dict, and 2025.2-2025.3 call the field `mode`, not `resource_mode`."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = _resources(hass)
+    hass.data["lovelace"] = {key: "storage", "resources": resources, "dashboards": {}}
+    entry = await _setup(hass)
+
+    def card_urls() -> list[str]:
+        return [i["url"] for i in resources.async_items() if i["url"].split("?")[0] == CARD_URL]
+
+    assert len(card_urls()) == 1
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert card_urls() == []
+
+
+async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant) -> None:
+    """Resources in YAML mode are not edited (the card is loaded on every page instead)."""
+    from homeassistant.components.lovelace.resources import ResourceYAMLCollection
+
+    assert await async_setup_component(hass, "lovelace", {})
+    hass.data["lovelace"] = {"mode": "yaml", "resources": ResourceYAMLCollection([]), "dashboards": {}}
+    with patch("custom_components.battery_monitor.add_extra_js_url") as add_js:
+        await _setup(hass)
+        await hass.async_block_till_done()
+    add_js.assert_called_once()
