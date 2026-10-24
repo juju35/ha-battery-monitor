@@ -34,6 +34,8 @@ const BM_I18N = {
     ed_hide_when_ok_helper: 'The card only appears when a battery is below the threshold or unavailable',
     ed_notify_button: '“Notify now” button',
     ed_notify_button_helper: 'Sends the low-battery notification from the header',
+    ed_language: 'Language',
+    ed_language_helper: 'Leave empty to follow Home Assistant',
   },
   fr: {
     title: 'Batteries',
@@ -62,6 +64,8 @@ const BM_I18N = {
     ed_hide_when_ok_helper: 'La carte n’apparaît que si une batterie est sous le seuil ou indisponible',
     ed_notify_button: 'Bouton « Notifier maintenant »',
     ed_notify_button_helper: 'Envoie la notification des batteries faibles depuis l’en-tête',
+    ed_language: 'Langue',
+    ed_language_helper: 'Laisser vide pour suivre Home Assistant',
   },
 };
 
@@ -125,10 +129,25 @@ class BatteryMonitorCard extends HTMLElement {
     return this._t(key, { d: h < 48 ? this._t('hours', { n: Math.floor(h) }) : this._t('days', { n: Math.floor(h / 24) }) });
   }
 
+  // The sensor and the "Notify now" button of its device. Both come from the entity registry: they are looked up
+  // again only when hass.entities changes (entities added, removed or edited), not on every state update.
+  _lookup() {
+    const registry = this._hass.entities;
+    const configured = this._config.entity;
+    if (this._found && this._found.registry === registry && this._found.configured === configured) return this._found;
+    const entity = configured || bmFindEntity(this._hass);
+    const device = entity && registry?.[entity]?.device_id;
+    const button = device
+      ? Object.keys(registry).find((id) => id.startsWith('button.') && registry[id].device_id === device)
+      : undefined;
+    this._found = { registry, configured, entity, button };
+    return this._found;
+  }
+
   _render() {
     if (!this._config || !this._hass || !this.shadowRoot) return;
     const c = this._config;
-    const entity = c.entity || bmFindEntity(this._hass);
+    const { entity, button } = this._lookup();
     const st = entity && this._hass.states[entity];
     const all = st?.attributes.batteries || [];
     const low = all.filter((b) => b.low);
@@ -137,11 +156,6 @@ class BatteryMonitorCard extends HTMLElement {
     const due = all.filter((b) => b.due);
     const shown = c.only_low ? all.filter((b) => b.low || b.unavailable) : all;
     this._shown = shown.length;
-    // The button of the same device, to notify now.
-    const device = entity && this._hass.entities?.[entity]?.device_id;
-    const button = Object.keys(this._hass.states).find(
-      (id) => id.startsWith('button.') && device && this._hass.entities?.[id]?.device_id === device,
-    );
 
     // The current hour too: "low for X h" is computed from the clock, while below_since doesn't change.
     const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, button, Math.floor(Date.now() / 3600000)]);
@@ -277,7 +291,7 @@ class BatteryMonitorCard extends HTMLElement {
 }
 
 // ── Editor ───────────────────────────────────────────────────────────────────
-const BM_HELPERS = ['entity', 'title', 'only_low', 'hide_when_ok', 'notify_button'];
+const BM_HELPERS = ['entity', 'title', 'only_low', 'hide_when_ok', 'notify_button', 'language'];
 
 class BatteryMonitorCardEditor extends HTMLElement {
   setConfig(config) {
@@ -292,11 +306,12 @@ class BatteryMonitorCardEditor extends HTMLElement {
 
   _update() {
     if (!this._hass || !this._config) return;
-    const lang = bmLang(this._hass, this._config);
     if (!this._form) {
       this._form = document.createElement('ha-form');
-      this._form.computeLabel = (s) => bmT(lang, `ed_${s.name}`);
-      this._form.computeHelper = (s) => (BM_HELPERS.includes(s.name) ? bmT(lang, `ed_${s.name}_helper`) : undefined);
+      // The language is read at each call: changing the language option translates the labels at once.
+      const t = (key) => bmT(bmLang(this._hass, this._config), key);
+      this._form.computeLabel = (s) => t(`ed_${s.name}`);
+      this._form.computeHelper = (s) => (BM_HELPERS.includes(s.name) ? t(`ed_${s.name}_helper`) : undefined);
       this._form.addEventListener('value-changed', (ev) => {
         const config = { ...ev.detail.value };
         // Options left at their default are not written to the YAML.
@@ -316,6 +331,18 @@ class BatteryMonitorCardEditor extends HTMLElement {
       { name: 'only_low', selector: { boolean: {} } },
       { name: 'hide_when_ok', selector: { boolean: {} } },
       { name: 'notify_button', selector: { boolean: {} } },
+      {
+        name: 'language',
+        selector: {
+          select: {
+            mode: 'dropdown',
+            options: [
+              { value: 'en', label: 'English' },
+              { value: 'fr', label: 'Français' },
+            ],
+          },
+        },
+      },
     ];
   }
 }
