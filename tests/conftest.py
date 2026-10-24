@@ -29,8 +29,12 @@ def add_battery(
     area: str | None = None,
 ) -> str:
     """A battery entity of `platform`, on a device named `device` (or `name`), placed in `area`."""
-    entry = MockConfigEntry(domain=platform)
-    entry.add_to_hass(hass)
+    # One config entry per platform: since 2026.8 a device belongs to a single config entry, so the
+    # same identifiers under another entry would make another device.
+    entry = next(iter(hass.config_entries.async_entries(platform)), None)
+    if entry is None:
+        entry = MockConfigEntry(domain=platform)
+        entry.add_to_hass(hass)
     devices = dr.async_get(hass)
     dev = devices.async_get_or_create(
         config_entry_id=entry.entry_id,

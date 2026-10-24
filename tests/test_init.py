@@ -384,7 +384,8 @@ async def test_registry_changes_refresh_the_list(hass: HomeAssistant) -> None:
     from homeassistant.helpers import area_registry as ar
 
     area = ar.async_get(hass).async_get_or_create("Hall")
-    entities.async_update_entity(door, area_id=area.id)
+    # 2026.10+ refuses an area of its own to an entity without a name of its own.
+    entities.async_update_entity(door, area_id=area.id, name="Door battery")
     await hass.async_block_till_done()
     assert _batteries(hass)[0]["area"] == "Hall"
 
