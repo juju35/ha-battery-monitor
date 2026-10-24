@@ -203,9 +203,11 @@ body {{ margin: 0; padding: 16px; background: var(--primary-background-color);
 def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or None)
-        page = browser.new_page(device_scale_factor=2, viewport={"width": 1000, "height": 1600})
-        page.clock.set_fixed_time(NOW)
         for shot in SHOTS:
+            # A new page per capture: the card's top-level declarations would clash in a reused page.
+            page = browser.new_page(device_scale_factor=2, viewport={"width": 1000, "height": 1600})
+            page.on("pageerror", lambda err: print(f"page error: {err}"))
+            page.clock.set_fixed_time(NOW)
             lang = "fr" if shot["theme"] == "dark" else "en"
             page.set_content(page_html(shot["theme"]))
             page.add_script_tag(content=HA_ELEMENTS)
@@ -223,6 +225,7 @@ def main():
             path = ROOT / "screenshots" / f"{shot['file']}.png"
             page.locator("battery-monitor-card").screenshot(path=str(path), animations="disabled")
             print(path.relative_to(ROOT))
+            page.close()
         browser.close()
 
 

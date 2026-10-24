@@ -24,11 +24,13 @@ custom_components/battery_monitor/
 - *Due*: alert for at least `duration` hours. Only due batteries are notified on schedule; the button and the action (`manual=True`) send every alert, or a *none* message. Title *low batteries*, or *batteries to check* when one is unavailable.
 - Notifications at `morning_time` and `evening_time` (local time), from the button and from the `battery_monitor.notify` action: persistent notification id `battery_monitor_low` (replaced; dismissed when nothing is due) + each `notify.*` action. Texts in translations `exceptions.*` (rendered with `str.format`). A failing notifier is logged and doesn't stop the others.
 - The list is rebuilt on every battery state change and every 10 minutes (durations move on without state changes). Sorted alerts first: lowest level, low binary sensors, then unavailable.
-- The card is served at `/battery_monitor/battery-monitor-card.js` and added to the dashboard resources (storage mode) or loaded with `add_extra_js_url` (YAML mode); removed with the entry.
+- The card is served at `/battery_monitor/battery-monitor-card.js` and added to the dashboard resources (storage mode) or loaded with `add_extra_js_url` (YAML mode); removed with the entry. `_storage_resources()` reads `hass.data["lovelace"]` as a dict (before 2025.2) or a dataclass (`mode`, then `resource_mode` from 2025.4).
+- Card lookup (`_lookup`): the registry part (integration sensors, the device's button) is cached per `hass.entities` object, never when empty; the sensor is picked from the states at each render (the one with a `batteries` list), so a sensor restored or missing at the first render is found when its state arrives.
+- Minimum Home Assistant 2024.12.0 (`OptionsFlow.config_entry`); CI also runs the tests on it (`pytest-min-ha`).
 
 ## Release
 Bump the version in `manifest.json`, `const.py` (`VERSION`) and the card (`BATTERY_MONITOR_CARD_VERSION`), add its CHANGELOG.md section; pushing to main publishes `vX.Y.Z` with `battery_monitor.zip` when that tag doesn't exist yet. Rerun notes with the "Update release notes" workflow (input `tag`).
 
 ## Tests
-`pip install -r requirements_test.txt && pytest` — batteries are registry entities on mock devices (`tests/conftest.py`), notify actions are mocked, time is moved with `freezer`.
+`pip install -r requirements_test.txt && pytest` — batteries are registry entities on mock devices (`tests/conftest.py`), notify actions are mocked, time is moved with `freezer`. Card: `node --test test/*.test.mjs` (the card file is evaluated in a `vm` context with stubs).
 Screenshots: `python scripts/screenshots.py` (Playwright, mock batteries, light EN / dark FR).

@@ -40,3 +40,38 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+  pytest-min-ha:
+    name: Tests (minimum Home Assistant, 2024.12.0)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.13"
+
+      # 0.13.190 pins homeassistant==2024.12.0, the minimum in hacs.json, which pins this frontend.
+      # Its cleanup check predates the shutdown thread of pycares 4.10+, which it would report as a leaked thread.
+      - name: Install dependencies
+        run: pip install pytest-homeassistant-custom-component==0.13.190 home-assistant-frontend==20241127.4 "pycares<4.10"
+
+      - name: Run tests
+        run: pytest
+
+  card-tests:
+    name: Card tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Run card tests
+        run: node --test test/*.test.mjs
