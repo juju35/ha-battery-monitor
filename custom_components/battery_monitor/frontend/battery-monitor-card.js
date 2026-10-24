@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.1.0';
+var BATTERY_MONITOR_CARD_VERSION = '1.2.0';
 
 const BM_I18N = {
   en: {
@@ -221,18 +221,18 @@ class BatteryMonitorCard extends HTMLElement {
         --bm-alert: var(--error-color, #db4437);
         --bm-na: var(--disabled-color, #9e9e9e);
       }
-      ha-card { padding: 10px; overflow: hidden; }
+      ha-card { padding: 12px; overflow: hidden; }
       ha-card.lvl-ok    { --c: var(--bm-ok); }
       ha-card.lvl-warn  { --c: var(--bm-warn); }
       ha-card.lvl-alert { --c: var(--bm-alert); }
 
-      .head { display: flex; align-items: center; gap: 8px; }
-      .badge { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+      .head { display: flex; align-items: center; gap: 10px; }
+      .badge { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
-      .badge ha-icon { --mdc-icon-size: 18px; }
-      .title { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--primary-text-color);
+      .badge ha-icon { --mdc-icon-size: 20px; }
+      .title { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: var(--primary-text-color);
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .pill { flex: none; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+      .pill { flex: none; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
               color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
       .notify { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
                 display: grid; place-items: center; color: var(--secondary-text-color); }
@@ -240,13 +240,13 @@ class BatteryMonitorCard extends HTMLElement {
       .notify:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .notify ha-icon { --mdc-icon-size: 16px; }
 
-      .list { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+      .list { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
       .row { --t: var(--bm-ok); all: unset; box-sizing: border-box; cursor: pointer; min-width: 0;
              display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 5px; border-radius: 10px;
              background: var(--secondary-background-color, transparent); border: 1px solid transparent; }
       .row.warn  { --t: var(--bm-warn); }
       .row.alert { --t: var(--bm-alert); }
-      .row.na .lvl { font-weight: 500; }
+      .row.na .lvl { font-weight: 400; }
       .row.warn, .row.alert {
         background: color-mix(in srgb, var(--t) 8%, var(--secondary-background-color, transparent));
         border-color: color-mix(in srgb, var(--t) 22%, transparent); }
@@ -263,7 +263,7 @@ class BatteryMonitorCard extends HTMLElement {
              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .row.warn .sub, .row.alert .sub { color: var(--t); }
       .lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
-             font-size: 12px; font-weight: 600; color: var(--primary-text-color); font-variant-numeric: tabular-nums; }
+             font-size: 12px; font-weight: 500; color: var(--primary-text-color); font-variant-numeric: tabular-nums; }
       .row:not(.ok) .lvl { color: var(--t); }
       .track { width: 44px; height: 4px; border-radius: 2px; overflow: hidden;
                background: color-mix(in srgb, var(--secondary-text-color) 22%, transparent); }

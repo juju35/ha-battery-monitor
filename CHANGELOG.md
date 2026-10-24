@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+### Changes
+- Card: same compact header as the other ha-* cards (36 px icon, 16 px title, 12 px card padding); medium weight for the title, pill and levels.
+
 ## 1.1.0
 
 ### What's new
