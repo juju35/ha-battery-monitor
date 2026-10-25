@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -409,12 +410,15 @@ async def test_card_resource_back_after_remove_and_add(hass: HomeAssistant) -> N
     assert len(card_urls()) == 1
 
 
-@pytest.mark.parametrize("key", ["mode", "resource_mode"])
-async def test_card_resource_with_lovelace_data_variants(hass: HomeAssistant, key: str) -> None:
-    """Before 2025.2 hass.data["lovelace"] is a dict, and 2025.2-2025.3 call the field `mode`, not `resource_mode`."""
+@pytest.mark.parametrize(
+    ("key", "container"),
+    [("mode", dict), ("resource_mode", dict), ("mode", SimpleNamespace), ("resource_mode", SimpleNamespace)],
+)
+async def test_card_resource_with_lovelace_data_variants(hass: HomeAssistant, key: str, container: type) -> None:
+    """hass.data["lovelace"]: a dict before 2025.2, then a dataclass with `mode`, renamed `resource_mode` in 2026.2."""
     assert await async_setup_component(hass, "lovelace", {})
     resources = _resources(hass)
-    hass.data["lovelace"] = {key: "storage", "resources": resources, "dashboards": {}}
+    hass.data["lovelace"] = container(**{key: "storage", "resources": resources, "dashboards": {}})
     entry = await _setup(hass)
 
     def card_urls() -> list[str]:

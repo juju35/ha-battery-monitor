@@ -78,7 +78,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 def _storage_resources(hass: HomeAssistant) -> Any | None:
     """Return the dashboard resources collection when it is editable from the UI.
 
-    hass.data["lovelace"] is a dict before 2025.2, then a dataclass whose `mode` field became `resource_mode` in 2025.4.
+    hass.data["lovelace"] is a dict before 2025.2, then a dataclass whose `mode` field became `resource_mode` in 2026.2.
     """
     lovelace = hass.data.get("lovelace")
     if isinstance(lovelace, dict):
