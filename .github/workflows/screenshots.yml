@@ -30,8 +30,18 @@ jobs:
           python-version: "3.13"
       - run: pip install playwright
       - run: playwright install --with-deps chromium
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-roboto
-      - run: python scripts/screenshots.py
+      # ffmpeg ships on ubuntu-latest; this only adds Roboto for faithful text, so it must not stall the job.
+      - name: Install Roboto font (best effort)
+        continue-on-error: true
+        timeout-minutes: 3
+        run: sudo apt-get update && sudo apt-get install -y fonts-roboto
+      - name: Render screenshots
+        run: |
+          set -o pipefail
+          python scripts/screenshots.py 2>&1 | tee /tmp/screenshots.log || {
+            echo "::error::screenshots failed: $(tail -c 1200 /tmp/screenshots.log | tr -d '\r' | tr '\n' ' ')"
+            exit 1
+          }
       - name: Commit refreshed screenshots
         run: |
           if [ -z "$(git status --porcelain screenshots)" ]; then
