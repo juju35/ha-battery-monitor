@@ -30,11 +30,16 @@ jobs:
           python-version: "3.13"
       - run: pip install playwright
       - run: playwright install --with-deps chromium
-      # ffmpeg ships on ubuntu-latest; this only adds Roboto for faithful text, so it must not stall the job.
-      - name: Install Roboto font (best effort)
-        continue-on-error: true
-        timeout-minutes: 3
-        run: sudo apt-get update && sudo apt-get install -y fonts-roboto
+      # ffmpeg is required to assemble the GIFs and is not preinstalled; Roboto keeps text faithful. Retry to ride
+      # out a flaky apt mirror, cap the wait so it can never hang the job, and fail loudly if ffmpeg is still missing.
+      - name: Install ffmpeg and Roboto
+        timeout-minutes: 8
+        run: |
+          for i in 1 2 3; do
+            sudo apt-get update && sudo apt-get install -y ffmpeg fonts-roboto && break
+            echo "apt attempt $i failed, retrying in 10s"; sleep 10
+          done
+          ffmpeg -version > /dev/null
       - name: Render screenshots
         run: |
           set -o pipefail
