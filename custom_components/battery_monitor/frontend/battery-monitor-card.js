@@ -552,9 +552,9 @@ class BatteryMonitorCard extends HTMLElement {
       ha-card.lvl-alert { --c: var(--bm-alert); }
 
       .head { display: flex; align-items: center; gap: 10px; }
-      .badge { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+      .badge { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
-      .badge ha-icon { --mdc-icon-size: 20px; }
+      .badge ha-icon { --mdc-icon-size: 24px; }
       .title { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: var(--primary-text-color);
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .pill { flex: none; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;

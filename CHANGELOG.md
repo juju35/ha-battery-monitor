@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+- Card header: the status badge is 40 px with a 24 px icon (was 36 px / 20 px), like the other ha-* cards; same in the full screen view.
+
 ## 1.6.1
 
 ### Fixes
