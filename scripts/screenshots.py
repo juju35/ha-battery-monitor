@@ -1,7 +1,8 @@
 """Render the Battery Monitor card with mock batteries and save the README screenshots.
 
 Usage: python scripts/screenshots.py  (needs `pip install playwright` and `playwright install chromium`)
-The clock is frozen so the "low for" durations stay the same. Light screenshots are in English, dark ones in French.
+CHROMIUM_PATH=/path/to/chrome to use another browser. The clock is frozen so the "low for" durations stay the same.
+Every capture keeps a 16 px frame of the theme background around the card or the full screen view.
 """
 
 import json
@@ -13,12 +14,12 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 CARD_JS = (ROOT / "custom_components/battery_monitor/frontend/battery-monitor-card.js").read_text()
 NOW = "2026-10-24T09:00:00+02:00"
-WIDTH = 388
+WIDTH = 460
 
 THEMES = {
     "light": {
-        "--primary-background-color": "#f4f4f4",
-        "--secondary-background-color": "#efefef",
+        "--primary-background-color": "#e8eaed",
+        "--secondary-background-color": "#ececec",
         "--card-background-color": "#ffffff",
         "--primary-text-color": "#212121",
         "--secondary-text-color": "#727272",
@@ -74,7 +75,7 @@ customElements.define("ha-card", class extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" }).innerHTML =
       "<style>:host{display:block;background:var(--card-background-color);border-radius:12px;" +
-      "box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--primary-text-color);overflow:hidden}</style><slot></slot>";
+      "border:1px solid var(--divider-color);color:var(--primary-text-color);overflow:hidden}</style><slot></slot>";
   }
 });
 customElements.define("ha-icon", class extends HTMLElement {
@@ -90,37 +91,13 @@ customElements.define("ha-icon", class extends HTMLElement {
 )
 
 # Mock batteries, already sorted the way the integration sends them (low first, lowest first, then unavailable).
-# (name en, name fr, area en, area fr, level, icon, low, due, unavailable, below_since)
+# (name, area, level, icon, low, due, unavailable, below_since)
 BATTERIES = [
-    (
-        "Front door",
-        "Porte d'entrée",
-        "Entrance",
-        "Entrée",
-        8,
-        "battery-10",
-        True,
-        True,
-        False,
-        "2026-10-21T07:00:00+02:00",
-    ),
-    (
-        "Kitchen leak sensor",
-        "Détecteur de fuite",
-        "Kitchen",
-        "Cuisine",
-        17,
-        "battery-20",
-        True,
-        False,
-        False,
-        "2026-10-24T01:00:00+02:00",
-    ),
+    ("Front door", "Entrance", 8, "battery-10", True, True, False, "2026-10-21T07:00:00+02:00"),
+    ("Kitchen leak sensor", "Kitchen", 17, "battery-20", True, False, False, "2026-10-24T01:00:00+02:00"),
     (
         "Smoke detector",
-        "Détecteur de fumée",
         "Hallway",
-        "Couloir",
         None,
         "battery-alert-variant-outline",
         True,
@@ -128,35 +105,13 @@ BATTERIES = [
         False,
         "2026-10-22T18:00:00+02:00",
     ),
-    (
-        "Motion sensor",
-        "Détecteur de mouvement",
-        "Garage",
-        "Garage",
-        None,
-        "battery-unknown",
-        False,
-        True,
-        True,
-        "2026-10-22T21:00:00+02:00",
-    ),
-    ("Remote", "Télécommande", "Living room", "Séjour", 34, "battery-30", False, False, False, None),
-    ("Garage door", "Porte du garage", "Garage", "Garage", 48, "battery-50", False, False, False, None),
-    (
-        "Bathroom leak sensor",
-        "Fuite salle de bain",
-        "Bathroom",
-        "Salle de bain",
-        55,
-        "battery-60",
-        False,
-        False,
-        False,
-        None,
-    ),
-    ("Smart lock", "Serrure", "Entrance", "Entrée", 64, "battery-60", False, False, False, None),
-    ("Window sensor", "Capteur de fenêtre", "Bedroom", "Chambre", 71, "battery-70", False, False, False, None),
-    ("Thermostat", "Thermostat", "Bedroom", "Chambre", 92, "battery-90", False, False, False, None),
+    ("Motion sensor", "Garage", None, "battery-unknown", False, True, True, "2026-10-22T21:00:00+02:00"),
+    ("Remote", "Living room", 34, "battery-30", False, False, False, None),
+    ("Garage door", "Garage", 48, "battery-50", False, False, False, None),
+    ("Bathroom leak sensor", "Bathroom", 55, "battery-60", False, False, False, None),
+    ("Smart lock", "Entrance", 64, "battery-60", False, False, False, None),
+    ("Window sensor", "Bedroom", 71, "battery-70", False, False, False, None),
+    ("Thermostat", "Bedroom", 92, "battery-90", False, False, False, None),
 ]
 
 # Battery types: from Battery Notes (attributes on the battery entity, or its "Battery type" sensor), or set in the
@@ -166,14 +121,13 @@ TYPE_SENSORS = {7: ("AA", 4)}
 CARD_TYPES = {2: "9V", 4: "2× AAA"}
 
 
-def mock_hass(lang):
-    fr = lang == "fr"
+def mock_hass():
     batteries = [
         {
             "entity_id": f"sensor.battery_{i}",
             "device_id": f"device_{i}",
-            "name": name_fr if fr else name_en,
-            "area": area_fr if fr else area_en,
+            "name": name,
+            "area": area,
             "level": level,
             "icon": f"mdi:{icon}",
             "low": low,
@@ -182,7 +136,7 @@ def mock_hass(lang):
             "unavailable": unavailable,
             "below_since": since,
         }
-        for i, (name_en, name_fr, area_en, area_fr, level, icon, low, due, unavailable, since) in enumerate(BATTERIES)
+        for i, (name, area, level, icon, low, due, unavailable, since) in enumerate(BATTERIES)
     ]
     sensor = "sensor.battery_monitor_low_batteries"
     button = "button.battery_monitor_notify_now"
@@ -213,8 +167,8 @@ def mock_hass(lang):
         "entities": entities,
         "devices": {},
         "areas": {},
-        "language": lang,
-        "locale": {"language": lang},
+        "language": "en",
+        "locale": {"language": "en"},
     }
 
 
@@ -227,7 +181,8 @@ SHOTS = [
     {"file": "card-low-dark", "theme": "dark", "config": {"only_low": True}},
 ]
 
-# The full screen view: on a desktop by room and by type, on a phone by room.
+# The full screen view: on a desktop by room and by type, on a phone by room and by type. The viewport is the size of
+# the view; the page adds the 16 px frame around it.
 POPUP_SHOTS = [
     {"file": "popup", "theme": "light", "view": "room", "viewport": (1600, 1000)},
     {"file": "popup-dark", "theme": "dark", "view": "type", "viewport": (1600, 1000)},
@@ -259,15 +214,26 @@ MOUNT = """([hass, config, view]) => {
 }"""
 
 
+# The full screen layer is fixed to the window: inset by 16 px, it gets the same frame as the card.
+FRAME_POPUP = """() => {
+    const host = document.body.lastElementChild;
+    const style = document.createElement("style");
+    style.textContent = ".backdrop { inset: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--divider-color); }";
+    host.shadowRoot.appendChild(style);
+    document.getElementById("root").style.visibility = "hidden";
+}"""
+
+
 def open_card(browser, shot, config, viewport, view=None):
     page = browser.new_page(device_scale_factor=2, viewport={"width": viewport[0], "height": viewport[1]})
-    page.on("pageerror", lambda err: print(f"page error: {err}"))
+    page.on("pageerror", lambda err, name=shot["file"]: print(f"{name}: page error: {err}"))
     page.clock.set_fixed_time(NOW)
-    lang = "fr" if shot["theme"] == "dark" else "en"
     page.set_content(page_html(shot["theme"]))
     page.add_script_tag(content=HA_ELEMENTS)
     page.add_script_tag(content=CARD_JS)
-    page.evaluate(MOUNT, [mock_hass(lang), config, view])
+    page.evaluate(MOUNT, [mock_hass(), config, view])
+    if view:
+        page.evaluate(FRAME_POPUP)
     page.wait_for_timeout(500 if view else 300)
     return page, ROOT / "screenshots" / f"{shot['file']}.png"
 
@@ -277,11 +243,15 @@ def main():
         browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or None)
         for shot in SHOTS:
             page, path = open_card(browser, shot, shot["config"], (1000, 1600))
-            page.locator("battery-monitor-card").screenshot(path=str(path), animations="disabled")
+            # The card with the 16 px page padding around it, on the theme background.
+            box = page.locator("#root").bounding_box()
+            clip = {"x": 0, "y": 0, "width": WIDTH + 32, "height": int(box["height"] + 0.999) + 32}
+            page.screenshot(path=str(path), clip=clip, animations="disabled")
             print(path.relative_to(ROOT))
             page.close()
         for shot in POPUP_SHOTS:
-            page, path = open_card(browser, shot, CARD_CONFIG, shot["viewport"], shot["view"])
+            width, height = shot["viewport"]
+            page, path = open_card(browser, shot, CARD_CONFIG, (width + 32, height + 32), shot["view"])
             page.screenshot(path=str(path), animations="disabled")
             print(path.relative_to(ROOT))
             page.close()

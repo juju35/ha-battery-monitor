@@ -155,7 +155,7 @@ battery_types:
 | ![card](screenshots/card.png) | ![low](screenshots/card-low.png) |
 | ![card dark](screenshots/card-dark.png) | ![low dark](screenshots/card-low-dark.png) |
 
-| Full screen, by room | Full screen, by battery type (French, dark) |
+| Full screen, by room | Full screen, by battery type (dark) |
 |---|---|
 | ![full screen by room](screenshots/popup.png) | ![full screen by type](screenshots/popup-dark.png) |
 | ![phone by room](screenshots/popup-phone.png) | ![phone by type](screenshots/popup-phone-type.png) |
