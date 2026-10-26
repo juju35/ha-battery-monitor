@@ -7,6 +7,8 @@ Every capture keeps a 16 px frame of the theme background around the card or the
 
 import json
 import os
+import subprocess
+import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -239,6 +241,34 @@ def open_card(browser, shot, config, viewport, view=None):
     return page, ROOT / "screenshots" / f"{shot['file']}.png"
 
 
+def animate(browser, shot, config, viewport, *, fps=20, seconds=3):
+    """Record the due-battery blink as a looping screenshots/<file>.gif (needs ffmpeg). Every animation is paused and
+    stepped frame by frame, so the GIF is identical whatever the machine's speed."""
+    page, _ = open_card(browser, shot, config, viewport)
+    page.wait_for_timeout(300)
+    box = page.locator("#root").bounding_box()
+    clip = {"x": 0, "y": 0, "width": WIDTH + 32, "height": int(box["height"] + 0.999) + 32}
+    frames = round(fps * seconds)
+    with tempfile.TemporaryDirectory() as frame_dir:
+        for i in range(frames):
+            page.evaluate(
+                "(t) => { for (const a of document.getAnimations()) { a.pause(); a.currentTime = t; } }",
+                (i * 1000) / fps,
+            )
+            page.screenshot(path=f"{frame_dir}/f{i:03d}.png", clip=clip)
+        page.close()
+        out = str(ROOT / "screenshots" / f"{shot['file']}.gif")
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-loglevel", "error", "-framerate", str(fps), "-i", f"{frame_dir}/f%03d.png",
+                "-vf", f"scale={clip['width']}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4",
+                "-loop", "0", out,
+            ],
+            check=True,
+        )
+    print(f"screenshots/{shot['file']}.gif")
+
+
 def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or None)
@@ -256,6 +286,7 @@ def main():
             page.screenshot(path=str(path), animations="disabled")
             print(path.relative_to(ROOT))
             page.close()
+        animate(browser, {"file": "due", "theme": "light"}, {}, (1000, 1600))
         browser.close()
 
 
