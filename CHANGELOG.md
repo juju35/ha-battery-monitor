@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.0
+
+### Fixes
+- Card full screen view: the group icon is now HTML-escaped like every other dynamic value. In the by-room view the icon comes from the Home Assistant area settings, so this closes a potential attribute injection (defence in depth).
+
 ## 1.7.0
 ### Changes
 - Card header: the status badge is 40 px with a 24 px icon (was 36 px / 20 px), like the other ha-* cards; same in the full screen view.
