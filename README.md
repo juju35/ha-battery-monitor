@@ -31,7 +31,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Two notifications a day**, at times you choose (09:00 and 19:00 by default), listing the low batteries with their room and level
 - **Persistent notification**, replaced each time and cleared when no battery is low any more, and the **notify actions** of your choice (mobile app…)
 - **Ignored batteries and integrations**: phones and tablets of the mobile app are left out by default
-- **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; red and blinking once notified, orange while low
+- **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; only the batteries needing attention are tinted: orange while low, red when unavailable or once notified (blinking once notified)
 - **Full screen view** from the card: every battery grouped **by room** or **by battery type** (CR2032, AA…), with what to buy for the ones to replace; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** sensor, **Notify now** button and `battery_monitor.notify` action
 - UI setup, no YAML; English and French

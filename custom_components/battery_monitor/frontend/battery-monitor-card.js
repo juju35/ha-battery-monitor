@@ -372,8 +372,9 @@ class BatteryMonitorCard extends HTMLElement {
 
   // One battery: `context` (its room, or its type) then how long it has needed attention, under its name.
   _row(b, context) {
-    // An unavailable battery is an alert too (often a dead one), shown with its own icon.
-    const kind = `${b.low || b.unavailable ? (b.due ? 'alert' : 'warn') : 'ok'}${b.unavailable ? ' na' : ''}`;
+    // A low battery is a warning; an unavailable one (often a dead one, shown with its own icon) or one due for
+    // replacement is an alert.
+    const kind = `${b.unavailable || b.due ? 'alert' : b.low ? 'warn' : 'ok'}${b.unavailable ? ' na' : ''}${b.due ? ' due' : ''}`;
     const value = b.unavailable ? this._t('unavailable') : b.level == null ? this._t('low') : `${b.level} %`;
     const since = b.below_since ? this._since(b.below_since, b.unavailable ? 'since_unavailable' : 'since') : null;
     const sub = [context, since].filter(Boolean).join(' · ');
@@ -531,7 +532,7 @@ class BatteryMonitorCard extends HTMLElement {
           </div>
           <div class="bar-top">
             <div class="tabs" role="group">${tab('room')}${tab('type')}</div>
-            <div class="replace"><span class="rlabel">${bmEsc(this._t('to_replace'))}</span>${buy || `<span class="none">${bmEsc(this._t('nothing_to_replace'))}</span>`}</div>
+            <div class="replace"><span class="rlabel"><ha-icon icon="mdi:cart-outline"></ha-icon>${bmEsc(this._t('to_replace'))}</span>${buy || `<span class="none">${bmEsc(this._t('nothing_to_replace'))}</span>`}</div>
           </div>
           <div class="groups">${groups}</div>
         </ha-card>
@@ -570,22 +571,22 @@ class BatteryMonitorCard extends HTMLElement {
       .full:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .full ha-icon { --mdc-icon-size: 16px; }
 
-      .list { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+      .list { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
       .row { --t: var(--bm-ok); all: unset; box-sizing: border-box; cursor: pointer; min-width: 0;
              display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 5px; border-radius: 10px;
-             background: var(--secondary-background-color, transparent); border: 1px solid transparent; }
+             background: var(--secondary-background-color, rgba(127,127,127,.08)); }
       .row.warn  { --t: var(--bm-warn); }
       .row.alert { --t: var(--bm-alert); }
       .row.na .lvl { font-weight: 400; }
-      .row.warn, .row.alert {
-        background: color-mix(in srgb, var(--t) 8%, var(--secondary-background-color, transparent));
-        border-color: color-mix(in srgb, var(--t) 22%, transparent); }
-      .row:hover { background: color-mix(in srgb, var(--t) 13%, var(--secondary-background-color, transparent)); }
+      /* Only the rows needing attention are tinted; an OK row keeps the neutral tile, its colour on the icon and the bar */
+      .row.warn, .row.alert { background: color-mix(in srgb, var(--t) 12%, var(--secondary-background-color, transparent)); }
+      .row.ok:hover { background: color-mix(in srgb, var(--secondary-text-color) 10%, var(--secondary-background-color, transparent)); }
+      .row.warn:hover, .row.alert:hover { background: color-mix(in srgb, var(--t) 18%, var(--secondary-background-color, transparent)); }
       .row:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .ic { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
             color: var(--t); background: color-mix(in srgb, var(--t) 18%, transparent); }
       .ic ha-icon { --mdc-icon-size: 16px; }
-      .row.alert .ic { animation: bm-blink 1.5s ease-in-out infinite; }
+      .row.due .ic { animation: bm-blink 1.5s ease-in-out infinite; }
       .txt { flex: 1; display: flex; flex-direction: column; min-width: 0; }
       .name { font-size: 13px; font-weight: 500; line-height: 1.2; color: var(--primary-text-color);
               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -600,7 +601,7 @@ class BatteryMonitorCard extends HTMLElement {
       .bar { display: block; height: 100%; border-radius: 2px; background: var(--t); }
 
       @keyframes bm-blink { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
-      @media (prefers-reduced-motion: reduce) { .row.alert .ic { animation: none; } }
+      @media (prefers-reduced-motion: reduce) { .row.due .ic { animation: none; } }
     `;
   }
 
@@ -629,7 +630,9 @@ class BatteryMonitorCard extends HTMLElement {
       .tab { all: unset; cursor: pointer; padding: 6px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--secondary-text-color); }
       .tab.on { background: var(--card-background-color, #fff); color: var(--primary-text-color); box-shadow: 0 1px 3px rgba(0,0,0,.15); }
       .replace { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--secondary-text-color); }
-      .rlabel { font-weight: 500; text-transform: uppercase; letter-spacing: .04em; font-size: 11px; }
+      .rlabel { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; text-transform: uppercase;
+                letter-spacing: .04em; color: var(--secondary-text-color); }
+      .rlabel ha-icon { --mdc-icon-size: 16px; }
       .buy { padding: 2px 9px; border-radius: 999px; color: var(--primary-text-color);
              background: color-mix(in srgb, var(--bm-warn) 16%, transparent); }
       .buy b { color: var(--bm-warn); }
