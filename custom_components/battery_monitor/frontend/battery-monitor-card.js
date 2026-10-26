@@ -507,7 +507,7 @@ class BatteryMonitorCard extends HTMLElement {
         const alerts = g.items.filter(({ b }) => b.low || b.unavailable).length;
         return `
         <section class="group${alerts ? ' attention' : ''}">
-          <div class="ghead"><ha-icon icon="${g.icon}"></ha-icon><span class="gname">${bmEsc(g.name)}</span>
+          <div class="ghead"><ha-icon icon="${bmEsc(g.icon)}"></ha-icon><span class="gname">${bmEsc(g.name)}</span>
             ${alerts ? `<span class="gchip">${bmEsc(this._t('to_check', { n: alerts }))}</span>` : ''}
             <span class="gcount">${bmEsc(this._groupCount(g))}</span></div>
           ${g.hint ? `<div class="ghint">${bmEsc(g.hint)}</div>` : ''}
