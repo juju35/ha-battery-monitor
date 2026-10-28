@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.8.1
+
+### Fixes
+- A battery that was already low before a Home Assistant restart keeps its "low since" time even when its entity shows up late (ZHA, Z-Wave…): the notification is no longer delayed by the full duration again.
+- The same morning and evening notification time now sends one notification instead of two.
+- Card: a battery low for less than an hour reads "< 1 h" instead of "0 h".
+- Card full screen view: a refresh keeps the scroll position, and moving the card while editing the dashboard no longer closes it.
+
+### Changes
+- Less work and fewer disk writes: non-battery state changes are ignored right away, and the stored "low since" times are only written when they change.
+- Card and editor: no rebuild when nothing they show has changed.
+
+### Maintenance
+- README: due-battery animation; CI and lint fixes.
+
 ## 1.8.0
 
 ### Fixes
