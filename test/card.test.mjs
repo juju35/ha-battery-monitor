@@ -112,7 +112,21 @@ test('bmEsc escapes HTML', () => {
 test('bmLang: card option, then Home Assistant, then English', () => {
   assert.equal(bmLang({ locale: { language: 'fr-FR' } }, {}), 'fr');
   assert.equal(bmLang({ locale: { language: 'fr' } }, { language: 'en' }), 'en');
-  assert.equal(bmLang({ language: 'de' }, {}), 'en');
+  assert.equal(bmLang({ language: 'de' }, {}), 'de');
+  assert.equal(bmLang({ locale: { language: 'es-ES' } }, {}), 'es');
+  assert.equal(bmLang({ language: 'ja' }, {}), 'en');
+});
+
+test('I18N parity: every language has exactly the English keys and placeholders', () => {
+  const en = BM_I18N.en;
+  const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+  assert.deepEqual(Object.keys(BM_I18N).sort(), ['de', 'en', 'es', 'fr']);
+  for (const [lang, strings] of Object.entries(BM_I18N)) {
+    assert.deepEqual(Object.keys(strings).sort(), Object.keys(en).sort(), `${lang}: keys`);
+    for (const key of Object.keys(en)) {
+      assert.deepEqual(placeholders(strings[key]), placeholders(en[key]), `${lang}.${key}: placeholders`);
+    }
+  }
 });
 
 test('the sensor restored without its battery list at the first render is found once its state arrives', () => {

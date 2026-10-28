@@ -1,0 +1,129 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Notifica dos veces al día los dispositivos cuya batería ha seguido baja.",
+        "data": {
+          "threshold": "Umbral de batería baja",
+          "duration": "Baja desde al menos",
+          "morning_time": "Notificación de la mañana",
+          "evening_time": "Notificación de la tarde",
+          "notify_services": "Acciones de notificación",
+          "ignored_entities": "Baterías ignoradas",
+          "ignored_integrations": "Integraciones ignoradas"
+        },
+        "data_description": {
+          "threshold": "Una batería está baja por debajo de este nivel.",
+          "duration": "Horas que una batería debe permanecer por debajo del umbral antes de notificarse (0: en la próxima notificación).",
+          "morning_time": "Primera de las dos notificaciones diarias.",
+          "evening_time": "Segunda de las dos notificaciones diarias.",
+          "notify_services": "Enviar las notificaciones con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
+          "ignored_entities": "Baterías que nunca se supervisan.",
+          "ignored_integrations": "Integraciones cuyas baterías nunca se supervisan (teléfonos y tabletas de la aplicación móvil por defecto). Escribe un dominio para añadir una que aún no esté configurada."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor ya está configurado.",
+      "single_instance_allowed": "Battery Monitor ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Battery Monitor",
+        "data": {
+          "threshold": "Umbral de batería baja",
+          "duration": "Baja desde al menos",
+          "morning_time": "Notificación de la mañana",
+          "evening_time": "Notificación de la tarde",
+          "notify_services": "Acciones de notificación",
+          "ignored_entities": "Baterías ignoradas",
+          "ignored_integrations": "Integraciones ignoradas"
+        },
+        "data_description": {
+          "threshold": "Una batería está baja por debajo de este nivel.",
+          "duration": "Horas que una batería debe permanecer por debajo del umbral antes de notificarse (0: en la próxima notificación).",
+          "morning_time": "Primera de las dos notificaciones diarias.",
+          "evening_time": "Segunda de las dos notificaciones diarias.",
+          "notify_services": "Enviar las notificaciones con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
+          "ignored_entities": "Baterías que nunca se supervisan.",
+          "ignored_integrations": "Integraciones cuyas baterías nunca se supervisan (teléfonos y tabletas de la aplicación móvil por defecto). Escribe un dominio para añadir una que aún no esté configurada."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Notificar ahora"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Baterías bajas",
+        "state_attributes": {
+          "unavailable": {
+            "name": "No disponibles"
+          },
+          "due": {
+            "name": "Pendientes"
+          },
+          "threshold": {
+            "name": "Umbral"
+          },
+          "duration": {
+            "name": "Duración"
+          },
+          "batteries": {
+            "name": "Baterías"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Última notificación",
+        "state_attributes": {
+          "notified": {
+            "name": "Baterías notificadas"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Notificar baterías bajas",
+      "description": "Envía la notificación ahora, con todas las baterías por debajo del umbral o no disponibles sea cual sea la duración, o un mensaje indicando que ninguna requiere atención."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 batería baja"
+    },
+    "title_many": {
+      "message": "{count} baterías bajas"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: baja"
+    },
+    "none_title": {
+      "message": "Ninguna batería que revisar"
+    },
+    "none": {
+      "message": "Todas las baterías están por encima del {threshold} % y disponibles."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: no disponible"
+    },
+    "check_one": {
+      "message": "1 batería que revisar"
+    },
+    "check_many": {
+      "message": "{count} baterías que revisar"
+    }
+  }
+}

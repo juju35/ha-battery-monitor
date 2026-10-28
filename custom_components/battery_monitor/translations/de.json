@@ -1,0 +1,129 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Meldet zweimal am Tag die Geräte, deren Batterie schwach geblieben ist.",
+        "data": {
+          "threshold": "Schwelle für schwache Batterie",
+          "duration": "Schwach seit mindestens",
+          "morning_time": "Morgendliche Benachrichtigung",
+          "evening_time": "Abendliche Benachrichtigung",
+          "notify_services": "Benachrichtigungsaktionen",
+          "ignored_entities": "Ignorierte Batterien",
+          "ignored_integrations": "Ignorierte Integrationen"
+        },
+        "data_description": {
+          "threshold": "Unter diesem Wert gilt eine Batterie als schwach.",
+          "duration": "Stunden, die eine Batterie unter der Schwelle bleiben muss, bevor sie gemeldet wird (0: bei der nächsten Benachrichtigung).",
+          "morning_time": "Erste der beiden täglichen Benachrichtigungen.",
+          "evening_time": "Zweite der beiden täglichen Benachrichtigungen.",
+          "notify_services": "Die Benachrichtigungen mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt.",
+          "ignored_entities": "Batterien, die nie überwacht werden.",
+          "ignored_integrations": "Integrationen, deren Batterien nie überwacht werden (standardmäßig Smartphones und Tablets der Companion-App). Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor ist bereits eingerichtet.",
+      "single_instance_allowed": "Battery Monitor ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen von Battery Monitor",
+        "data": {
+          "threshold": "Schwelle für schwache Batterie",
+          "duration": "Schwach seit mindestens",
+          "morning_time": "Morgendliche Benachrichtigung",
+          "evening_time": "Abendliche Benachrichtigung",
+          "notify_services": "Benachrichtigungsaktionen",
+          "ignored_entities": "Ignorierte Batterien",
+          "ignored_integrations": "Ignorierte Integrationen"
+        },
+        "data_description": {
+          "threshold": "Unter diesem Wert gilt eine Batterie als schwach.",
+          "duration": "Stunden, die eine Batterie unter der Schwelle bleiben muss, bevor sie gemeldet wird (0: bei der nächsten Benachrichtigung).",
+          "morning_time": "Erste der beiden täglichen Benachrichtigungen.",
+          "evening_time": "Zweite der beiden täglichen Benachrichtigungen.",
+          "notify_services": "Die Benachrichtigungen mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt.",
+          "ignored_entities": "Batterien, die nie überwacht werden.",
+          "ignored_integrations": "Integrationen, deren Batterien nie überwacht werden (standardmäßig Smartphones und Tablets der Companion-App). Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Jetzt benachrichtigen"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Schwache Batterien",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Nicht verfügbar"
+          },
+          "due": {
+            "name": "Fällig"
+          },
+          "threshold": {
+            "name": "Schwelle"
+          },
+          "duration": {
+            "name": "Dauer"
+          },
+          "batteries": {
+            "name": "Batterien"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Letzte Benachrichtigung",
+        "state_attributes": {
+          "notified": {
+            "name": "Gemeldete Batterien"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Schwache Batterien melden",
+      "description": "Sendet die Benachrichtigung sofort, mit jeder Batterie unter der Schwelle oder nicht verfügbar, unabhängig von der Dauer, oder eine Nachricht, dass keine Aufmerksamkeit erfordert."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 schwache Batterie"
+    },
+    "title_many": {
+      "message": "{count} schwache Batterien"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: schwach"
+    },
+    "none_title": {
+      "message": "Keine Batterie zu prüfen"
+    },
+    "none": {
+      "message": "Alle Batterien liegen über {threshold} % und sind verfügbar."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: nicht verfügbar"
+    },
+    "check_one": {
+      "message": "1 Batterie zu prüfen"
+    },
+    "check_many": {
+      "message": "{count} Batterien zu prüfen"
+    }
+  }
+}
