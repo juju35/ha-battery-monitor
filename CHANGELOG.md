@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.0
+
+### What's new
+- German and Spanish translations: the integration (setup, options, entities, action, notifications) and the card (with its editor) now speak English, French, German and Spanish; the card's `language` option accepts `de` and `es`.
+
 ## 1.8.1
 
 ### Fixes
