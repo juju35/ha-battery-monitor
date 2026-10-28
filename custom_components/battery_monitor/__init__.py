@@ -139,8 +139,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntr
     async def scheduled(_now: datetime) -> None:
         await monitor.async_notify()
 
+    times = set()
     for key, default in ((CONF_MORNING, DEFAULT_MORNING), (CONF_EVENING, DEFAULT_EVENING)):
         at = dt_util.parse_time(str(options.get(key, default))) or dt_util.parse_time(default)
+        # The same morning and evening time schedules one notification, not two at the same second.
+        if at in times:
+            continue
+        times.add(at)
         entry.async_on_unload(
             async_track_time_change(hass, scheduled, hour=at.hour, minute=at.minute, second=at.second)
         )
