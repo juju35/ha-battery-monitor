@@ -173,6 +173,25 @@ test('the registry is scanned only when hass.entities changes', () => {
   assert.equal(scans, after);
 });
 
+test('an update that changes nothing the card reads does not re-render', () => {
+  const card = makeCard();
+  const entities = registry();
+  const states = { [SENSOR]: realState };
+  card.hass = hassWith(entities, states);
+  let renders = 0;
+  const render = card._render.bind(card);
+  card._render = () => {
+    renders++;
+    render();
+  };
+  // Same state object, registry and language: short-circuited before the signature is built.
+  card.hass = hassWith(entities, states);
+  assert.equal(renders, 0);
+  // A new state object for the sensor renders again.
+  card.hass = hassWith(entities, { [SENSOR]: { ...realState } });
+  assert.equal(renders, 1);
+});
+
 test('a configured entity is used as is, with its device button', () => {
   const card = makeCard({ entity: SENSOR });
   card.hass = hassWith(registry(), { [SENSOR]: realState });

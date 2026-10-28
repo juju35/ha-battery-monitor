@@ -223,12 +223,32 @@ class BatteryMonitorCard extends HTMLElement {
   }
 
   set hass(hass) {
+    const old = this._hass;
     this._hass = hass;
+    // Cheap short-circuit before rebuilding the whole signature: the sensor's state object, the registries,
+    // the language and the hour bucket ("low for X h") are unchanged, so nothing the card shows can have
+    // changed. A Battery Notes type edit alone waits for the next sensor update or hour at worst.
+    const entity = this._state?.entity;
+    if (
+      old &&
+      this._sig &&
+      entity &&
+      hass.states[entity] === old.states[entity] &&
+      hass.entities === old.entities &&
+      hass.devices === old.devices &&
+      bmLang(hass, this._config) === bmLang(old, this._config) &&
+      Math.floor(Date.now() / 3600000) === this._sigHour
+    ) {
+      return;
+    }
     this._render();
   }
 
   disconnectedCallback() {
-    this._closePopup();
+    // A dashboard edit can simply move the card in the DOM: only close the full screen if the card is really gone.
+    Promise.resolve().then(() => {
+      if (!this.isConnected) this._closePopup();
+    });
   }
 
   getCardSize() {
@@ -245,7 +265,9 @@ class BatteryMonitorCard extends HTMLElement {
 
   _since(iso, key) {
     const h = Math.max(0, (Date.now() - new Date(iso).getTime()) / 3600000);
-    return this._t(key, { d: h < 48 ? this._t('hours', { n: Math.floor(h) }) : this._t('days', { n: Math.floor(h / 24) }) });
+    // "< 1 h" the first hour, hours up to two days, days beyond.
+    const d = h < 1 ? this._t('hours', { n: '< 1' }) : h < 48 ? this._t('hours', { n: Math.floor(h) }) : this._t('days', { n: Math.floor(h / 24) });
+    return this._t(key, { d });
   }
 
   // The sensor and the "Notify now" button of its device. What comes from the entity registry (the integration's
@@ -288,7 +310,9 @@ class BatteryMonitorCard extends HTMLElement {
     // The current hour too: "low for X h" is computed from the clock, while below_since doesn't change.
     // The battery types read from Battery Notes, which may change without the battery list changing.
     const types = all.map((b) => bmTypeOf(this._hass, c, b));
-    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, button, Math.floor(Date.now() / 3600000)]);
+    const hour = Math.floor(Date.now() / 3600000);
+    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, button, hour]);
+    this._sigHour = hour;
     if (sig === this._sig) return;
     this._sig = sig;
     this._state = { entity, button, all, low, unavailable, due, attention };
@@ -519,6 +543,10 @@ class BatteryMonitorCard extends HTMLElement {
     const tab = (v) =>
       `<button class="tab${view === v ? ' on' : ''}" data-view="${v}" aria-pressed="${view === v}">${bmEsc(this._t(v === 'room' ? 'by_room' : 'by_type'))}</button>`;
     const title = bmEsc(c.title || this._t('title'));
+    // A refresh while the user is reading (a battery change, the hour ticking) keeps their scroll position;
+    // switching tabs starts back at the top.
+    const scrolled = (view === this._renderedView && host.shadowRoot.querySelector('.sheet')?.scrollTop) || 0;
+    this._renderedView = view;
     host.shadowRoot.innerHTML = `
       <style>${BatteryMonitorCard.styles}${BatteryMonitorCard.popupStyles}</style>
       <div class="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="${title}">
@@ -537,6 +565,10 @@ class BatteryMonitorCard extends HTMLElement {
           <div class="groups">${groups}</div>
         </ha-card>
       </div></div>`;
+    if (scrolled) {
+      const sheet = host.shadowRoot.querySelector('.sheet');
+      if (sheet) sheet.scrollTop = scrolled;
+    }
   }
 
   static get styles() {
@@ -710,14 +742,34 @@ class BatteryMonitorCardEditor extends HTMLElement {
     }
     this._form.hass = this._hass;
     const c = this._config;
+    const lang = bmLang(this._hass, c);
+    const entity = c.entity || bmPick(this._hass, bmCandidates(this._hass.entities));
+    // The schema and the data only depend on the config, the registries, the language and the sensor's state:
+    // reassigning them at every Home Assistant update would re-render ha-form while the user is typing.
+    const deps = this._deps;
+    if (
+      deps &&
+      deps.config === c &&
+      deps.lang === lang &&
+      deps.state === this._hass.states?.[entity] &&
+      deps.entities === this._hass.entities &&
+      deps.devices === this._hass.devices
+    ) {
+      return;
+    }
+    this._deps = {
+      config: c,
+      lang,
+      state: this._hass.states?.[entity],
+      entities: this._hass.entities,
+      devices: this._hass.devices,
+    };
     this._form.data = {
       ...BM_DEFAULTS,
       ...c,
       battery_models: { ...(c.battery_models || {}) },
       battery_types: { ...(c.battery_types || {}) },
     };
-    const lang = bmLang(this._hass, c);
-    const entity = c.entity || bmPick(this._hass, bmCandidates(this._hass.entities));
     const all = this._hass.states?.[entity]?.attributes.batteries || [];
     // By model: the models of the batteries whose type is not detected (and the ones already set), with their
     // manufacturer and how many devices; by battery: the ones left without a type, and the ones already set.
