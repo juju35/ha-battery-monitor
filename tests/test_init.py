@@ -196,6 +196,43 @@ async def test_scheduled_notifications(hass: HomeAssistant, freezer: FrozenDateT
     assert hass.states.get(LAST).attributes["notified"] == 0
 
 
+async def test_same_morning_and_evening_notify_once(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
+    """The same morning and evening time schedules one notification, not two at the same second."""
+    calls = async_mock_service(hass, "notify", "mobile_app_phone")
+    freezer.move_to(
+        dt_util.as_utc(dt_util.parse_datetime("2026-10-24 08:00:00").replace(tzinfo=dt_util.get_default_time_zone()))
+    )
+    add_battery(hass, "Door", "12")
+    await _setup(
+        hass, **{CONF_DURATION: 0, CONF_NOTIFY: ["notify.mobile_app_phone"], CONF_EVENING: OPTIONS[CONF_MORNING]}
+    )
+
+    freezer.move_to(
+        dt_util.as_utc(dt_util.parse_datetime("2026-10-24 09:00:00").replace(tzinfo=dt_util.get_default_time_zone()))
+    )
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(calls) == 1
+
+
+async def test_storage_written_only_when_times_change(hass: HomeAssistant) -> None:
+    """A plain level change schedules no .storage write: only a time below the threshold does."""
+    from homeassistant.helpers.storage import Store
+
+    door = add_battery(hass, "Door", "80")
+    await _setup(hass)
+    attributes = hass.states.get(door).attributes
+
+    with patch.object(Store, "async_delay_save") as save:
+        hass.states.async_set(door, "79", attributes)
+        await hass.async_block_till_done()
+        save.assert_not_called()
+
+        hass.states.async_set(door, "10", attributes)
+        await hass.async_block_till_done()
+        save.assert_called()
+
+
 async def test_button_and_action(hass: HomeAssistant) -> None:
     calls = async_mock_service(hass, "notify", "mobile_app_phone")
     add_battery(hass, "Door", "5")
