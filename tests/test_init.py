@@ -220,6 +220,40 @@ async def test_low_since_survives_reload(hass: HomeAssistant, freezer: FrozenDat
     assert _batteries(hass)[0]["below_since"] == since
 
 
+async def test_stored_low_since_kept_while_starting(hass: HomeAssistant, hass_storage: dict) -> None:
+    """Stored times of batteries whose integration has not loaded yet survive the startup.
+
+    The entry is often set up before ZHA/Z-Wave… have created their entities: the stored times must
+    not be pruned before Home Assistant is running, or every low battery would restart its count.
+    """
+    from homeassistant.core import CoreState
+
+    from custom_components.battery_monitor.const import STORAGE_KEY, STORAGE_VERSION
+
+    stored = dt_util.utcnow() - timedelta(days=2)
+    hass_storage[STORAGE_KEY] = {
+        "version": STORAGE_VERSION,
+        "data": {"sensor.door_battery": stored.isoformat(), "sensor.gone_battery": stored.isoformat()},
+    }
+    hass.set_state(CoreState.starting)
+    await _setup(hass)
+    assert _batteries(hass) == []
+
+    # The battery's integration finishes loading after this entry: its stored time still counts
+    door = add_battery(hass, "Door", "12")
+    await hass.async_block_till_done()
+    [battery] = _batteries(hass)
+    assert battery["below_since"] == stored.isoformat() and battery["due"]
+
+    # Once running, the entries of the batteries that are gone for good are pruned
+    hass.set_state(CoreState.running)
+    hass.states.async_set(door, "11", {"device_class": "battery", "unit_of_measurement": "%"})
+    await hass.async_block_till_done()
+    monitor = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    assert set(monitor._below_since) == {door}
+    assert _batteries(hass)[0]["below_since"] == stored.isoformat()
+
+
 async def test_unavailable_keeps_low_since(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
     door = add_battery(hass, "Door", "10")
     await _setup(hass, **{CONF_DURATION: 1})

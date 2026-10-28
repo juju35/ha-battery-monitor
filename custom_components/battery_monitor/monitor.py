@@ -19,7 +19,7 @@ from typing import Any
 
 from homeassistant.components import persistent_notification
 from homeassistant.const import ATTR_DEVICE_CLASS, EVENT_STATE_CHANGED, STATE_UNAVAILABLE, STATE_UNKNOWN
-from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, State, callback
+from homeassistant.core import CALLBACK_TYPE, CoreState, Event, EventStateChangedData, HomeAssistant, State, callback
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
@@ -309,8 +309,11 @@ class BatteryMonitor:
 
         # Needing attention first: lowest levels, then low binary sensors, then unavailable batteries.
         batteries.sort(key=lambda b: (not b.alert, b.unavailable, b.level is None, b.level or 0, b.name.casefold()))
-        tracked = {b.entity_id for b in batteries}
-        self._below_since = {k: v for k, v in self._below_since.items() if k in tracked}
+        # Entities still loading (ZHA, Z-Wave…) are not in the states yet: pruning the stored times
+        # before Home Assistant is running would forget them. Fine batteries are popped above anyway.
+        if self.hass.state is CoreState.running:
+            tracked = {b.entity_id for b in batteries}
+            self._below_since = {k: v for k, v in self._below_since.items() if k in tracked}
         self.batteries = batteries
         self._store.async_delay_save(self._data, 5)
         self._notify_listeners()
