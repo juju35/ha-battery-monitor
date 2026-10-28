@@ -217,10 +217,14 @@ class BatteryMonitor:
         """Refresh when a battery changes, and when its entity or device is edited (hidden, moved, renamed)."""
 
         @callback
+        def battery_changed(data: EventStateChangedData) -> bool:
+            """Filters the state changes before a job is even created: only batteries refresh the list."""
+            state = data["new_state"] or data["old_state"]
+            return state is not None and state.domain in DOMAINS and state.attributes.get(ATTR_DEVICE_CLASS) == BATTERY
+
+        @callback
         def changed(event: Event[EventStateChangedData]) -> None:
-            state = event.data["new_state"] or event.data["old_state"]
-            if state is not None and state.domain in DOMAINS and state.attributes.get(ATTR_DEVICE_CLASS) == BATTERY:
-                self.async_refresh()
+            self.async_refresh()
 
         @callback
         def entity_changed(event: Event[er.EventEntityRegistryUpdatedData]) -> None:
@@ -234,7 +238,7 @@ class BatteryMonitor:
                 self.async_refresh()
 
         unsubs = [
-            self.hass.bus.async_listen(EVENT_STATE_CHANGED, changed),
+            self.hass.bus.async_listen(EVENT_STATE_CHANGED, changed, event_filter=battery_changed),
             self.hass.bus.async_listen(er.EVENT_ENTITY_REGISTRY_UPDATED, entity_changed),
             self.hass.bus.async_listen(dr.EVENT_DEVICE_REGISTRY_UPDATED, device_changed),
         ]
@@ -257,6 +261,7 @@ class BatteryMonitor:
     def async_refresh(self) -> None:
         """Rebuild the list from the current states, and update how long each battery has been low."""
         now = dt_util.utcnow()
+        below_before = dict(self._below_since)
         entities = er.async_get(self.hass)
         devices = dr.async_get(self.hass)
         areas = ar.async_get(self.hass)
@@ -315,7 +320,9 @@ class BatteryMonitor:
             tracked = {b.entity_id for b in batteries}
             self._below_since = {k: v for k, v in self._below_since.items() if k in tracked}
         self.batteries = batteries
-        self._store.async_delay_save(self._data, 5)
+        # Only write .storage when a time actually changed: a plain level change rewrites nothing.
+        if self._below_since != below_before:
+            self._store.async_delay_save(self._data, 5)
         self._notify_listeners()
 
     def _data(self) -> dict[str, str]:
