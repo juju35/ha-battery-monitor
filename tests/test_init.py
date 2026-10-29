@@ -558,3 +558,37 @@ async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant) -> None:
         await _setup(hass)
         await hass.async_block_till_done()
     add_js.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    ("language", "title_many", "check_many", "title_one"),
+    [
+        ("sr", "Слабе батерије: 3", "Батерије за проверу: 3", "1 слаба батерија"),
+        ("sr-Latn", "Slabe baterije: 3", "Baterije za proveru: 3", "1 slaba baterija"),
+    ],
+)
+async def test_serbian_notification_titles(
+    hass: HomeAssistant, language: str, title_many: str, check_many: str, title_one: str
+) -> None:
+    """Serbian titles read right for 2–4 batteries too, in both scripts (sr-Latn is its own file)."""
+    hass.config.language = language
+    calls = async_mock_service(hass, "notify", "mobile_app_phone")
+    add_battery(hass, "Door", "12")
+    add_battery(hass, "Lock", "15")
+    motion = add_battery(hass, "Motion", "18")
+    await _setup(hass, **{CONF_NOTIFY: ["notify.mobile_app_phone"]})
+
+    await hass.services.async_call(DOMAIN, "notify", {}, blocking=True)
+    assert calls[-1].data["title"] == title_many
+
+    hass.states.async_set(motion, "unavailable", {"device_class": "battery", "unit_of_measurement": "%"})
+    await hass.async_block_till_done()
+    await hass.services.async_call(DOMAIN, "notify", {}, blocking=True)
+    assert calls[-1].data["title"] == check_many
+
+    for entity_id in (e for e in hass.states.async_entity_ids() if e.endswith("_battery") and e != motion):
+        hass.states.async_set(entity_id, "100", hass.states.get(entity_id).attributes)
+    hass.states.async_set(motion, "18", {"device_class": "battery", "unit_of_measurement": "%"})
+    await hass.async_block_till_done()
+    await hass.services.async_call(DOMAIN, "notify", {}, blocking=True)
+    assert calls[-1].data["title"] == title_one
