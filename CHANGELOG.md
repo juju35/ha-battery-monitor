@@ -15,7 +15,7 @@
 - Card full screen view: the selected tab uses the accent colour, like the other ha-* cards.
 
 ### Maintenance
-- Screenshots workflow: fork-safe checkout, pinned Playwright, time-boxed and retried browser install, upload-artifact v7.
+- Screenshots workflow: fork-safe checkout, pinned Playwright, time-boxed and retried browser install, upload-artifact v7; after committing refreshed screenshots it re-runs the lint, validate and HACS checks on that commit.
 
 ## 1.9.0
 

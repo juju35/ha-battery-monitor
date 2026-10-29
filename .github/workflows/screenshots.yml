@@ -10,8 +10,12 @@ on:
 
 # Protected main is never pushed to: the job commits the refreshed screenshots
 # back onto the pull request's own branch, so they land through the normal merge.
+# A push made with GITHUB_TOKEN does not trigger pull_request workflows, but it may
+# start workflow_dispatch ones: after pushing, the job re-runs the PR checks on the
+# screenshot commit itself (hence actions: write).
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: screenshots-${{ github.head_ref || github.ref_name }}
@@ -70,6 +74,7 @@ jobs:
       # Only same-repo pull requests get the refreshed screenshots committed back:
       # fork PRs have a read-only token and manual runs must never push.
       - name: Commit refreshed screenshots
+        id: commit
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         run: |
           if [ -z "$(git status --porcelain screenshots)" ]; then
@@ -81,6 +86,15 @@ jobs:
           git add screenshots
           git commit -m "chore: refresh screenshots"
           git push
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+      - name: Re-run checks on the screenshot commit
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for wf in lint.yml validate.yml hacs.yml; do
+            if [ -f ".github/workflows/$wf" ]; then gh workflow run "$wf" --ref "${{ github.head_ref }}"; fi
+          done
       - name: Upload screenshots artifact
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
