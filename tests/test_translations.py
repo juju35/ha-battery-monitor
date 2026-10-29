@@ -39,3 +39,25 @@ def test_parity(lang: str) -> None:
     assert sorted(other) == sorted(en)
     for key, text in en.items():
         assert sorted(PLACEHOLDER.findall(other[key])) == sorted(PLACEHOLDER.findall(text)), f"{lang}: {key}"
+
+
+# Serbian Cyrillic letter by letter, then its Latin spelling (љ, њ and џ take two letters).
+_SERBIAN = "аaбbвvгgдdђđеeжžзzиiјjкkлlљljмmнnњnjоoпpрrсsтtћćуuфfхhцcчčџdžшš"
+_TO_LATIN = dict(re.findall(r"([а-џ])([^а-џ]+)", _SERBIAN))
+_TO_LATIN |= {c.upper(): lat.capitalize() for c, lat in _TO_LATIN.items()}
+
+
+def test_serbian_scripts_match() -> None:
+    """The Cyrillic and Latin Serbian files say the same thing, letter for letter."""
+    cyrillic, latin = _load("sr"), _load("sr-Latn")
+    for key, text in cyrillic.items():
+        assert "".join(_TO_LATIN.get(ch, ch) for ch in text) == latin[key], key
+
+
+@pytest.mark.parametrize("lang", ["sr", "sr-Latn"])
+@pytest.mark.parametrize("key", ["exceptions.title_many.message", "exceptions.check_many.message"])
+def test_serbian_counts_agree_with_any_number(lang: str, key: str) -> None:
+    """Serbian nouns change form after 2–4 and after 5+: the count goes after a colon, not before the noun."""
+    text = _load(lang)[key]
+    assert not text.startswith("{count}"), text
+    assert text.endswith(": {count}"), text
