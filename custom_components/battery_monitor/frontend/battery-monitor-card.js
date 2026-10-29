@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.10.0';
+var BATTERY_MONITOR_CARD_VERSION = '1.10.1';
 
 const BM_I18N = {
   en: {
@@ -228,7 +228,7 @@ const BM_I18N = {
     all_ok: 'Све је у реду',
     low_one: '{n} слаба',
     low_many: '{n} слабе/их',
-    unavailable_one: '{n} недоступан',
+    unavailable_one: '{n} недоступна',
     unavailable_many: '{n} недоступно/их',
     no_batteries: 'Није пронађена ниједна батерија',
     not_loaded: 'Battery Monitor није подешен',
@@ -269,7 +269,7 @@ const BM_I18N = {
     unknown_type: 'Непознат тип',
     unknown_type_hint: 'Подеси тип у едитору картице',
     rechargeable: 'Уграђена пуњива',
-    count: '{n} батерија',
+    count: 'Батерија: {n}',
     count_one: '1 батерија',
     cells: '{n} комада',
     cells_one: '1 комад',
@@ -282,7 +282,7 @@ const BM_I18N = {
     all_ok: 'Sve je u redu',
     low_one: '{n} slaba',
     low_many: '{n} slabe/ih',
-    unavailable_one: '{n} nedostupan',
+    unavailable_one: '{n} nedostupna',
     unavailable_many: '{n} nedostupno/ih',
     no_batteries: 'Nije pronađena nijedna baterija',
     not_loaded: 'Battery Monitor nije podešen',
@@ -323,7 +323,7 @@ const BM_I18N = {
     unknown_type: 'Nepoznat tip',
     unknown_type_hint: 'Podesi tip u editoru kartice',
     rechargeable: 'Ugrađena punjiva',
-    count: '{n} baterija',
+    count: 'Baterija: {n}',
     count_one: '1 baterija',
     cells: '{n} komada',
     cells_one: '1 komad',

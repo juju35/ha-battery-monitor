@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.1
+
+### Fixes
+- Serbian (Cyrillic and Latin): notification titles and the card's group counts now read correctly for 2 to 4 batteries ("Слабе батерије: 3" / "Slabe baterije: 3"); one unavailable battery on the card reads "недоступна" / "nedostupna"; a typo in the options ("мобилне апликације") is fixed.
+
 ## 1.10.0
 
 ### What's new

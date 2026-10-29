@@ -163,6 +163,28 @@ test('bmLang: card option, then Home Assistant, then English', () => {
   assert.equal(bmLang({ language: 'sr-Cyrl' }, {}), 'sr');
 });
 
+test('I18N Serbian: the Cyrillic and Latin cards say the same thing, letter for letter', () => {
+  const cyr = 'абвгдђежзијклљмнњопрстћуфхцчџш';
+  const lat = ['a', 'b', 'v', 'g', 'd', 'đ', 'e', 'ž', 'z', 'i', 'j', 'k', 'l', 'lj', 'm', 'n', 'nj', 'o', 'p', 'r', 's', 't', 'ć', 'u', 'f', 'h', 'c', 'č', 'dž', 'š'];
+  const map = new Map();
+  [...cyr].forEach((c, i) => {
+    map.set(c, lat[i]);
+    map.set(c.toUpperCase(), lat[i][0].toUpperCase() + lat[i].slice(1));
+  });
+  for (const [key, text] of Object.entries(BM_I18N.sr)) {
+    assert.equal([...text].map((c) => map.get(c) ?? c).join(''), BM_I18N['sr-Latn'][key], key);
+  }
+});
+
+test('I18N Serbian: a battery is feminine, and a count reads right for any number', () => {
+  // "батерија" is feminine: one unavailable battery is "недоступна", like "слаба".
+  assert.equal(BM_I18N.sr.unavailable_one, '{n} недоступна');
+  assert.equal(BM_I18N['sr-Latn'].unavailable_one, '{n} nedostupna');
+  // The noun changes form after 2–4 and after 5+: the count goes after a colon, not before it.
+  assert.equal(BM_I18N.sr.count, 'Батерија: {n}');
+  assert.equal(BM_I18N['sr-Latn'].count, 'Baterija: {n}');
+});
+
 test('I18N parity: every language has exactly the English keys and placeholders', () => {
   const en = BM_I18N.en;
   const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
