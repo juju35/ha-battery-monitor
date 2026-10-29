@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.9.1
+
+### Fixes
+- Card full screen view: closing a battery's more-info dialog no longer closes the full screen view too, and the back button no longer needs an extra press afterwards; Escape over the more-info closes only the dialog.
+- Card full screen view: the more-info dialog opened from a battery is shown above the full screen view instead of behind it.
+- Card full screen view: a room icon changed in the area settings shows up right away.
+- Removing the integration also deletes its stored "low since" times, so a reinstall starts every count afresh.
+- German: the notify action description is a correct sentence again. Spanish: the duration option reads "Baja durante al menos".
+- The "not loaded" error of the notify action is translated.
+
+### Changes
+- Less work when many batteries report at once: state changes are merged into at most one list refresh per second.
+- Card full screen view: the selected tab uses the accent colour, like the other ha-* cards.
+
+### Maintenance
+- Screenshots workflow: fork-safe checkout, pinned Playwright, time-boxed and retried browser install, upload-artifact v7.
+
 ## 1.9.0
 
 ### What's new
