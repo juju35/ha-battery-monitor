@@ -483,6 +483,52 @@ test('full screen: the back button closes it without going back twice', () => {
   assert.equal(history.index, start);
 });
 
+// Older dialog managers leave the dashboard's entry in a closed-dialog state after any more-info opened from it.
+const legacyDashboard = () => history.replaceState({ dialog: 'ha-more-info-dialog', open: false, oldState: null });
+
+test('full screen: the back button closes it after a more-info was opened from the dashboard (older Home Assistant)', () => {
+  const saved = history.state;
+  legacyDashboard();
+  const card = makeCard();
+  card.hass = typedHass();
+  const start = history.index;
+  card._openPopup();
+  history.back();
+  assert.equal(body.children.length, 0, 'the back button left the full screen open');
+  assert.equal(history.index, start);
+  history.replaceState(saved);
+});
+
+test('full screen (older Home Assistant): a more-info from a row closes alone, then back closes the popup', () => {
+  const saved = history.state;
+  legacyDashboard();
+  const card = makeCard();
+  card.hass = typedHass();
+  const start = history.index;
+  card._openPopup();
+  rowClick(card, 'sensor.door_battery');
+  history.replaceState({ dialog: 'ha-more-info-dialog', open: false, oldState: null });
+  history.pushState({ dialog: 'ha-more-info-dialog', open: true });
+  history.back(); // the more-info closes
+  assert.equal(body.children.length, 1, 'closing the more-info closed the full screen');
+  assert.equal(layer(), '9999');
+  history.back(); // then the back button closes the full screen
+  assert.equal(body.children.length, 0, 'the back button left the full screen open');
+  assert.equal(history.index, start);
+  history.replaceState(saved);
+});
+
+test('full screen: a row whose more-info never opened does not swallow the back button', () => {
+  const card = makeCard();
+  card.hass = typedHass();
+  const start = history.index;
+  card._openPopup();
+  rowClick(card, 'sensor.door_battery'); // no dialog manager answers: no history entry is added
+  history.back();
+  assert.equal(body.children.length, 0, 'the back button left the full screen open');
+  assert.equal(history.index, start);
+});
+
 test('room icons follow an area edit with no other change', () => {
   const card = makeCard();
   const hass = typedHass();
