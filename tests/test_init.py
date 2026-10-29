@@ -33,7 +33,6 @@ from custom_components.battery_monitor.const import (
     DOMAIN,
     NOTIFICATION_ID,
 )
-
 from custom_components.battery_monitor.monitor import REFRESH_COOLDOWN
 
 from .conftest import add_battery
@@ -486,6 +485,28 @@ async def test_registry_changes_refresh_the_list(hass: HomeAssistant) -> None:
     entities.async_update_entity(door, area_id=area.id, name="Door battery")
     await hass.async_block_till_done()
     assert _batteries(hass)[0]["area"] == "Hall"
+
+
+async def test_remove_drops_stored_low_since(hass: HomeAssistant, hass_storage: dict) -> None:
+    """Removing the entry deletes the stored times: a reinstall starts every count afresh."""
+    from custom_components.battery_monitor.const import STORAGE_KEY
+
+    add_battery(hass, "Door", "10")
+    entry = await _setup(hass)
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert STORAGE_KEY not in hass_storage
+
+
+async def test_action_when_not_loaded(hass: HomeAssistant) -> None:
+    """The notify action raises a translated error when the entry is not loaded."""
+    from homeassistant.exceptions import ServiceValidationError
+
+    entry = await _setup(hass)
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(DOMAIN, "notify", {}, blocking=True)
+    assert err.value.translation_domain == DOMAIN and err.value.translation_key == "not_loaded"
 
 
 async def test_card_resource_back_after_remove_and_add(hass: HomeAssistant) -> None:

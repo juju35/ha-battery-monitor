@@ -16,6 +16,7 @@ from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall, cal
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
@@ -37,6 +38,8 @@ from .const import (
     NOTIFICATION_ID,
     REFRESH_MINUTES,
     SERVICE_NOTIFY,
+    STORAGE_KEY,
+    STORAGE_VERSION,
     VERSION,
 )
 from .monitor import BatteryMonitor
@@ -68,7 +71,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def notify(_call: ServiceCall) -> None:
         entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
         if not entries:
-            raise ServiceValidationError("Battery Monitor is not loaded")
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
         await entries[0].runtime_data.async_notify(manual=True)
 
     hass.services.async_register(DOMAIN, SERVICE_NOTIFY, notify)
@@ -161,8 +164,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEnt
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntry) -> None:
-    """Drop the notification and the card resource."""
+    """Drop the notification, the stored low-battery times and the card resource."""
     persistent_notification.async_dismiss(hass, NOTIFICATION_ID)
+    # A reinstall must start every count afresh, not resume times from the removed entry.
+    await Store(hass, STORAGE_VERSION, STORAGE_KEY).async_remove()
     if (resources := _storage_resources(hass)) is None:
         return
     for item in list(resources.async_items()):
