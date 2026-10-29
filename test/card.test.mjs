@@ -47,15 +47,20 @@ const body = {
 const listeners = {};
 // A history stack whose back() fires popstate, like the browser (synchronously here).
 const windowListeners = {};
+// Each entry keeps its URL: pushState without one stays on the current page, like the browser.
 const history = {
   entries: [null],
+  urls: ['http://ha.local/lovelace/0'],
   index: 0,
   get state() {
     return this.entries[this.index];
   },
-  pushState(state) {
+  pushState(state, _title, url) {
+    const href = url ? new URL(url, this.urls[this.index]).href : this.urls[this.index];
     this.entries.splice(this.index + 1);
+    this.urls.splice(this.index + 1);
     this.entries.push(state);
+    this.urls.push(href);
     this.index++;
   },
   replaceState(state) {
@@ -72,6 +77,11 @@ const context = {
   customElements: { get: () => true, define() {} },
   window: {
     history,
+    location: {
+      get href() {
+        return history.urls[history.index];
+      },
+    },
     addEventListener: (type, fn) => (windowListeners[type] = fn),
     removeEventListener: (type) => delete windowListeners[type],
   },
@@ -537,4 +547,50 @@ test('room icons follow an area edit with no other change', () => {
   card.hass = { ...hass, areas: { ...hass.areas, entrance: { ...hass.areas.entrance, icon: 'mdi:key' } } };
   assert.match(body.children[0].shadowRoot.innerHTML, /<ha-icon icon="mdi:key"><\/ha-icon><span class="gname">Entrance</);
   card._closePopup();
+});
+
+// What Home Assistant's navigate() does from a more-info (device link, "Related" tab): it closes the dialogs
+// (back), then pushes the new page, and the panel resolver removes the dashboard, so the card is disconnected.
+test('full screen: a navigation from a more-info opened in it is not undone when the card goes away', async () => {
+  const card = makeCard();
+  card.hass = typedHass();
+  card._openPopup();
+  rowClick(card, 'sensor.door_battery');
+  history.replaceState({ ...history.state, opensDialog: true });
+  history.pushState({ dialog: 'ha-more-info-dialog' });
+  history.back(); // navigate() closes the more-info first
+  assert.equal(body.children.length, 1);
+  history.pushState(null, '', '/config/devices/device/dev2');
+  const page = history.index;
+  card.disconnectedCallback();
+  await Promise.resolve();
+  assert.equal(body.children.length, 0, 'the full screen stayed open on the new page');
+  assert.equal(history.index, page, 'the card went back from the page the user navigated to');
+  assert.equal(history.urls[history.index], 'http://ha.local/config/devices/device/dev2');
+  assert.equal(windowListeners.popstate, undefined, 'the back listener was left behind');
+  history.back();
+  history.back();
+});
+
+test('full screen: the card removed while it is open (same page) still leaves its history entry', async () => {
+  const card = makeCard();
+  card.hass = typedHass();
+  const start = history.index;
+  card._openPopup();
+  card.disconnectedCallback();
+  await Promise.resolve();
+  assert.equal(body.children.length, 0);
+  assert.equal(history.index, start, "the popup's history entry was left behind");
+});
+
+test('full screen: closed after a hash change on the same dashboard, it does not go back', () => {
+  const card = makeCard();
+  card.hass = typedHass();
+  card._openPopup();
+  history.pushState(null, '', '#other');
+  const page = history.index;
+  card._closePopup();
+  assert.equal(history.index, page);
+  history.back();
+  history.back();
 });
