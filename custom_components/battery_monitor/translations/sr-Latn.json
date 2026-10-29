@@ -102,7 +102,7 @@
       "message": "1 slaba baterija"
     },
     "title_many": {
-      "message": "{count} slabih baterija"
+      "message": "Slabe baterije: {count}"
     },
     "line": {
       "message": "• {name}{area}: {level} %"
@@ -123,7 +123,7 @@
       "message": "1 baterija za proveru"
     },
     "check_many": {
-      "message": "{count} baterija za proveru"
+      "message": "Baterije za proveru: {count}"
     },
     "not_loaded": {
       "message": "Battery Monitor nije učitan."
