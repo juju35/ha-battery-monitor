@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Obaveštava dvaput dnevno o uređajima čija je baterija ostala slaba.",
+        "data": {
+          "threshold": "Prag slabe baterije",
+          "duration": "Slaba najmanje",
+          "morning_time": "Jutarnje obaveštenje",
+          "evening_time": "Večernje obaveštenje",
+          "notify_services": "Akcije obaveštavanja",
+          "ignored_entities": "Ignorisane baterije",
+          "ignored_integrations": "Ignorisane integracije"
+        },
+        "data_description": {
+          "threshold": "Baterija se smatra slabom ispod ovog nivoa.",
+          "duration": "Broj sati koliko baterija mora biti ispod praga pre nego što se pošalje obaveštenje (0: prilikom sledećeg obaveštenja).",
+          "morning_time": "Prvo od dva dnevna obaveštenja.",
+          "evening_time": "Drugo od dva dnevna obaveštenja.",
+          "notify_services": "Pošalji obaveštenja putem ovih akcija (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
+          "ignored_entities": "Baterije koje se nikada ne nadgledaju.",
+          "ignored_integrations": "Integracije čije se baterije nikada ne nadgledaju (podrazumevano telefoni i tableti iz mobilne aplikacije). Unesi domen da dodaš integraciju koja još uvek nije podešena."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor je već konfigurisan.",
+      "single_instance_allowed": "Battery Monitor je već konfigurisan."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Battery Monitor opcije",
+        "data": {
+          "threshold": "Prag slabe baterije",
+          "duration": "Slaba najmanje",
+          "morning_time": "Jutarnje obaveštenje",
+          "evening_time": "Večernje obaveštenje",
+          "notify_services": "Akcije obaveštavanja",
+          "ignored_entities": "Ignorisane baterije",
+          "ignored_integrations": "Ignorisane integracije"
+        },
+        "data_description": {
+          "threshold": "Baterija se smatra slabom ispod ovog nivoa.",
+          "duration": "Broj sati koliko baterija mora biti ispod praga pre nego što se pošalje obaveštenje (0: prilikom sledećeg obaveštenja).",
+          "morning_time": "Prvo od dva dnevna obaveštenja.",
+          "evening_time": "Drugo od dva dnevna obaveštenja.",
+          "notify_services": "Pošalji obaveštenja putem ovih akcija (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
+          "ignored_entities": "Baterije koje se nikada ne nadgledaju.",
+          "ignored_integrations": "Integracije čije se baterije nikada ne nadgledaju (podrazumevano telefoni i tableti iz mobilne aplikacije). Unesi domen da dodaš integraciju koja još uvek nije podešena."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Obavesti sada"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Slabe baterije",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Nedostupno"
+          },
+          "due": {
+            "name": "Na redu"
+          },
+          "threshold": {
+            "name": "Prag"
+          },
+          "duration": {
+            "name": "Trajanje"
+          },
+          "batteries": {
+            "name": "Baterije"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Poslednje obaveštenje",
+        "state_attributes": {
+          "notified": {
+            "name": "Baterije o kojima je poslato obaveštenje"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Obavesti o slabim baterijama",
+      "description": "Šalje obaveštenje odmah, sa svim baterijama koje su ispod praga ili nedostupne bez obzira na trajanje, ili poruku da nijedna ne zahteva pažnju."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 slaba baterija"
+    },
+    "title_many": {
+      "message": "{count} slabih baterija"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: slaba"
+    },
+    "none_title": {
+      "message": "Nema baterija za proveru"
+    },
+    "none": {
+      "message": "Sve baterije su iznad {threshold} % i dostupne."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: nedostupna"
+    },
+    "check_one": {
+      "message": "1 baterija za proveru"
+    },
+    "check_many": {
+      "message": "{count} baterija za proveru"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor nije učitan."
+    }
+  }
+}

@@ -156,12 +156,17 @@ test('bmLang: card option, then Home Assistant, then English', () => {
   assert.equal(bmLang({ language: 'de' }, {}), 'de');
   assert.equal(bmLang({ locale: { language: 'es-ES' } }, {}), 'es');
   assert.equal(bmLang({ language: 'ja' }, {}), 'en');
+  // Serbian: Cyrillic by default, Latin script when Home Assistant (or the card) asks for sr-Latn.
+  assert.equal(bmLang({ language: 'sr' }, {}), 'sr');
+  assert.equal(bmLang({ locale: { language: 'sr-Latn' } }, {}), 'sr-Latn');
+  assert.equal(bmLang({ language: 'en' }, { language: 'sr-Latn' }), 'sr-Latn');
+  assert.equal(bmLang({ language: 'sr-Cyrl' }, {}), 'sr');
 });
 
 test('I18N parity: every language has exactly the English keys and placeholders', () => {
   const en = BM_I18N.en;
   const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
-  assert.deepEqual(Object.keys(BM_I18N).sort(), ['de', 'en', 'es', 'fr']);
+  assert.deepEqual(Object.keys(BM_I18N).sort(), ['de', 'en', 'es', 'fr', 'sr', 'sr-Latn']);
   for (const [lang, strings] of Object.entries(BM_I18N)) {
     assert.deepEqual(Object.keys(strings).sort(), Object.keys(en).sort(), `${lang}: keys`);
     for (const key of Object.keys(en)) {
