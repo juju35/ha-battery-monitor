@@ -11,7 +11,11 @@ const source = readFileSync(
 // A page body, keyboard listeners and history: enough for the full screen layer.
 const fakeNode = () => ({
   innerHTML: '',
-  style: {},
+  style: {
+    setProperty(name, value) {
+      this[name] = value;
+    },
+  },
   children: [],
   handlers: {},
   addEventListener(type, fn) {
@@ -41,19 +45,46 @@ const body = {
   },
 };
 const listeners = {};
+// A history stack whose back() fires popstate, like the browser (synchronously here).
+const windowListeners = {};
+const history = {
+  entries: [null],
+  index: 0,
+  get state() {
+    return this.entries[this.index];
+  },
+  pushState(state) {
+    this.entries.splice(this.index + 1);
+    this.entries.push(state);
+    this.index++;
+  },
+  replaceState(state) {
+    this.entries[this.index] = state;
+  },
+  back() {
+    if (!this.index) return;
+    this.index--;
+    windowListeners.popstate?.({ state: this.state });
+  },
+};
 const context = {
   HTMLElement: class {},
   customElements: { get: () => true, define() {} },
   window: {
-    history: { state: null, pushState(state) { this.state = state; }, back() { this.state = null; } },
-    addEventListener() {},
-    removeEventListener() {},
+    history,
+    addEventListener: (type, fn) => (windowListeners[type] = fn),
+    removeEventListener: (type) => delete windowListeners[type],
   },
   document: {
     body,
     createElement: () => fakeNode(),
     addEventListener: (type, fn) => (listeners[type] = fn),
     removeEventListener: (type) => delete listeners[type],
+  },
+  Event: class {
+    constructor(type) {
+      this.type = type;
+    }
   },
   CustomEvent: class {
     constructor(type, init) {
@@ -409,4 +440,55 @@ test('full screen by room: each room with its own icon', () => {
   // A room without an icon: a door; the batteries without a room: a house.
   assert.match(pop, /<ha-icon icon="mdi:door-open"><\/ha-icon><span class="gname">Living room</);
   assert.match(pop, /<ha-icon icon="mdi:home-outline"><\/ha-icon><span class="gname">No room</);
+});
+
+// Home Assistant's dialog manager: the more-info adds a history entry and goes back to close.
+const rowClick = (card, id) => card._onPopupClick({ composedPath: () => [{ classList: { contains: () => false }, dataset: { id } }] });
+const layer = () => body.children[0].style['--bm-layer'];
+
+test('full screen: a more-info opened from a row closes alone, then the popup closes cleanly', () => {
+  for (const legacy of [false, true]) {
+    const card = makeCard();
+    card.hass = typedHass();
+    const start = history.index;
+    card._openPopup();
+    rowClick(card, 'sensor.door_battery');
+    assert.equal(layer(), '5', 'the layer must drop below the more-info');
+    // Current versions keep our state and push { dialog }; older ones replace it with a dialog state.
+    if (legacy) {
+      history.replaceState({ dialog: 'ha-more-info-dialog', open: false, oldState: history.state });
+      history.pushState({ dialog: 'ha-more-info-dialog', open: true });
+    } else {
+      history.replaceState({ ...history.state, opensDialog: true });
+      history.pushState({ dialog: 'ha-more-info-dialog' });
+    }
+    listeners.keydown({ key: 'Escape' });
+    assert.equal(body.children.length, 1, `${legacy}: Escape over the more-info closed the full screen`);
+    history.back(); // the more-info closes
+    assert.equal(body.children.length, 1, `${legacy}: closing the more-info closed the full screen`);
+    assert.equal(layer(), '9999');
+    card._closePopup();
+    assert.equal(body.children.length, 0);
+    assert.equal(history.index, start, `${legacy}: the popup's history entry was left behind`);
+  }
+});
+
+test('full screen: the back button closes it without going back twice', () => {
+  const card = makeCard();
+  card.hass = typedHass();
+  const start = history.index;
+  card._openPopup();
+  history.back();
+  assert.equal(body.children.length, 0);
+  assert.equal(history.index, start);
+});
+
+test('room icons follow an area edit with no other change', () => {
+  const card = makeCard();
+  const hass = typedHass();
+  card.hass = hass;
+  card._openPopup();
+  card.hass = { ...hass, areas: { ...hass.areas, entrance: { ...hass.areas.entrance, icon: 'mdi:key' } } };
+  assert.match(body.children[0].shadowRoot.innerHTML, /<ha-icon icon="mdi:key"><\/ha-icon><span class="gname">Entrance</);
+  card._closePopup();
 });

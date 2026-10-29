@@ -230,6 +230,12 @@ const bmLang = (hass, config) => {
   return BM_I18N[l] ? l : 'en';
 };
 
+// A Home Assistant dialog (a more-info…) is open: its history entry is the current one.
+const bmDialogOpen = () => {
+  const state = globalThis.window?.history?.state;
+  return !!state?.dialog && state.open !== false;
+};
+
 const bmT = (lang, key, vars = {}) =>
   (BM_I18N[lang]?.[key] ?? BM_I18N.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
@@ -333,7 +339,7 @@ class BatteryMonitorCard extends HTMLElement {
   set hass(hass) {
     const old = this._hass;
     this._hass = hass;
-    // Cheap short-circuit before rebuilding the whole signature: the sensor's state object, the registries,
+    // Cheap short-circuit before rebuilding the whole signature: the sensor's state object, the registries (areas: room icons),
     // the language and the hour bucket ("low for X h") are unchanged, so nothing the card shows can have
     // changed. A Battery Notes type edit alone waits for the next sensor update or hour at worst.
     const entity = this._state?.entity;
@@ -344,6 +350,7 @@ class BatteryMonitorCard extends HTMLElement {
       hass.states[entity] === old.states[entity] &&
       hass.entities === old.entities &&
       hass.devices === old.devices &&
+      hass.areas === old.areas &&
       bmLang(hass, this._config) === bmLang(old, this._config) &&
       Math.floor(Date.now() / 3600000) === this._sigHour
     ) {
@@ -418,8 +425,10 @@ class BatteryMonitorCard extends HTMLElement {
     // The current hour too: "low for X h" is computed from the clock, while below_since doesn't change.
     // The battery types read from Battery Notes, which may change without the battery list changing.
     const types = all.map((b) => bmTypeOf(this._hass, c, b));
+    // The room icons of the full screen, which an area edit alone changes.
+    const icons = [...new Set(all.map((b) => b.area))].map((a) => bmAreaIcon(this._hass, a));
     const hour = Math.floor(Date.now() / 3600000);
-    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, button, hour]);
+    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, icons, button, hour]);
     this._sigHour = hour;
     if (sig === this._sig) return;
     this._sig = sig;
@@ -534,12 +543,24 @@ class BatteryMonitorCard extends HTMLElement {
     const root = host.attachShadow({ mode: 'open' });
     root.addEventListener('click', (ev) => this._onPopupClick(ev));
     this._onPopupKey = (ev) => {
-      if (ev.key === 'Escape') this._closePopup();
+      // Escape over a more-info opened from here closes that dialog only.
+      if (ev.key === 'Escape' && !bmDialogOpen()) this._closePopup();
     };
-    this._onPopupBack = () => this._closePopup(true);
+    this._onPopupBack = (ev) => {
+      // A more-info opened from a row adds its own history entry; closing it goes back to the popup's entry
+      // (Home Assistant keeps our state there, older versions replace it with a `dialog` state): stay open.
+      const state = ev?.state;
+      if (state?.batteryMonitorPopup || state?.dialog || state?.oldState?.batteryMonitorPopup) {
+        this._popupLayer(false);
+        return;
+      }
+      this._closePopup(true);
+    };
     document.addEventListener('keydown', this._onPopupKey);
     window.addEventListener?.('popstate', this._onPopupBack);
     window.history?.pushState?.({ batteryMonitorPopup: true }, '');
+    // Our own flag: a more-info may rewrite history.state, which then no longer tells whether to go back.
+    this._popupHistory = !!window.history?.pushState;
     this._bodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     document.body.appendChild(host);
@@ -557,7 +578,15 @@ class BatteryMonitorCard extends HTMLElement {
     document.removeEventListener('keydown', this._onPopupKey);
     window.removeEventListener?.('popstate', this._onPopupBack);
     document.body.style.overflow = this._bodyOverflow || '';
-    if (!fromBack && window.history?.state?.batteryMonitorPopup) window.history.back();
+    const pushed = this._popupHistory;
+    this._popupHistory = false;
+    if (!fromBack && pushed) window.history.back();
+  }
+
+  // Home Assistant's dialogs are not in the browser's top layer: while a more-info opened from the full screen
+  // is shown, the layer drops below them (their z-index is 7-8), and comes back on top once it is closed.
+  _popupLayer(under) {
+    this._popup?.style.setProperty?.('--bm-layer', under ? '5' : '9999');
   }
 
   _onPopupClick(ev) {
@@ -572,7 +601,10 @@ class BatteryMonitorCard extends HTMLElement {
     else if (el.dataset.view) {
       this._view = el.dataset.view;
       this._renderPopup();
-    } else if (el.dataset.id) this._moreInfo(el.dataset.id);
+    } else if (el.dataset.id) {
+      this._popupLayer(true);
+      this._moreInfo(el.dataset.id);
+    }
   }
 
   // The batteries in groups: [{ key, name, icon, hint, items: [{ b, context }] }], by room or by type.
@@ -750,7 +782,7 @@ class BatteryMonitorCard extends HTMLElement {
     return `
       :host { all: initial; display: block; font-family: var(--paper-font-body1_-_font-family, var(--ha-font-family-body, Roboto, sans-serif));
               color: var(--primary-text-color); -webkit-font-smoothing: antialiased; }
-      .backdrop { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6);
+      .backdrop { position: fixed; inset: 0; z-index: var(--bm-layer, 9999); background: rgba(0,0,0,.6);
                   -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); animation: bm-fade .2s ease-out both; }
       .sheet { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; animation: bm-sheet .28s cubic-bezier(.2,.8,.2,1) both;
                background: linear-gradient(var(--card-background-color, #fff), var(--card-background-color, #fff)), var(--primary-background-color, #fafafa); }
@@ -768,7 +800,7 @@ class BatteryMonitorCard extends HTMLElement {
       .bar-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; margin: 6px 0 16px; }
       .tabs { display: inline-flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--secondary-background-color, rgba(128,128,128,.1)); }
       .tab { all: unset; cursor: pointer; padding: 6px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--secondary-text-color); }
-      .tab.on { background: var(--card-background-color, #fff); color: var(--primary-text-color); box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+      .tab.on { background: color-mix(in srgb, var(--primary-color) 15%, transparent); color: var(--primary-color); }
       .replace { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--secondary-text-color); }
       .rlabel { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; text-transform: uppercase;
                 letter-spacing: .04em; color: var(--secondary-text-color); }
