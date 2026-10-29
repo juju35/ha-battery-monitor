@@ -547,10 +547,15 @@ class BatteryMonitorCard extends HTMLElement {
       if (ev.key === 'Escape' && !bmDialogOpen()) this._closePopup();
     };
     this._onPopupBack = (ev) => {
-      // A more-info opened from a row adds its own history entry; closing it goes back to the popup's entry
-      // (Home Assistant keeps our state there, older versions replace it with a `dialog` state): stay open.
+      // A more-info opened from a row adds its own history entry; closing it goes back to the popup's entry:
+      // stay open. Our own flag tells that case apart: older versions of Home Assistant leave a closed-dialog
+      // state on the dashboard's entry after any more-info opened from the dashboard, so the state alone cannot.
+      // The state still has to be the popup's entry (ours, or the dialog state older versions put on it), in case
+      // no more-info opened at all.
       const state = ev?.state;
-      if (state?.batteryMonitorPopup || state?.dialog || state?.oldState?.batteryMonitorPopup) {
+      const opened = this._moreInfoOpen;
+      this._moreInfoOpen = false;
+      if (opened && (state?.batteryMonitorPopup || state?.dialog)) {
         this._popupLayer(false);
         return;
       }
@@ -574,6 +579,7 @@ class BatteryMonitorCard extends HTMLElement {
     if (!this._popup) return;
     const host = this._popup;
     this._popup = null;
+    this._moreInfoOpen = false;
     host.remove();
     document.removeEventListener('keydown', this._onPopupKey);
     window.removeEventListener?.('popstate', this._onPopupBack);
@@ -603,6 +609,7 @@ class BatteryMonitorCard extends HTMLElement {
       this._renderPopup();
     } else if (el.dataset.id) {
       this._popupLayer(true);
+      this._moreInfoOpen = true;
       this._moreInfo(el.dataset.id);
     }
   }
