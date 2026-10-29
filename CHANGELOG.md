@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.2
+
+### Fixes
+- Card full screen view: the back button closes it again on older Home Assistant versions after a more-info dialog had been opened and closed from the dashboard; before, the full screen view stayed open and could be left behind on another view.
+
 ## 1.9.1
 
 ### Fixes
