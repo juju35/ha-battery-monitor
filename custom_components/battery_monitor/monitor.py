@@ -23,6 +23,7 @@ from homeassistant.core import CALLBACK_TYPE, CoreState, Event, EventStateChange
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.util import dt as dt_util
@@ -33,6 +34,8 @@ _LOGGER = logging.getLogger(__name__)
 
 BATTERY = "battery"
 DOMAINS = ("sensor", "binary_sensor")
+# Battery changes are coalesced: a burst of them (start-up, a Zigbee mesh reporting) refreshes the list once a second.
+REFRESH_COOLDOWN = 1.0
 
 
 @dataclass(slots=True)
@@ -215,6 +218,10 @@ class BatteryMonitor:
     @callback
     def async_listen(self) -> CALLBACK_TYPE:
         """Refresh when a battery changes, and when its entity or device is edited (hidden, moved, renamed)."""
+        # The first change refreshes right away; the next ones within the cooldown are merged into one refresh.
+        debouncer = Debouncer(
+            self.hass, _LOGGER, cooldown=REFRESH_COOLDOWN, immediate=True, function=self.async_refresh
+        )
 
         @callback
         def battery_changed(data: EventStateChangedData) -> bool:
@@ -224,7 +231,7 @@ class BatteryMonitor:
 
         @callback
         def changed(event: Event[EventStateChangedData]) -> None:
-            self.async_refresh()
+            debouncer.async_schedule_call()
 
         @callback
         def entity_changed(event: Event[er.EventEntityRegistryUpdatedData]) -> None:
@@ -247,6 +254,7 @@ class BatteryMonitor:
         def unsubscribe() -> None:
             for unsub in unsubs:
                 unsub()
+            debouncer.async_shutdown()
 
         return unsubscribe
 
