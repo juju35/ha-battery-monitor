@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.3
+
+### Fixes
+- Card full screen view: following a link from a battery's more-info dialog opened in the full screen view (its device, or the "Related" tab) now stays on that page; before, the card sent you straight back to the dashboard.
+
 ## 1.9.2
 
 ### Fixes
