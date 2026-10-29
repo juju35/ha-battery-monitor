@@ -566,6 +566,9 @@ class BatteryMonitorCard extends HTMLElement {
     window.history?.pushState?.({ batteryMonitorPopup: true }, '');
     // Our own flag: a more-info may rewrite history.state, which then no longer tells whether to go back.
     this._popupHistory = !!window.history?.pushState;
+    // The page the popup's entry belongs to: once the user has navigated elsewhere (a device link in a more-info
+    // opened from here), going back would undo that navigation.
+    this._popupUrl = window.location?.href;
     this._bodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     document.body.appendChild(host);
@@ -584,8 +587,9 @@ class BatteryMonitorCard extends HTMLElement {
     document.removeEventListener('keydown', this._onPopupKey);
     window.removeEventListener?.('popstate', this._onPopupBack);
     document.body.style.overflow = this._bodyOverflow || '';
-    const pushed = this._popupHistory;
+    const pushed = this._popupHistory && window.location?.href === this._popupUrl;
     this._popupHistory = false;
+    this._popupUrl = null;
     if (!fromBack && pushed) window.history.back();
   }
 
