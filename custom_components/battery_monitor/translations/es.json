@@ -6,7 +6,7 @@
         "description": "Notifica dos veces al día los dispositivos cuya batería ha seguido baja.",
         "data": {
           "threshold": "Umbral de batería baja",
-          "duration": "Baja desde al menos",
+          "duration": "Baja durante al menos",
           "morning_time": "Notificación de la mañana",
           "evening_time": "Notificación de la tarde",
           "notify_services": "Acciones de notificación",
@@ -35,7 +35,7 @@
         "title": "Opciones de Battery Monitor",
         "data": {
           "threshold": "Umbral de batería baja",
-          "duration": "Baja desde al menos",
+          "duration": "Baja durante al menos",
           "morning_time": "Notificación de la mañana",
           "evening_time": "Notificación de la tarde",
           "notify_services": "Acciones de notificación",
@@ -124,6 +124,9 @@
     },
     "check_many": {
       "message": "{count} baterías que revisar"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor no está cargado."
     }
   }
 }

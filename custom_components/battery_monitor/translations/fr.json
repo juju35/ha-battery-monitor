@@ -124,6 +124,9 @@
     },
     "check_many": {
       "message": "{count} batteries à vérifier"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor n'est pas chargé."
     }
   }
 }

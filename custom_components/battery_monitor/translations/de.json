@@ -94,7 +94,7 @@
   "services": {
     "notify": {
       "name": "Schwache Batterien melden",
-      "description": "Sendet die Benachrichtigung sofort, mit jeder Batterie unter der Schwelle oder nicht verfügbar, unabhängig von der Dauer, oder eine Nachricht, dass keine Aufmerksamkeit erfordert."
+      "description": "Sendet die Benachrichtigung sofort, mit jeder Batterie unter der Schwelle oder nicht verfügbar, unabhängig von der Dauer, oder eine Nachricht, dass keine Batterie Aufmerksamkeit erfordert."
     }
   },
   "exceptions": {
@@ -124,6 +124,9 @@
     },
     "check_many": {
       "message": "{count} Batterien zu prüfen"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor ist nicht geladen."
     }
   }
 }
