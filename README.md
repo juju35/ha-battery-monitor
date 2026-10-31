@@ -152,7 +152,9 @@ battery_types:
 
 When a battery is due for replacement, the card animates: its row icon blinks for attention. The rest of the card stays still (and it honours `prefers-reduced-motion`).
 
-![due battery animation](screenshots/due.gif)
+| Light | Dark |
+|---|---|
+| ![due battery animation](screenshots/due.gif) | ![due battery animation dark](screenshots/due-dark.gif) |
 
 | Every battery | Low batteries only |
 |---|---|
@@ -181,7 +183,7 @@ The list is updated whenever a battery changes, and every 10 minutes.
 
 ```bash
 pip install -r requirements_test.txt && pytest
-python scripts/screenshots.py  # renders the card with mock batteries into screenshots/ (also makes due.gif, needs ffmpeg)
+python scripts/screenshots.py  # renders the card with mock batteries into screenshots/ (also makes due.gif and due-dark.gif, needs ffmpeg)
 ```
 
 ### Releasing
