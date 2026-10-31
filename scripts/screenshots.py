@@ -184,13 +184,17 @@ SHOTS = [
     {"file": "card-low-dark", "theme": "dark", "config": {"only_low": True}},
 ]
 
-# The full screen view: on a desktop by room and by type, on a phone by room and by type. The viewport is the size of
+# The full screen view: on a desktop by room and by type, on a phone by room and by type (light and dark). The viewport is the size of
 # the view; the page adds the 16 px frame around it.
 POPUP_SHOTS = [
     {"file": "popup", "theme": "light", "view": "room", "viewport": (1600, 1000)},
-    {"file": "popup-dark", "theme": "dark", "view": "type", "viewport": (1600, 1000)},
+    {"file": "popup-dark", "theme": "dark", "view": "room", "viewport": (1600, 1000)},
+    {"file": "popup-type", "theme": "light", "view": "type", "viewport": (1600, 1000)},
+    {"file": "popup-type-dark", "theme": "dark", "view": "type", "viewport": (1600, 1000)},
     {"file": "popup-phone", "theme": "light", "view": "room", "viewport": (390, 844)},
     {"file": "popup-phone-type", "theme": "light", "view": "type", "viewport": (390, 844)},
+    {"file": "popup-phone-dark", "theme": "dark", "view": "room", "viewport": (390, 844)},
+    {"file": "popup-phone-type-dark", "theme": "dark", "view": "type", "viewport": (390, 844)},
 ]
 
 
