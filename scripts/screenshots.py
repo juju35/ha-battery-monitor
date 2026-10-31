@@ -301,6 +301,7 @@ def main():
             print(path.relative_to(ROOT))
             page.close()
         animate(browser, {"file": "due", "theme": "light"}, {}, (1000, 1600))
+        animate(browser, {"file": "due-dark", "theme": "dark"}, {}, (1000, 1600))
         browser.close()
 
 
