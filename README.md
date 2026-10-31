@@ -162,7 +162,11 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 | Full screen, by room | Full screen, by battery type (dark) |
 |---|---|
 | ![full screen by room](screenshots/popup.png) | ![full screen by type](screenshots/popup-dark.png) |
+
+| Phone, by room | Phone, by battery type |
+|---|---|
 | ![phone by room](screenshots/popup-phone.png) | ![phone by type](screenshots/popup-phone-type.png) |
+| ![phone by room dark](screenshots/popup-phone-dark.png) | ![phone by type dark](screenshots/popup-phone-type-dark.png) |
 
 ## How it works
 
