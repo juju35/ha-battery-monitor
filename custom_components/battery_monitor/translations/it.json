@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Notifica due volte al giorno i dispositivi la cui batteria è rimasta scarica.",
+        "data": {
+          "threshold": "Soglia di batteria scarica",
+          "duration": "Scarica da almeno",
+          "morning_time": "Notifica del mattino",
+          "evening_time": "Notifica della sera",
+          "notify_services": "Azioni di notifica",
+          "ignored_entities": "Batterie ignorate",
+          "ignored_integrations": "Integrazioni ignorate"
+        },
+        "data_description": {
+          "threshold": "Una batteria è scarica sotto questo livello.",
+          "duration": "Ore in cui una batteria deve essere rimasta sotto la soglia prima di essere notificata (0: alla prossima notifica).",
+          "morning_time": "Prima delle due notifiche giornaliere.",
+          "evening_time": "Seconda delle due notifiche giornaliere.",
+          "notify_services": "Invia le notifiche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
+          "ignored_entities": "Batterie mai monitorate.",
+          "ignored_integrations": "Integrazioni le cui batterie non vengono mai monitorate (per impostazione predefinita telefoni e tablet dell'app mobile). Digita un dominio per aggiungerne una non ancora configurata."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor è già configurato.",
+      "single_instance_allowed": "Battery Monitor è già configurato."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni di Battery Monitor",
+        "data": {
+          "threshold": "Soglia di batteria scarica",
+          "duration": "Scarica da almeno",
+          "morning_time": "Notifica del mattino",
+          "evening_time": "Notifica della sera",
+          "notify_services": "Azioni di notifica",
+          "ignored_entities": "Batterie ignorate",
+          "ignored_integrations": "Integrazioni ignorate"
+        },
+        "data_description": {
+          "threshold": "Una batteria è scarica sotto questo livello.",
+          "duration": "Ore in cui una batteria deve essere rimasta sotto la soglia prima di essere notificata (0: alla prossima notifica).",
+          "morning_time": "Prima delle due notifiche giornaliere.",
+          "evening_time": "Seconda delle due notifiche giornaliere.",
+          "notify_services": "Invia le notifiche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
+          "ignored_entities": "Batterie mai monitorate.",
+          "ignored_integrations": "Integrazioni le cui batterie non vengono mai monitorate (per impostazione predefinita telefoni e tablet dell'app mobile). Digita un dominio per aggiungerne una non ancora configurata."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Notifica ora"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Batterie scariche",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Non disponibili"
+          },
+          "due": {
+            "name": "Da notificare"
+          },
+          "threshold": {
+            "name": "Soglia"
+          },
+          "duration": {
+            "name": "Durata"
+          },
+          "batteries": {
+            "name": "Batterie"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Ultima notifica",
+        "state_attributes": {
+          "notified": {
+            "name": "Batterie notificate"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Notifica batterie scariche",
+      "description": "Invia subito la notifica, con tutte le batterie sotto la soglia o non disponibili indipendentemente dalla durata, oppure un messaggio che indica che nessuna richiede attenzione."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 batteria scarica"
+    },
+    "title_many": {
+      "message": "{count} batterie scariche"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: scarica"
+    },
+    "none_title": {
+      "message": "Nessuna batteria da controllare"
+    },
+    "none": {
+      "message": "Tutte le batterie sono sopra il {threshold} % e disponibili."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: non disponibile"
+    },
+    "check_one": {
+      "message": "1 batteria da controllare"
+    },
+    "check_many": {
+      "message": "{count} batterie da controllare"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor non è caricato."
+    }
+  }
+}

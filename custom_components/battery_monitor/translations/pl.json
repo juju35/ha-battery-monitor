@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Dwa razy dziennie powiadamia o urządzeniach, których bateria pozostaje słaba.",
+        "data": {
+          "threshold": "Próg słabej baterii",
+          "duration": "Słaba co najmniej przez",
+          "morning_time": "Powiadomienie poranne",
+          "evening_time": "Powiadomienie wieczorne",
+          "notify_services": "Akcje powiadomień",
+          "ignored_entities": "Ignorowane baterie",
+          "ignored_integrations": "Ignorowane integracje"
+        },
+        "data_description": {
+          "threshold": "Poniżej tego poziomu bateria jest słaba.",
+          "duration": "Liczba godzin, przez które bateria musi pozostawać poniżej progu, zanim zostanie zgłoszona (0: przy następnym powiadomieniu).",
+          "morning_time": "Pierwsze z dwóch codziennych powiadomień.",
+          "evening_time": "Drugie z dwóch codziennych powiadomień.",
+          "notify_services": "Wysyłaj powiadomienia za pomocą tych akcji (notify.mobile_app_…). Powiadomienie trwałe jest zawsze tworzone.",
+          "ignored_entities": "Baterie, które nigdy nie są monitorowane.",
+          "ignored_integrations": "Integracje, których baterie nigdy nie są monitorowane (domyślnie telefony i tablety aplikacji mobilnej). Wpisz domenę, aby dodać integrację, która nie jest jeszcze skonfigurowana."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor jest już skonfigurowany.",
+      "single_instance_allowed": "Battery Monitor jest już skonfigurowany."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje Battery Monitor",
+        "data": {
+          "threshold": "Próg słabej baterii",
+          "duration": "Słaba co najmniej przez",
+          "morning_time": "Powiadomienie poranne",
+          "evening_time": "Powiadomienie wieczorne",
+          "notify_services": "Akcje powiadomień",
+          "ignored_entities": "Ignorowane baterie",
+          "ignored_integrations": "Ignorowane integracje"
+        },
+        "data_description": {
+          "threshold": "Poniżej tego poziomu bateria jest słaba.",
+          "duration": "Liczba godzin, przez które bateria musi pozostawać poniżej progu, zanim zostanie zgłoszona (0: przy następnym powiadomieniu).",
+          "morning_time": "Pierwsze z dwóch codziennych powiadomień.",
+          "evening_time": "Drugie z dwóch codziennych powiadomień.",
+          "notify_services": "Wysyłaj powiadomienia za pomocą tych akcji (notify.mobile_app_…). Powiadomienie trwałe jest zawsze tworzone.",
+          "ignored_entities": "Baterie, które nigdy nie są monitorowane.",
+          "ignored_integrations": "Integracje, których baterie nigdy nie są monitorowane (domyślnie telefony i tablety aplikacji mobilnej). Wpisz domenę, aby dodać integrację, która nie jest jeszcze skonfigurowana."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Powiadom teraz"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Słabe baterie",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Niedostępne"
+          },
+          "due": {
+            "name": "Do zgłoszenia"
+          },
+          "threshold": {
+            "name": "Próg"
+          },
+          "duration": {
+            "name": "Czas trwania"
+          },
+          "batteries": {
+            "name": "Baterie"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Ostatnie powiadomienie",
+        "state_attributes": {
+          "notified": {
+            "name": "Zgłoszone baterie"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Powiadom o słabych bateriach",
+      "description": "Wysyła powiadomienie od razu, ze wszystkimi bateriami poniżej progu lub niedostępnymi niezależnie od czasu trwania, albo wiadomość, że żadna nie wymaga uwagi."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 słaba bateria"
+    },
+    "title_many": {
+      "message": "Słabe baterie: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: słaba"
+    },
+    "none_title": {
+      "message": "Brak baterii do sprawdzenia"
+    },
+    "none": {
+      "message": "Wszystkie baterie są powyżej {threshold} % i są dostępne."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: niedostępna"
+    },
+    "check_one": {
+      "message": "1 bateria do sprawdzenia"
+    },
+    "check_many": {
+      "message": "Baterie do sprawdzenia: {count}"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor nie jest załadowany."
+    }
+  }
+}

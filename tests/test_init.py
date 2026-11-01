@@ -565,12 +565,16 @@ async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant) -> None:
     [
         ("sr", "Слабе батерије: 3", "Батерије за проверу: 3", "1 слаба батерија"),
         ("sr-Latn", "Slabe baterije: 3", "Baterije za proveru: 3", "1 slaba baterija"),
+        ("pl", "Słabe baterie: 3", "Baterie do sprawdzenia: 3", "1 słaba bateria"),
+        ("it", "3 batterie scariche", "3 batterie da controllare", "1 batteria scarica"),
+        ("nl", "3 bijna lege batterijen", "3 batterijen te controleren", "1 bijna lege batterij"),
+        ("pt", "3 baterias fracas", "3 baterias a verificar", "1 bateria fraca"),
     ],
 )
-async def test_serbian_notification_titles(
+async def test_notification_titles(
     hass: HomeAssistant, language: str, title_many: str, check_many: str, title_one: str
 ) -> None:
-    """Serbian titles read right for 2–4 batteries too, in both scripts (sr-Latn is its own file)."""
+    """Notification titles in each language; Serbian and Polish read right for 2–4 batteries too."""
     hass.config.language = language
     calls = async_mock_service(hass, "notify", "mobile_app_phone")
     add_battery(hass, "Door", "12")

@@ -163,6 +163,24 @@ test('bmLang: card option, then Home Assistant, then English', () => {
   assert.equal(bmLang({ language: 'sr-Cyrl' }, {}), 'sr');
 });
 
+test('bmLang: Italian, Dutch, Portuguese and Polish, by full code then base language', () => {
+  assert.equal(bmLang({ locale: { language: 'it-IT' } }, {}), 'it');
+  assert.equal(bmLang({ locale: { language: 'nl-BE' } }, {}), 'nl');
+  assert.equal(bmLang({ language: 'pt' }, {}), 'pt');
+  // Brazilian Portuguese falls back to the European Portuguese texts.
+  assert.equal(bmLang({ locale: { language: 'pt-BR' } }, {}), 'pt');
+  assert.equal(bmLang({ language: 'pl-PL' }, {}), 'pl');
+  assert.equal(bmLang({ language: 'en' }, { language: 'pl' }), 'pl');
+  assert.equal(bmLang({ locale: { language: 'sr-Latn' } }, {}), 'sr-Latn');
+  assert.equal(bmLang({ language: 'ja' }, {}), 'en');
+});
+
+test('I18N Polish: counts above one go after a colon, so the noun reads right for 2–4 and 5+', () => {
+  for (const key of ['low_many', 'unavailable_many', 'count', 'cells', 'devices_n', 'to_check']) {
+    assert.match(BM_I18N.pl[key], /: \{n\}$/, key);
+  }
+});
+
 test('I18N Serbian: the Cyrillic and Latin cards say the same thing, letter for letter', () => {
   const cyr = 'абвгдђежзијклљмнњопрстћуфхцчџш';
   const lat = ['a', 'b', 'v', 'g', 'd', 'đ', 'e', 'ž', 'z', 'i', 'j', 'k', 'l', 'lj', 'm', 'n', 'nj', 'o', 'p', 'r', 's', 't', 'ć', 'u', 'f', 'h', 'c', 'č', 'dž', 'š'];
@@ -185,16 +203,33 @@ test('I18N Serbian: a battery is feminine, and a count reads right for any numbe
   assert.equal(BM_I18N['sr-Latn'].count, 'Baterija: {n}');
 });
 
-test('I18N parity: every language has exactly the English keys and placeholders', () => {
+const LANGUAGES = ['de', 'en', 'es', 'fr', 'it', 'nl', 'pl', 'pt', 'sr', 'sr-Latn'];
+
+test('I18N parity: every language has exactly the English keys and placeholders, and no empty text', () => {
   const en = BM_I18N.en;
   const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
-  assert.deepEqual(Object.keys(BM_I18N).sort(), ['de', 'en', 'es', 'fr', 'sr', 'sr-Latn']);
+  assert.deepEqual(Object.keys(BM_I18N).sort(), LANGUAGES);
   for (const [lang, strings] of Object.entries(BM_I18N)) {
     assert.deepEqual(Object.keys(strings).sort(), Object.keys(en).sort(), `${lang}: keys`);
     for (const key of Object.keys(en)) {
+      assert.equal(typeof strings[key], 'string', `${lang}.${key}: type`);
+      assert.ok(strings[key].trim(), `${lang}.${key}: empty`);
       assert.deepEqual(placeholders(strings[key]), placeholders(en[key]), `${lang}.${key}: placeholders`);
     }
   }
+});
+
+test('editor: the language list offers every translation, once', () => {
+  const editor = new BatteryMonitorCardEditor();
+  editor.appendChild = () => {};
+  editor.setConfig({});
+  editor.hass = typedHass('en');
+  const options = editor._form.schema.find((s) => s.name === 'language').selector.select.options;
+  assert.deepEqual(Array.from(options, (o) => o.value).sort(), LANGUAGES);
+  assert.deepEqual(
+    Object.fromEntries(options.filter((o) => ['it', 'nl', 'pt', 'pl'].includes(o.value)).map((o) => [o.value, o.label])),
+    { it: 'Italiano', nl: 'Nederlands', pt: 'Português (Portugal)', pl: 'Polski' },
+  );
 });
 
 test('the sensor restored without its battery list at the first render is found once its state arrives', () => {
