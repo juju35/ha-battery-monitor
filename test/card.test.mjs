@@ -26,10 +26,73 @@ const fakeNode = () => ({
     this.handlers['value-changed']({ detail: { value } });
   },
   attachShadow() {
-    this.shadowRoot = { innerHTML: '', addEventListener() {}, querySelector: () => null };
+    this.shadowRoot = fakeRoot();
     return this.shadowRoot;
   },
 });
+// A shadow root whose buttons can take the focus, like the browser's: the markup is not parsed beyond its <button>
+// tags; each one is found by its data-id, its data-view or its first class. Writing the markup replaces the elements,
+// which loses the focus.
+const buttonKey = (tag) => {
+  const attr = (name) => new RegExp(`${name}="([^"]*)"`).exec(tag)?.[1];
+  if (attr('data-id')) return `[data-id="${attr('data-id')}"]`;
+  if (attr('data-view')) return `[data-view="${attr('data-view')}"]`;
+  return `.${attr('class').split(' ')[0]}`;
+};
+function fakeRoot() {
+  let markup = '';
+  let elements = new Map();
+  const element = (key, tag) => {
+    if (!elements.has(key)) {
+      elements.set(key, {
+        key,
+        tag,
+        isConnected: true,
+        disabled: / disabled[ >]/.test(tag),
+        dataset: { id: /data-id="([^"]*)"/.exec(tag)?.[1], view: /data-view="([^"]*)"/.exec(tag)?.[1] },
+        classList: /class="([^"]*)"/.exec(tag)[1].split(' '),
+        addEventListener() {},
+        focus() {
+          root.activeElement = this;
+        },
+      });
+    }
+    return elements.get(key);
+  };
+  const buttons = () => [...markup.matchAll(/<button\b[^>]*>/g)].map((m) => element(buttonKey(m[0]), m[0]));
+  const root = {
+    activeElement: null,
+    get innerHTML() {
+      return markup;
+    },
+    set innerHTML(value) {
+      for (const el of elements.values()) el.isConnected = false;
+      markup = value;
+      elements = new Map();
+      root.activeElement = null;
+    },
+    addEventListener() {},
+    querySelector(selector) {
+      return buttons().find((b) => b.key === selector) ?? null;
+    },
+    querySelectorAll(selector) {
+      const all = buttons();
+      if (selector === 'button:not([disabled])') return all.filter((b) => !b.disabled);
+      return selector === 'button' ? all : all.filter((b) => b.key === selector);
+    },
+  };
+  return root;
+}
+// Timers run by hand: `timers.run()` fires the pending ones.
+const timers = {
+  pending: new Map(),
+  next: 1,
+  run() {
+    const due = [...this.pending.values()];
+    this.pending.clear();
+    for (const fn of due) fn();
+  },
+};
 const body = {
   ...fakeNode(),
   appendChild(el) {
@@ -104,6 +167,12 @@ const context = {
   },
   console,
   Date,
+  setTimeout: (fn) => {
+    const id = timers.next++;
+    timers.pending.set(id, fn);
+    return id;
+  },
+  clearTimeout: (id) => timers.pending.delete(id),
 };
 vm.createContext(context);
 vm.runInContext(
@@ -748,4 +817,200 @@ test('every level the card renders, sensor missing included, gives its pill a te
   for (const l of levels) assert.match(rule(`ha-card.lvl-${l}`.padEnd(17)), /--ct: var\(--bm-\w+-text\)/, l);
   // An unavailable battery is an alert row: its level text gets the alert text colour.
   assert.match(html(low), /class="row alert na"/);
+});
+
+// ── Review pass 9 ──
+// A card whose own shadow root has focusable buttons (the full screen and notify buttons).
+function focusableCard(config = {}) {
+  const card = makeCard(config);
+  card.shadowRoot = fakeRoot();
+  return card;
+}
+const popupRoot = () => body.children[0].shadowRoot;
+const keydown = (key, shiftKey = false) => {
+  const ev = { key, shiftKey, prevented: false, preventDefault() {
+    this.prevented = true;
+  } };
+  listeners.keydown(ev);
+  return ev;
+};
+
+test('header: the pill gives way to the title and never pushes the buttons out of the card', () => {
+  // The title keeps a few letters and shrinks with an ellipsis.
+  const title = rule('.title');
+  assert.match(title, /flex: 1 1 auto/);
+  assert.match(title, /min-width: [\d.]+ch/);
+  assert.match(title, /text-overflow: ellipsis/);
+  // The pill shrinks (at most half of the header), its text cut with an ellipsis.
+  const pill = rule('.pill');
+  for (const decl of ['flex: 0 1 auto', 'min-width: 0', 'max-width: 50%', 'overflow: hidden', 'white-space: nowrap']) {
+    assert.ok(pill.includes(decl), `.pill: ${decl}`);
+  }
+  assert.match(rule('.pt'), /text-overflow: ellipsis/);
+  // The icon buttons never shrink.
+  for (const button of ['.notify', '.full', '.close']) assert.match(rule(button), /flex: none/, button);
+  // Narrow, the pill is only its coloured dot; its text stays for screen readers and in its tooltip.
+  assert.match(rule('ha-card'), /container-type: inline-size/);
+  const narrow = /@container \(max-width: (\d+)px\) \{([^@]*)\}/.exec(allStyles());
+  assert.ok(narrow, 'no container query for a narrow card');
+  assert.match(narrow[2], /\.pill::before \{[^}]*display: block/);
+  assert.match(narrow[2], /\.pt \{[^}]*clip: rect\(0 0 0 0\)/);
+});
+
+test('header: the pill carries its whole text in its tooltip, in its own span', () => {
+  const card = makeCard({ language: 'pl' });
+  card.hass = hassWith(registry(), { [SENSOR]: realState });
+  assert.match(html(card), /<div class="pill" title="Słabe: 3 · 1 niedostępna"><span class="pt">Słabe: 3 · 1 niedostępna<\/span><\/div>/);
+  // Not set up: the same pill.
+  const missing = makeCard();
+  missing.hass = hassWith({}, {});
+  assert.match(html(missing), new RegExp(`<div class="pill" title="${notSetUp}"><span class="pt">${notSetUp}</span></div>`));
+});
+
+test('list: the columns option never squeezes a battery below a readable width', () => {
+  const columns = /grid-template-columns: ([^;]+);/.exec(rule('.list'))[1];
+  // As many columns as asked at most, each at least 160px (or the whole card, if narrower), fewer when it does not fit.
+  assert.match(columns, /^repeat\(auto-fill, minmax\(min\(100%, max\(160px, /);
+  assert.match(columns, /var\(--cols\)/);
+});
+
+test('full screen: the focus goes to its close button, comes back to the card button when it closes', () => {
+  const card = focusableCard();
+  card.hass = typedHass();
+  card.shadowRoot.querySelector('.full').focus();
+  card._openPopup();
+  assert.equal(popupRoot().activeElement?.key, '.close', 'the focus stayed under the layer');
+  listeners.keydown({ key: 'Escape' });
+  assert.equal(body.children.length, 0);
+  assert.equal(card.shadowRoot.activeElement?.key, '.full', 'the focus was not given back');
+});
+
+test('full screen: a refresh keeps the focus on the same tab or battery', () => {
+  const card = focusableCard();
+  const hass = typedHass();
+  card.hass = hass;
+  card._openPopup();
+  popupRoot().querySelector('[data-view="type"]').focus();
+  card._onPopupClick({ composedPath: () => [{ classList: { contains: () => false }, dataset: { view: 'type' } }] });
+  assert.equal(popupRoot().activeElement?.key, '[data-view="type"]', 'switching tabs lost the focus');
+  popupRoot().querySelector('[data-id="sensor.remote_battery"]').focus();
+  // A battery changes: the whole popup is written again.
+  const batteries = hass.states[SENSOR].attributes.batteries.map((b) => (b.entity_id === 'sensor.door_battery' ? { ...b, level: 3 } : b));
+  card.hass = { ...hass, states: { ...hass.states, [SENSOR]: { state: '3', attributes: { batteries } } } };
+  assert.match(popupRoot().innerHTML, /Door — 3 %/);
+  assert.equal(popupRoot().activeElement?.key, '[data-id="sensor.remote_battery"]', 'a refresh lost the focus');
+  // The focused battery goes away: nothing to focus, no error.
+  card.hass = { ...hass, states: { ...hass.states, [SENSOR]: { state: '3', attributes: { batteries: batteries.slice(0, 1) } } } };
+  assert.equal(popupRoot().activeElement, null);
+  card._closePopup();
+});
+
+test('full screen: Tab and Shift+Tab stay inside it, not over the dashboard behind', () => {
+  const card = focusableCard();
+  card.hass = typedHass();
+  card._openPopup();
+  const items = popupRoot().querySelectorAll('button:not([disabled])');
+  const [first, last] = [items[0], items.at(-1)];
+  last.focus();
+  assert.ok(keydown('Tab').prevented);
+  assert.equal(popupRoot().activeElement, first);
+  assert.ok(keydown('Tab', true).prevented);
+  assert.equal(popupRoot().activeElement, last);
+  // In the middle, the browser moves the focus itself.
+  items[1].focus();
+  assert.ok(!keydown('Tab').prevented);
+  // A more-info opened over it: its own focus, not ours.
+  last.focus();
+  history.pushState({ dialog: 'ha-more-info-dialog' });
+  assert.ok(!keydown('Tab').prevented);
+  history.back();
+  card._closePopup();
+});
+
+// A Home Assistant whose button press resolves or rejects when the test says so.
+function pressHass(states = {}) {
+  const calls = [];
+  const hass = { ...hassWith(registry(), { [SENSOR]: realState, ...states }) };
+  hass.callService = (...args) =>
+    new Promise((resolve, reject) => {
+      calls.push({ args, resolve, reject });
+    });
+  return { hass, calls };
+}
+const flush = () => new Promise((r) => setImmediate(r));
+
+test('notify now: busy while the press runs, then sent; a second press meanwhile is ignored', async () => {
+  const card = makeCard();
+  const { hass, calls } = pressHass();
+  card.hass = hass;
+  card._notify();
+  card._notify();
+  assert.equal(calls.length, 1, 'pressed twice');
+  assert.equal(JSON.stringify(calls[0].args), JSON.stringify(['button', 'press', { entity_id: BUTTON }]));
+  assert.match(card._notifyButton(), /data-state="busy"[^>]*aria-busy="true"[^>]*>\s*<ha-icon icon="mdi:loading">/);
+  calls[0].resolve();
+  await flush();
+  assert.match(card._notifyButton(), /data-state="done" title="Notification sent"/);
+  assert.match(card._notifyButton(), /icon="mdi:check"/);
+  timers.run();
+  assert.match(card._notifyButton(), /data-state="" title="Notify now"/);
+  card._notify();
+  assert.equal(calls.length, 2);
+  calls[1].resolve();
+  await flush();
+  timers.run();
+});
+
+test('notify now: a failed press says why, in the button tooltip, without an unhandled rejection', async () => {
+  const card = makeCard({ language: 'fr' });
+  const { hass, calls } = pressHass();
+  card.hass = hass;
+  card._notify();
+  calls[0].reject({ code: 'home_assistant_error', message: 'Connection lost' });
+  await flush();
+  assert.match(card._notifyButton(), /data-state="error" title="[^"]*Connection lost"/);
+  assert.match(card._notifyButton(), /icon="mdi:alert-circle-outline"/);
+  // A connection gone throws at once.
+  const sync = makeCard();
+  sync.hass = { ...hass, callService: () => {
+    throw new Error('Socket closed');
+  } };
+  await sync._notify();
+  assert.match(sync._notifyButton(), /data-state="error" title="[^"]*Socket closed"/);
+  timers.run();
+  assert.match(card._notifyButton(), /data-state=""/);
+});
+
+test('notify now: an unavailable button is shown disabled, says so, and is not pressed', () => {
+  const card = makeCard();
+  const { hass, calls } = pressHass({ [BUTTON]: { state: 'unavailable', attributes: {} } });
+  card.hass = hass;
+  assert.match(html(card), /<button class="notify"[^>]*title="The “Notify now” button is unavailable"[^>]* disabled/);
+  card._notify();
+  assert.equal(calls.length, 0);
+  // Back available (a never pressed button is "unknown"): enabled again.
+  card.hass = { ...hass, states: { ...hass.states, [BUTTON]: { state: 'unknown', attributes: {} } } };
+  assert.doesNotMatch(html(card), /<button class="notify"[^>]* disabled/);
+});
+
+test('I18N Serbian: the pill counts read right for 1, 2, 5, 21 and 22 batteries', () => {
+  const pill = (lang, nLow, nNa) => {
+    const batteries = [
+      ...Array.from({ length: nLow }, (_, i) => ({ entity_id: `sensor.l${i}`, name: `L${i}`, level: 5, low: true })),
+      ...Array.from({ length: nNa }, (_, i) => ({ entity_id: `sensor.u${i}`, name: `U${i}`, level: null, unavailable: true })),
+    ];
+    const card = makeCard({ language: lang });
+    card.hass = hassWith(registry(), { [SENSOR]: { state: String(nLow), attributes: { batteries } } });
+    return /<span class="pt">([^<]*)</.exec(html(card))[1];
+  };
+  assert.equal(pill('sr-Latn', 1, 1), '1 slaba · 1 nedostupna');
+  for (const n of [2, 5, 21, 22]) {
+    assert.equal(pill('sr-Latn', n, n), `Slabe: ${n} · Nedostupne: ${n}`);
+    assert.equal(pill('sr', n, n), `Слабе: ${n} · Недоступне: ${n}`);
+  }
+  assert.equal(pill('sr', 1, 1), '1 слаба · 1 недоступна');
+  // A battery is feminine, like "Slaba": one unavailable battery is "Nedostupna".
+  assert.equal(BM_I18N['sr-Latn'].unavailable, 'Nedostupna');
+  assert.equal(BM_I18N.sr.since_unavailable, 'недоступна већ {d}');
+  for (const lang of LANGUAGES) assert.doesNotMatch(Object.values(BM_I18N[lang]).join('\n'), /\/(ih|их)\b/, lang);
 });
