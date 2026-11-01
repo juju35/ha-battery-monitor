@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.10.3';
+var BATTERY_MONITOR_CARD_VERSION = '1.10.4';
 
 const BM_I18N = {
   en: {
@@ -19,6 +19,9 @@ const BM_I18N = {
     low: 'Low',
     unavailable: 'Unavailable',
     notify_now: 'Notify now',
+    notify_sent: 'Notification sent',
+    notify_failed: 'Could not send the notification: {error}',
+    notify_unavailable: 'The “Notify now” button is unavailable',
     since: 'low for {d}',
     since_unavailable: 'unavailable for {d}',
     hours: '{n} h',
@@ -73,6 +76,9 @@ const BM_I18N = {
     low: 'Faible',
     unavailable: 'Indisponible',
     notify_now: 'Notifier maintenant',
+    notify_sent: 'Notification envoyée',
+    notify_failed: 'Échec de l’envoi de la notification : {error}',
+    notify_unavailable: 'Le bouton « Notifier maintenant » est indisponible',
     since: 'faible depuis {d}',
     since_unavailable: 'indisponible depuis {d}',
     hours: '{n} h',
@@ -127,6 +133,9 @@ const BM_I18N = {
     low: 'Schwach',
     unavailable: 'Nicht verfügbar',
     notify_now: 'Jetzt benachrichtigen',
+    notify_sent: 'Benachrichtigung gesendet',
+    notify_failed: 'Benachrichtigung konnte nicht gesendet werden: {error}',
+    notify_unavailable: 'Die Schaltfläche „Jetzt benachrichtigen“ ist nicht verfügbar',
     since: 'schwach seit {d}',
     since_unavailable: 'nicht verfügbar seit {d}',
     hours: '{n} h',
@@ -181,6 +190,9 @@ const BM_I18N = {
     low: 'Baja',
     unavailable: 'No disponible',
     notify_now: 'Notificar ahora',
+    notify_sent: 'Notificación enviada',
+    notify_failed: 'No se pudo enviar la notificación: {error}',
+    notify_unavailable: 'El botón «Notificar ahora» no está disponible',
     since: 'baja desde hace {d}',
     since_unavailable: 'no disponible desde hace {d}',
     hours: '{n} h',
@@ -227,16 +239,19 @@ const BM_I18N = {
     title: 'Батерије',
     all_ok: 'Све је у реду',
     low_one: '{n} слаба',
-    low_many: '{n} слабе/их',
+    low_many: 'Слабе: {n}',
     unavailable_one: '{n} недоступна',
-    unavailable_many: '{n} недоступно/их',
+    unavailable_many: 'Недоступне: {n}',
     no_batteries: 'Није пронађена ниједна батерија',
     not_loaded: 'Battery Monitor није подешен',
     low: 'Слаба',
-    unavailable: 'Недоступно',
+    unavailable: 'Недоступна',
     notify_now: 'Обавести сада',
+    notify_sent: 'Обавештење је послато',
+    notify_failed: 'Слање обавештења није успело: {error}',
+    notify_unavailable: 'Дугме „Обавести сада“ није доступно',
     since: 'слаба већ {d}',
-    since_unavailable: 'недоступно већ {d}',
+    since_unavailable: 'недоступна већ {d}',
     hours: '{n} h',
     days: '{n} d',
     ed_entity: 'Battery Monitor сензор',
@@ -281,16 +296,19 @@ const BM_I18N = {
     title: 'Baterije',
     all_ok: 'Sve je u redu',
     low_one: '{n} slaba',
-    low_many: '{n} slabe/ih',
+    low_many: 'Slabe: {n}',
     unavailable_one: '{n} nedostupna',
-    unavailable_many: '{n} nedostupno/ih',
+    unavailable_many: 'Nedostupne: {n}',
     no_batteries: 'Nije pronađena nijedna baterija',
     not_loaded: 'Battery Monitor nije podešen',
     low: 'Slaba',
-    unavailable: 'Nedostupno',
+    unavailable: 'Nedostupna',
     notify_now: 'Obavesti sada',
+    notify_sent: 'Obaveštenje je poslato',
+    notify_failed: 'Slanje obaveštenja nije uspelo: {error}',
+    notify_unavailable: 'Dugme „Obavesti sada“ nije dostupno',
     since: 'slaba već {d}',
-    since_unavailable: 'nedostupno već {d}',
+    since_unavailable: 'nedostupna već {d}',
     hours: '{n} h',
     days: '{n} d',
     ed_entity: 'Battery Monitor senzor',
@@ -343,6 +361,9 @@ const BM_I18N = {
     low: 'Scarica',
     unavailable: 'Non disponibile',
     notify_now: 'Notifica ora',
+    notify_sent: 'Notifica inviata',
+    notify_failed: 'Impossibile inviare la notifica: {error}',
+    notify_unavailable: 'Il pulsante «Notifica ora» non è disponibile',
     since: 'scarica da {d}',
     since_unavailable: 'non disponibile da {d}',
     hours: '{n} h',
@@ -397,6 +418,9 @@ const BM_I18N = {
     low: 'Laag',
     unavailable: 'Niet beschikbaar',
     notify_now: 'Nu melden',
+    notify_sent: 'Melding verzonden',
+    notify_failed: 'Kan de melding niet verzenden: {error}',
+    notify_unavailable: 'De knop “Nu melden” is niet beschikbaar',
     since: 'al {d} laag',
     since_unavailable: 'al {d} niet beschikbaar',
     hours: '{n} u',
@@ -451,6 +475,9 @@ const BM_I18N = {
     low: 'Fraca',
     unavailable: 'Indisponível',
     notify_now: 'Notificar agora',
+    notify_sent: 'Notificação enviada',
+    notify_failed: 'Não foi possível enviar a notificação: {error}',
+    notify_unavailable: 'O botão «Notificar agora» está indisponível',
     since: 'fraca há {d}',
     since_unavailable: 'indisponível há {d}',
     hours: '{n} h',
@@ -505,6 +532,9 @@ const BM_I18N = {
     low: 'Słaba',
     unavailable: 'Niedostępna',
     notify_now: 'Powiadom teraz',
+    notify_sent: 'Powiadomienie wysłane',
+    notify_failed: 'Nie udało się wysłać powiadomienia: {error}',
+    notify_unavailable: 'Przycisk „Powiadom teraz” jest niedostępny',
     since: 'słaba od {d}',
     since_unavailable: 'niedostępna od {d}',
     hours: '{n} h',
@@ -632,6 +662,17 @@ const bmTypeOf = (hass, config, b) => {
   return set ? bmParseType(set) : bmDetectedType(hass, b);
 };
 
+// A selector that finds a focused control of the full screen again once its markup is written anew: a battery,
+// a tab, or a button by its class.
+function bmFocusKey(el) {
+  if (!el) return null;
+  const quote = (v) => `"${String(v).replace(/["\\]/g, '\\$&')}"`;
+  if (el.dataset?.id) return `[data-id=${quote(el.dataset.id)}]`;
+  if (el.dataset?.view) return `[data-view=${quote(el.dataset.view)}]`;
+  const cls = el.classList?.[0];
+  return cls ? `.${cls}` : null;
+}
+
 // The integration's sensors, from the entity registry.
 const bmCandidates = (registry) =>
   Object.keys(registry || {}).filter((id) => id.startsWith('sensor.') && registry[id]?.platform === 'battery_monitor');
@@ -675,6 +716,7 @@ class BatteryMonitorCard extends HTMLElement {
       this._sig &&
       entity &&
       hass.states[entity] === old.states[entity] &&
+      hass.states[this._state.button] === old.states[this._state.button] &&
       hass.entities === old.entities &&
       hass.devices === old.devices &&
       hass.areas === old.areas &&
@@ -689,7 +731,10 @@ class BatteryMonitorCard extends HTMLElement {
   disconnectedCallback() {
     // A dashboard edit can simply move the card in the DOM: only close the full screen if the card is really gone.
     Promise.resolve().then(() => {
-      if (!this.isConnected) this._closePopup();
+      if (this.isConnected) return;
+      this._closePopup();
+      clearTimeout(this._notifyTimer);
+      this._notifyState = null;
     });
   }
 
@@ -755,7 +800,9 @@ class BatteryMonitorCard extends HTMLElement {
     // The room icons of the full screen, which an area edit alone changes.
     const icons = [...new Set(all.map((b) => b.area))].map((a) => bmAreaIcon(this._hass, a));
     const hour = Math.floor(Date.now() / 3600000);
-    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, icons, button, hour]);
+    // The button's availability too: an unavailable "Notify now" button is disabled.
+    const buttonUnavailable = this._hass.states?.[button]?.state === 'unavailable';
+    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, icons, button, buttonUnavailable, hour]);
     this._sigHour = hour;
     if (sig === this._sig) return;
     this._sig = sig;
@@ -786,9 +833,7 @@ class BatteryMonitorCard extends HTMLElement {
       <ha-card class="lvl-${level}">
         <div class="head">
           <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
-          <div class="title">${bmEsc(c.title || this._t('title'))}</div>
-          ${this._notifyButton()}
-          <div class="pill">${bmEsc(status)}</div>
+          ${this._headMain(c.title || this._t('title'), status)}
           ${
             c.popup !== false && st
               ? `<button class="full" title="${bmEsc(this._t('popup_open'))}" aria-label="${bmEsc(this._t('popup_open'))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>`
@@ -814,15 +859,77 @@ class BatteryMonitorCard extends HTMLElement {
     return counts.length ? counts.join(' · ') : this._t(all.length ? 'all_ok' : 'no_batteries');
   }
 
-  _notifyButton() {
-    const { button } = this._state;
-    if (!this._config.notify_button || !button) return '';
-    const label = bmEsc(this._t('notify_now'));
-    return `<button class="notify" title="${label}" aria-label="${label}"><ha-icon icon="mdi:bell-ring-outline"></ha-icon></button>`;
+  // The title, the "Notify now" button and the status pill, in a block of their own between the badge and the full
+  // screen (or close) button: short of room on one line, the pill goes under the title, whole, rather than being cut.
+  _headMain(title, status) {
+    return `<div class="main"><div class="title">${bmEsc(title)}</div>${this._notifyButton()}${this._pill(status)}</div>`;
   }
 
-  _notify() {
-    this._hass.callService('button', 'press', { entity_id: this._state.button });
+  // The status pill: its whole text, on its own line under the title when the header is short of room.
+  _pill(status) {
+    const text = bmEsc(status);
+    return `<div class="pill" title="${text}"><span class="pt">${text}</span></div>`;
+  }
+
+  // The "Notify now" button's look: its state while a press runs ('busy'), just after ('done'), or when it failed
+  // ('error'); disabled while the button entity is unavailable.
+  _notifyLook() {
+    const unavailable = this._hass?.states?.[this._state?.button]?.state === 'unavailable';
+    const state = unavailable ? '' : this._notifyState || '';
+    const label = unavailable
+      ? this._t('notify_unavailable')
+      : state === 'done'
+        ? this._t('notify_sent')
+        : state === 'error'
+          ? this._t('notify_failed', { error: this._notifyError })
+          : this._t('notify_now');
+    const icon = { busy: 'mdi:loading', done: 'mdi:check', error: 'mdi:alert-circle-outline' }[state] || 'mdi:bell-ring-outline';
+    return { unavailable, state, label, icon };
+  }
+
+  _notifyButton() {
+    if (!this._config.notify_button || !this._state?.button) return '';
+    const { unavailable, state, label, icon } = this._notifyLook();
+    const l = bmEsc(label);
+    return `<button class="notify" data-state="${state}" title="${l}" aria-label="${l}"${unavailable ? ' disabled' : ''}${state === 'busy' ? ' aria-busy="true"' : ''}><ha-icon icon="${icon}"></ha-icon></button>`;
+  }
+
+  // Shows the press state on the buttons already there (the card's and the full screen's), without writing the
+  // markup again: a button focused from the keyboard keeps its focus.
+  _setNotify(state, error = '') {
+    this._notifyState = state;
+    this._notifyError = error;
+    const { unavailable, state: shown, label, icon } = this._notifyLook();
+    for (const root of [this.shadowRoot, this._popup?.shadowRoot]) {
+      for (const el of root?.querySelectorAll?.('.notify') || []) {
+        if (el.dataset) el.dataset.state = shown;
+        el.title = label;
+        el.setAttribute?.('aria-label', label);
+        if (shown === 'busy') el.setAttribute?.('aria-busy', 'true');
+        else el.removeAttribute?.('aria-busy');
+        el.toggleAttribute?.('disabled', unavailable);
+        el.querySelector?.('ha-icon')?.setAttribute('icon', icon);
+      }
+    }
+  }
+
+  // Presses the "Notify now" button: busy while the call runs, a check mark once sent, the reason in the tooltip
+  // when it fails. A press while one runs, or on an unavailable button, does nothing.
+  async _notify() {
+    const button = this._state?.button;
+    if (!button || this._notifyState === 'busy' || this._notifyLook().unavailable) return;
+    clearTimeout(this._notifyTimer);
+    this._setNotify('busy');
+    let state = 'done';
+    let error = '';
+    try {
+      await this._hass.callService('button', 'press', { entity_id: button });
+    } catch (err) {
+      state = 'error';
+      error = String(err?.message || err?.code || err || '');
+    }
+    this._setNotify(state, error);
+    this._notifyTimer = setTimeout(() => this._setNotify(null), state === 'done' ? 2000 : 8000);
   }
 
   _moreInfo(entityId) {
@@ -870,8 +977,10 @@ class BatteryMonitorCard extends HTMLElement {
     const root = host.attachShadow({ mode: 'open' });
     root.addEventListener('click', (ev) => this._onPopupClick(ev));
     this._onPopupKey = (ev) => {
-      // Escape over a more-info opened from here closes that dialog only.
-      if (ev.key === 'Escape' && !bmDialogOpen()) this._closePopup();
+      // Escape over a more-info opened from here closes that dialog only, and Tab moves in that dialog.
+      if (bmDialogOpen()) return;
+      if (ev.key === 'Escape') this._closePopup();
+      else if (ev.key === 'Tab') this._trapTab(ev);
     };
     this._onPopupBack = (ev) => {
       // A more-info opened from a row adds its own history entry; closing it goes back to the popup's entry:
@@ -902,6 +1011,21 @@ class BatteryMonitorCard extends HTMLElement {
     this._popup = host;
     this._view ||= 'room';
     this._renderPopup();
+    // The keyboard goes with the dialog: its close button first.
+    root.querySelector('.close')?.focus?.({ preventScroll: true });
+  }
+
+  // Tab from the last control goes back to the first one, Shift+Tab from the first to the last: the focus never
+  // leaves for the dashboard hidden behind the full screen.
+  _trapTab(ev) {
+    const root = this._popup?.shadowRoot;
+    const items = [...(root?.querySelectorAll?.('button:not([disabled])') || [])];
+    if (!items.length) return;
+    const at = items.indexOf(root.activeElement);
+    const next = ev.shiftKey ? (at <= 0 ? items[items.length - 1] : null) : at < 0 || at === items.length - 1 ? items[0] : null;
+    if (!next) return;
+    ev.preventDefault();
+    next.focus();
   }
 
   // `fromBack`: the back button already left the history entry the popup added.
@@ -918,6 +1042,8 @@ class BatteryMonitorCard extends HTMLElement {
     this._popupHistory = false;
     this._popupUrl = null;
     if (!fromBack && pushed) window.history.back();
+    // The focus back on the button that opened it.
+    this.shadowRoot?.querySelector?.('.full')?.focus?.({ preventScroll: true });
   }
 
   // Home Assistant's dialogs are not in the browser's top layer: while a more-info opened from the full screen
@@ -1025,15 +1151,15 @@ class BatteryMonitorCard extends HTMLElement {
     // switching tabs starts back at the top.
     const scrolled = (view === this._renderedView && host.shadowRoot.querySelector('.sheet')?.scrollTop) || 0;
     this._renderedView = view;
+    // The focused control (a tab, a battery, a button) is found again in the new markup.
+    const focused = bmFocusKey(host.shadowRoot.activeElement);
     host.shadowRoot.innerHTML = `
       <style>${BatteryMonitorCard.styles}${BatteryMonitorCard.popupStyles}</style>
       <div class="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="${title}">
         <ha-card class="popup lvl-${level}">
           <div class="head">
             <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
-            <div class="title">${title}</div>
-            ${this._notifyButton()}
-            <div class="pill">${bmEsc(status)}</div>
+            ${this._headMain(c.title || this._t('title'), status)}
             <button class="close" title="${bmEsc(this._t('popup_close'))}" aria-label="${bmEsc(this._t('popup_close'))}"><ha-icon icon="mdi:close"></ha-icon></button>
           </div>
           <div class="bar-top">
@@ -1047,11 +1173,15 @@ class BatteryMonitorCard extends HTMLElement {
       const sheet = host.shadowRoot.querySelector('.sheet');
       if (sheet) sheet.scrollTop = scrolled;
     }
+    if (focused) host.shadowRoot.querySelector(focused)?.focus?.({ preventScroll: true });
   }
 
   static get styles() {
     return `
+      /* A block, never narrower than its grid or flex track (min-width: 0): see the size container below. */
       :host {
+        display: block;
+        min-width: 0;
         --bm-ok: var(--success-color, #43a047);
         --bm-warn: var(--warning-color, #ffa600);
         --bm-alert: var(--error-color, #db4437);
@@ -1063,31 +1193,50 @@ class BatteryMonitorCard extends HTMLElement {
         --bm-alert-text: color-mix(in srgb, var(--bm-alert) 40%, var(--primary-text-color, #212121));
         --bm-primary-text: color-mix(in srgb, var(--primary-color, #03a9f4) 40%, var(--primary-text-color, #212121));
       }
-      ha-card { padding: 12px; overflow: hidden; }
+      /* The card is a size container: the header and the list adapt to its own width (the Sections view's columns).
+         A size container takes no width from its content: in a parent sized by its content (inline-block, an \`auto\`
+         grid column of layout-card) it would shrink to its padding. An empty, zero-height grid before it gives the
+         host up to 240px there, and no minimum (minmax(0, …)): unlike an intrinsic size on ha-card, a wrapper <div>
+         in a \`1fr 1fr\` grid or a \`flex: 1\` row still shrinks to its track instead of overflowing. */
+      :host::before { content: ""; display: grid; grid-template-columns: minmax(0, 240px); height: 0; }
+      ha-card { padding: 12px; overflow: hidden; container-type: inline-size; }
       ha-card.lvl-ok    { --c: var(--bm-ok); --ct: var(--bm-ok-text); }
       ha-card.lvl-warn  { --c: var(--bm-warn); --ct: var(--bm-warn-text); }
       ha-card.lvl-alert { --c: var(--bm-alert); --ct: var(--bm-alert-text); }
 
-      .head { display: flex; align-items: center; gap: 10px; }
+      /* Short of room on one line, the pill goes under the title (its text wrapping if it is longer than the line);
+         the title keeps a few letters, the icon buttons never shrink. */
+      .head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .main { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
       .badge { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
       .badge ha-icon { --mdc-icon-size: 24px; }
-      .title { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: var(--primary-text-color);
+      .title { flex: 1 1 0; min-width: min(100%, 8ch); font-size: 16px; font-weight: 500; color: var(--primary-text-color);
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .pill { flex: none; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+      .pill { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-wrap: anywhere;
+              box-sizing: border-box; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 9px;
               color: var(--ct); background: color-mix(in srgb, var(--c) 14%, transparent); }
+      .pt { display: block; }
       .notify { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
                 display: grid; place-items: center; color: var(--secondary-text-color); }
       .notify:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); }
       .notify:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .notify ha-icon { --mdc-icon-size: 16px; }
+      .notify[data-state='busy'] { cursor: progress; }
+      .notify[data-state='busy'] ha-icon { animation: bm-spin 1s linear infinite; }
+      .notify[data-state='done'] { color: var(--bm-ok-text); }
+      .notify[data-state='error'] { color: var(--bm-alert-text); }
+      .notify:disabled { cursor: default; opacity: .4; }
+      .notify:disabled:hover { background: none; }
       .full { all: unset; cursor: pointer; flex: none; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%;
               display: grid; place-items: center; color: var(--secondary-text-color); }
       .full:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
       .full:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .full ha-icon { --mdc-icon-size: 16px; }
 
-      .list { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+      /* Up to --cols columns, each at least 160px wide (or the whole card, if narrower): fewer columns when they do not fit */
+      .list { display: grid; gap: 6px; margin-top: 8px;
+              grid-template-columns: repeat(auto-fill, minmax(min(100%, max(160px, (100% - (var(--cols) - 1) * 6px) / var(--cols) - 0.5px)), 1fr)); }
       .row { --t: var(--bm-ok); --tt: var(--bm-ok-text); all: unset; box-sizing: border-box; cursor: pointer; min-width: 0;
              display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 5px; border-radius: 10px;
              background: var(--secondary-background-color, rgba(127,127,127,.08)); }
@@ -1118,8 +1267,26 @@ class BatteryMonitorCard extends HTMLElement {
                background: color-mix(in srgb, var(--secondary-text-color) 22%, transparent); }
       .bar { display: block; height: 100%; border-radius: 2px; background: var(--t); }
 
+      /* Narrow (a card of 6 columns, half a section on a phone): the spacing tightens and the badge shrinks. */
+      @container (max-width: 240px) {
+        .head { gap: 6px; }
+        .main { column-gap: 6px; }
+        .badge { width: 32px; height: 32px; }
+        .badge ha-icon { --mdc-icon-size: 20px; }
+      }
+      /* Narrower still (half of a phone's section): the badge goes, its colour stays on the pill; each battery's
+         level goes under its name, so that a status such as "Unavailable" no longer squeezes the name out. */
+      @container (max-width: 180px) {
+        .badge { display: none; }
+        .row { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; row-gap: 3px; }
+        .ic { grid-row: span 2; }
+        .lvl { max-width: none; min-width: 0; flex-direction: row; align-items: center; justify-content: flex-start;
+               gap: 6px; text-align: left; overflow-wrap: anywhere; }
+      }
+
       @keyframes bm-blink { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
-      @media (prefers-reduced-motion: reduce) { .row.due .ic { animation: none; } }
+      @keyframes bm-spin { to { transform: rotate(360deg) } }
+      @media (prefers-reduced-motion: reduce) { .row.due .ic, .notify[data-state='busy'] ha-icon { animation: none; } }
     `;
   }
 
@@ -1128,6 +1295,7 @@ class BatteryMonitorCard extends HTMLElement {
     return `
       :host { all: initial; display: block; font-family: var(--paper-font-body1_-_font-family, var(--ha-font-family-body, Roboto, sans-serif));
               color: var(--primary-text-color); -webkit-font-smoothing: antialiased; }
+      :host::before { content: none; }
       .backdrop { position: fixed; inset: 0; z-index: var(--bm-layer, 9999); background: rgba(0,0,0,.6);
                   -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); animation: bm-fade .2s ease-out both; }
       .sheet { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; animation: bm-sheet .28s cubic-bezier(.2,.8,.2,1) both;

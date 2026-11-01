@@ -76,6 +76,36 @@ jobs:
       - name: Run tests
         run: pytest
 
+  screenshots-compare:
+    name: Screenshot comparator
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      # The comparator decodes through ffmpeg; install it only if the runner lacks it, time-boxed and retried.
+      - name: Install ffmpeg
+        timeout-minutes: 10
+        run: |
+          command -v ffmpeg > /dev/null && command -v ffprobe > /dev/null && exit 0
+          for i in 1 2 3; do
+            timeout 150 sudo apt-get update && timeout 300 sudo apt-get install -y --no-install-recommends ffmpeg && break
+            echo "apt attempt $i failed or timed out, retrying in 15s"; sleep 15
+          done
+          ffmpeg -version > /dev/null
+
+      - name: Install pytest
+        run: pip install pytest
+
+      # The screenshots script only rewrites a capture whose decoded pixels (every channel, every frame) changed.
+      - name: Run comparator tests
+        run: pytest scripts/tests
+
   card-tests:
     name: Card tests
     runs-on: ubuntu-latest
