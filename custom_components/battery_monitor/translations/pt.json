@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Notifica duas vezes por dia os dispositivos cuja bateria se manteve fraca.",
+        "data": {
+          "threshold": "Limiar de bateria fraca",
+          "duration": "Fraca há pelo menos",
+          "morning_time": "Notificação da manhã",
+          "evening_time": "Notificação da noite",
+          "notify_services": "Ações de notificação",
+          "ignored_entities": "Baterias ignoradas",
+          "ignored_integrations": "Integrações ignoradas"
+        },
+        "data_description": {
+          "threshold": "Uma bateria está fraca abaixo deste nível.",
+          "duration": "Horas que uma bateria tem de permanecer abaixo do limiar antes de ser notificada (0: na próxima notificação).",
+          "morning_time": "Primeira das duas notificações diárias.",
+          "evening_time": "Segunda das duas notificações diárias.",
+          "notify_services": "Enviar as notificações com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente.",
+          "ignored_entities": "Baterias nunca monitorizadas.",
+          "ignored_integrations": "Integrações cujas baterias nunca são monitorizadas (telemóveis e tablets da aplicação móvel por predefinição). Escreva um domínio para adicionar uma que ainda não esteja configurada."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "O Battery Monitor já está configurado.",
+      "single_instance_allowed": "O Battery Monitor já está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opções do Battery Monitor",
+        "data": {
+          "threshold": "Limiar de bateria fraca",
+          "duration": "Fraca há pelo menos",
+          "morning_time": "Notificação da manhã",
+          "evening_time": "Notificação da noite",
+          "notify_services": "Ações de notificação",
+          "ignored_entities": "Baterias ignoradas",
+          "ignored_integrations": "Integrações ignoradas"
+        },
+        "data_description": {
+          "threshold": "Uma bateria está fraca abaixo deste nível.",
+          "duration": "Horas que uma bateria tem de permanecer abaixo do limiar antes de ser notificada (0: na próxima notificação).",
+          "morning_time": "Primeira das duas notificações diárias.",
+          "evening_time": "Segunda das duas notificações diárias.",
+          "notify_services": "Enviar as notificações com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente.",
+          "ignored_entities": "Baterias nunca monitorizadas.",
+          "ignored_integrations": "Integrações cujas baterias nunca são monitorizadas (telemóveis e tablets da aplicação móvel por predefinição). Escreva um domínio para adicionar uma que ainda não esteja configurada."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Notificar agora"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Baterias fracas",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Indisponíveis"
+          },
+          "due": {
+            "name": "A notificar"
+          },
+          "threshold": {
+            "name": "Limiar"
+          },
+          "duration": {
+            "name": "Duração"
+          },
+          "batteries": {
+            "name": "Baterias"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Última notificação",
+        "state_attributes": {
+          "notified": {
+            "name": "Baterias notificadas"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Notificar baterias fracas",
+      "description": "Envia a notificação agora, com todas as baterias abaixo do limiar ou indisponíveis independentemente da duração, ou uma mensagem a indicar que nenhuma precisa de atenção."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 bateria fraca"
+    },
+    "title_many": {
+      "message": "{count} baterias fracas"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: fraca"
+    },
+    "none_title": {
+      "message": "Nenhuma bateria a verificar"
+    },
+    "none": {
+      "message": "Todas as baterias estão acima de {threshold} % e disponíveis."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: indisponível"
+    },
+    "check_one": {
+      "message": "1 bateria a verificar"
+    },
+    "check_many": {
+      "message": "{count} baterias a verificar"
+    },
+    "not_loaded": {
+      "message": "O Battery Monitor não está carregado."
+    }
+  }
+}
