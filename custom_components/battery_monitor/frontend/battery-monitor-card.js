@@ -1195,8 +1195,11 @@ class BatteryMonitorCard extends HTMLElement {
       }
       /* The card is a size container: the header and the list adapt to its own width (the Sections view's columns).
          A size container takes no width from its content: in a parent sized by its content (inline-block, an \`auto\`
-         grid column of layout-card) it would shrink to its padding, hence a width of its own there. */
-      ha-card { padding: 12px; overflow: hidden; container-type: inline-size; contain-intrinsic-inline-size: 240px; }
+         grid column of layout-card) it would shrink to its padding. An empty, zero-height grid before it gives the
+         host up to 240px there, and no minimum (minmax(0, …)): unlike an intrinsic size on ha-card, a wrapper <div>
+         in a \`1fr 1fr\` grid or a \`flex: 1\` row still shrinks to its track instead of overflowing. */
+      :host::before { content: ""; display: grid; grid-template-columns: minmax(0, 240px); height: 0; }
+      ha-card { padding: 12px; overflow: hidden; container-type: inline-size; }
       ha-card.lvl-ok    { --c: var(--bm-ok); --ct: var(--bm-ok-text); }
       ha-card.lvl-warn  { --c: var(--bm-warn); --ct: var(--bm-warn-text); }
       ha-card.lvl-alert { --c: var(--bm-alert); --ct: var(--bm-alert-text); }
@@ -1292,6 +1295,7 @@ class BatteryMonitorCard extends HTMLElement {
     return `
       :host { all: initial; display: block; font-family: var(--paper-font-body1_-_font-family, var(--ha-font-family-body, Roboto, sans-serif));
               color: var(--primary-text-color); -webkit-font-smoothing: antialiased; }
+      :host::before { content: none; }
       .backdrop { position: fixed; inset: 0; z-index: var(--bm-layer, 9999); background: rgba(0,0,0,.6);
                   -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); animation: bm-fade .2s ease-out both; }
       .sheet { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; animation: bm-sheet .28s cubic-bezier(.2,.8,.2,1) both;
