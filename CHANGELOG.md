@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.10.4 - 2026-11-01
+
+### Fixes
+- Card header on a narrow card (6 columns of the Sections view, half a section on a phone): the title no longer disappears and the full screen button no longer falls outside the card. The status pill now gives way first: its text is cut with an ellipsis (whole in its tooltip), and on a very narrow card only its coloured dot remains.
+- `columns: 2` or `3` no longer squeezes the battery names to a few letters: each column stays at least 160 px wide, and a card too narrow for the columns asked shows fewer.
+- Full screen view from the keyboard: the focus moves to its close button when it opens, Tab and Shift+Tab stay inside it, a refresh keeps the focus on the same tab or battery, and closing it gives the focus back to the full screen button.
+- "Notify now" button: it now shows that it is sending (turning icon), then a check mark once sent, or the reason in its tooltip when sending fails, and ignores a second press meanwhile. It is disabled, and says so, while the button entity is unavailable.
+- Serbian (Cyrillic and Latin): the status pill reads "Slabe: 3 · Nedostupne: 2" instead of "3 slabe/ih · 2 nedostupno/ih", and an unavailable battery reads "Nedostupna", like "Slaba".
+
 ## 1.10.3 - 2026-11-01
 
 ### What's new
