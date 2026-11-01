@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.3 - 2026-11-01
+
+### What's new
+- Added Italian, Dutch, European Portuguese and Polish translations: the setup and options, the entities, the notifications and the card with its visual editor (Italiano, Nederlands, Português and Polski in the `language` option). Brazilian Portuguese (`pt-BR`) falls back to the European Portuguese texts.
+
 ## 1.10.2
 
 ### Fixes

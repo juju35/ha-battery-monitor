@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Meldt twee keer per dag de apparaten waarvan de batterij bijna leeg is gebleven.",
+        "data": {
+          "threshold": "Drempel voor bijna lege batterij",
+          "duration": "Minstens zo lang bijna leeg",
+          "morning_time": "Ochtendmelding",
+          "evening_time": "Avondmelding",
+          "notify_services": "Meldingsacties",
+          "ignored_entities": "Genegeerde batterijen",
+          "ignored_integrations": "Genegeerde integraties"
+        },
+        "data_description": {
+          "threshold": "Onder dit niveau is een batterij bijna leeg.",
+          "duration": "Aantal uren dat een batterij onder de drempel moet zijn gebleven voordat ze wordt gemeld (0: bij de volgende melding).",
+          "morning_time": "Eerste van de twee dagelijkse meldingen.",
+          "evening_time": "Tweede van de twee dagelijkse meldingen.",
+          "notify_services": "Verstuur de meldingen met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt.",
+          "ignored_entities": "Batterijen die nooit worden bewaakt.",
+          "ignored_integrations": "Integraties waarvan de batterijen nooit worden bewaakt (standaard telefoons en tablets van de mobiele app). Typ een domein om er een toe te voegen die nog niet is ingesteld."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor is al geconfigureerd.",
+      "single_instance_allowed": "Battery Monitor is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opties van Battery Monitor",
+        "data": {
+          "threshold": "Drempel voor bijna lege batterij",
+          "duration": "Minstens zo lang bijna leeg",
+          "morning_time": "Ochtendmelding",
+          "evening_time": "Avondmelding",
+          "notify_services": "Meldingsacties",
+          "ignored_entities": "Genegeerde batterijen",
+          "ignored_integrations": "Genegeerde integraties"
+        },
+        "data_description": {
+          "threshold": "Onder dit niveau is een batterij bijna leeg.",
+          "duration": "Aantal uren dat een batterij onder de drempel moet zijn gebleven voordat ze wordt gemeld (0: bij de volgende melding).",
+          "morning_time": "Eerste van de twee dagelijkse meldingen.",
+          "evening_time": "Tweede van de twee dagelijkse meldingen.",
+          "notify_services": "Verstuur de meldingen met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt.",
+          "ignored_entities": "Batterijen die nooit worden bewaakt.",
+          "ignored_integrations": "Integraties waarvan de batterijen nooit worden bewaakt (standaard telefoons en tablets van de mobiele app). Typ een domein om er een toe te voegen die nog niet is ingesteld."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Nu melden"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Bijna lege batterijen",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Niet beschikbaar"
+          },
+          "due": {
+            "name": "Te melden"
+          },
+          "threshold": {
+            "name": "Drempel"
+          },
+          "duration": {
+            "name": "Duur"
+          },
+          "batteries": {
+            "name": "Batterijen"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Laatste melding",
+        "state_attributes": {
+          "notified": {
+            "name": "Gemelde batterijen"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Bijna lege batterijen melden",
+      "description": "Verstuurt de melding nu, met alle batterijen onder de drempel of niet beschikbaar ongeacht de duur, of een bericht dat er geen aandacht nodig heeft."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 bijna lege batterij"
+    },
+    "title_many": {
+      "message": "{count} bijna lege batterijen"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: bijna leeg"
+    },
+    "none_title": {
+      "message": "Geen batterij te controleren"
+    },
+    "none": {
+      "message": "Alle batterijen zitten boven {threshold} % en zijn beschikbaar."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: niet beschikbaar"
+    },
+    "check_one": {
+      "message": "1 batterij te controleren"
+    },
+    "check_many": {
+      "message": "{count} batterijen te controleren"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor is niet geladen."
+    }
+  }
+}
