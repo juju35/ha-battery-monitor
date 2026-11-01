@@ -298,6 +298,18 @@ def capture(page, path, **kwargs):
     print(path.relative_to(ROOT), "" if changed else "(unchanged)")
 
 
+# Pause every animation at `t` ms and return how many: document.getAnimations() leaves out those in shadow roots
+# (the card's blink), so each shadow root is asked as well.
+SEEK_ANIMATIONS = """(t) => {
+  const roots = [document];
+  for (let i = 0; i < roots.length; i++)
+    for (const el of roots[i].querySelectorAll('*')) if (el.shadowRoot) roots.push(el.shadowRoot);
+  const animations = new Set(roots.flatMap((root) => root.getAnimations()));
+  for (const a of animations) { a.pause(); a.currentTime = t; }
+  return animations.size;
+}"""
+
+
 def animate(browser, shot, config, viewport, *, fps=20, seconds=3):
     """Record the due-battery blink as a looping screenshots/<file>.gif (needs ffmpeg). Every animation is paused and
     stepped frame by frame, so the GIF is identical whatever the machine's speed."""
@@ -308,10 +320,10 @@ def animate(browser, shot, config, viewport, *, fps=20, seconds=3):
     frames = round(fps * seconds)
     with tempfile.TemporaryDirectory() as frame_dir:
         for i in range(frames):
-            page.evaluate(
-                "(t) => { for (const a of document.getAnimations()) { a.pause(); a.currentTime = t; } }",
-                (i * 1000) / fps,
-            )
+            stepped = page.evaluate(SEEK_ANIMATIONS, (i * 1000) / fps)
+            if not stepped:
+                # Running animations would make every recording differ (and every GIF rewritten for nothing).
+                raise RuntimeError(f"{shot['file']}.gif: no animation to step in the card")
             page.screenshot(path=f"{frame_dir}/f{i:03d}.png", clip=clip)
         page.close()
         dest = ROOT / "screenshots" / f"{shot['file']}.gif"
