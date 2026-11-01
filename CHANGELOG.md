@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.2
+
+### Fixes
+- Card: the texts shown in a status colour are readable again in light themes: the level and details of a low battery, the status pill, the "to check" count of a group, the quantities to buy and the selected tab of the full screen view. They now mix the status colour with the theme's text colour (darker in light themes, lighter in dark ones) and reach a contrast of at least 4.5:1; badges, icons and bars keep the plain colour.
+
 ## 1.10.1
 
 ### Fixes
