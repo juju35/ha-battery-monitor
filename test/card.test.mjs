@@ -621,3 +621,96 @@ test('full screen: closed after a hash change on the same dashboard, it does not
   history.back();
   history.back();
 });
+
+// ── Contrast ──
+// WCAG relative luminance and contrast ratio, and CSS color-mix(in srgb, a p%, b).
+const hex = (x) => [0, 2, 4].map((i) => Number.parseInt(x.slice(1 + i, 3 + i), 16));
+const mixRgb = (a, b, p) => a.map((v, i) => v * p + b[i] * (1 - p));
+const luminance = (c) => {
+  const [r, g, b] = c.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+// Home Assistant's default light and dark themes (the darkest secondary background in light, as the screenshots).
+const THEMES = {
+  light: { card: '#ffffff', secondary: '#e5e5e5', text: '#212121' },
+  dark: { card: '#1c1c1c', secondary: '#282828', text: '#e1e1e1' },
+};
+const STATUS = { ok: '#43a047', warn: '#ffa600', alert: '#db4437', primary: '#03a9f4' };
+const allStyles = () => BatteryMonitorCard.styles + BatteryMonitorCard.popupStyles;
+// The declarations of a rule, by its exact selector.
+const rule = (selector) => {
+  const css = allStyles();
+  const at = css.indexOf(`${selector} {`);
+  assert.ok(at >= 0, `no rule ${selector}`);
+  return css.slice(css.indexOf('{', at) + 1, css.indexOf('}', at));
+};
+const textColor = (selector) => /(?:^|[;\s])color:\s*([^;]+);/.exec(rule(selector))?.[1].trim();
+// The share of the status colour mixed into the text of a token such as --bm-warn-text.
+const share = (token) => {
+  const m = new RegExp(`${token}:\\s*color-mix\\(in srgb, var\\(--[\\w-]+(?:, #[0-9a-f]+)?\\) (\\d+)%, var\\(--primary-text-color`).exec(
+    allStyles(),
+  );
+  assert.ok(m, `${token} is not a mix of its status colour with the text colour`);
+  return Number(m[1]) / 100;
+};
+
+test('status texts use their readable token, not the raw status colour', () => {
+  const expected = {
+    '.pill': 'var(--ct)',
+    '.row.warn .sub, .row.alert .sub': 'var(--tt)',
+    '.row:not(.ok) .lvl': 'var(--tt)',
+    '.buy b': 'var(--bm-warn-text)',
+    '.gchip': 'var(--bm-warn-text)',
+    '.none': 'var(--bm-ok-text)',
+    '.tab.on': 'var(--bm-primary-text)',
+  };
+  for (const [selector, color] of Object.entries(expected)) assert.equal(textColor(selector), color, selector);
+  // The tokens follow the level: the card's pill and each row.
+  assert.match(rule('ha-card.lvl-warn '), /--ct: var\(--bm-warn-text\)/);
+  assert.match(rule('.row.alert '), /--tt: var\(--bm-alert-text\)/);
+  // The colour stays on what is not text: the badge, the icons, the bar.
+  assert.match(rule('.bar'), /background: var\(--t\)/);
+  assert.match(rule('.ic'), /color: var\(--t\)/);
+});
+
+test('status texts reach 4.5:1 on their tinted background, light and dark', () => {
+  for (const [name, t] of Object.entries(THEMES)) {
+    const [card, secondary, text] = [hex(t.card), hex(t.secondary), hex(t.text)];
+    const fg = (status, token) => mixRgb(hex(STATUS[status]), text, share(token));
+    const cases = [
+      ...['ok', 'warn', 'alert'].map((s) => [`pill ${s}`, fg(s, `--bm-${s}-text`), mixRgb(hex(STATUS[s]), card, 0.14)]),
+      // A warn or alert row, at rest and hovered.
+      ...['warn', 'alert'].flatMap((s) => [
+        [`row ${s}`, fg(s, `--bm-${s}-text`), mixRgb(hex(STATUS[s]), secondary, 0.12)],
+        [`row ${s} hover`, fg(s, `--bm-${s}-text`), mixRgb(hex(STATUS[s]), secondary, 0.18)],
+      ]),
+      ['buy quantity', fg('warn', '--bm-warn-text'), mixRgb(hex(STATUS.warn), card, 0.16)],
+      ['group chip', fg('warn', '--bm-warn-text'), mixRgb(hex(STATUS.warn), card, 0.14)],
+      ['nothing to replace', fg('ok', '--bm-ok-text'), card],
+      ['selected tab', fg('primary', '--bm-primary-text'), mixRgb(hex(STATUS.primary), secondary, 0.15)],
+    ];
+    for (const [what, f, b] of cases) {
+      const ratio = contrast(f, b);
+      assert.ok(ratio >= 4.5, `${name} theme, ${what}: ${ratio.toFixed(2)}:1`);
+    }
+  }
+});
+
+test('every level the card renders, sensor missing included, gives its pill a text colour', () => {
+  const levels = new Set();
+  const missing = makeCard();
+  missing.hass = hassWith({}, {});
+  const low = makeCard();
+  low.hass = hassWith(registry(), { [SENSOR]: realState });
+  const ok = makeCard();
+  ok.hass = hassWith(registry(), { [SENSOR]: { state: '0', attributes: { batteries: [BATTERIES[4]] } } });
+  for (const card of [missing, low, ok]) for (const [, l] of html(card).matchAll(/lvl-(\w+)/g)) levels.add(l);
+  assert.ok(levels.size >= 2, [...levels].join());
+  for (const l of levels) assert.match(rule(`ha-card.lvl-${l}`.padEnd(17)), /--ct: var\(--bm-\w+-text\)/, l);
+  // An unavailable battery is an alert row: its level text gets the alert text colour.
+  assert.match(html(low), /class="row alert na"/);
+});
