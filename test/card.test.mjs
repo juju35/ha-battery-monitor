@@ -868,13 +868,23 @@ test('size container: the card keeps a width in a parent sized by its content, a
   // A size container takes no width from its content: inline-block or an `auto` grid column would shrink it to its
   // padding (24px) without a width of its own...
   assert.match(rule('ha-card'), /container-type: inline-size/);
-  assert.match(rule('ha-card'), /contain-intrinsic-inline-size: \d+px/);
-  // ...which must not become a minimum: in a `1fr 1fr` grid (layout-card, horizontal stack) the card shrinks to its
-  // track, so the host is a block with min-width: 0, and never a minimum width in px.
+  // ...which must not become a minimum. contain-intrinsic-inline-size (or a min-width in px) is one: in a `1fr 1fr`
+  // grid or a `flex: 1` row, a wrapper <div> around the card keeps min-width: auto, takes the card's 240px as its
+  // min-content width and overflows by 36 to 216px (Chromium, 320 to 500px wide).
+  assert.doesNotMatch(allStyles(), /contain-intrinsic/);
+  assert.doesNotMatch(BatteryMonitorCard.styles, /:host \{[^}]*min-width: [1-9]\d*px/);
   const host = rule(':host');
   assert.match(host, /display: block;/);
   assert.match(host, /min-width: 0;/);
-  assert.doesNotMatch(BatteryMonitorCard.styles, /:host \{[^}]*min-width: [1-9]\d*px/);
+  // The width comes from an empty, zero-height grid before the card: up to 240px when the parent is sized by its
+  // content, and nothing as a minimum (minmax(0, ...)), so the card and any wrapper still shrink to their track.
+  const before = rule(':host::before');
+  assert.match(before, /content: "";/);
+  assert.match(before, /display: grid;/);
+  assert.match(before, /grid-template-columns: minmax\(0, \d+px\);/);
+  assert.match(before, /height: 0;/);
+  // The full screen view (same styles, a fixed layer) does not need it.
+  assert.match(BatteryMonitorCard.popupStyles, /:host::before \{ content: none; \}/);
 });
 
 test('narrow card (half of a phone section): the badge goes and each level goes under its name', () => {
