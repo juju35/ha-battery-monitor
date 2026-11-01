@@ -27,17 +27,27 @@ def _load(lang: str) -> dict[str, str]:
     return _flatten(json.loads((TRANSLATIONS / f"{lang}.json").read_text(encoding="utf-8")))
 
 
+LANGUAGES = {"en", "fr", "de", "es", "it", "nl", "pt", "pt-BR", "pl", "sr", "sr-Latn"}
+
+
 def test_languages() -> None:
-    """English, French, German and Spanish are shipped."""
-    assert {p.stem for p in TRANSLATIONS.glob("*.json")} >= {"en", "fr", "de", "es"}
+    """Every language of the card is shipped for the integration too."""
+    assert {p.stem for p in TRANSLATIONS.glob("*.json")} == LANGUAGES
+
+
+def test_brazilian_portuguese_is_european() -> None:
+    """Home Assistant doesn't fall back from pt-BR to pt: pt-BR is an exact copy of the European Portuguese file."""
+    assert (TRANSLATIONS / "pt-BR.json").read_bytes() == (TRANSLATIONS / "pt.json").read_bytes()
 
 
 @pytest.mark.parametrize("lang", sorted(p.stem for p in TRANSLATIONS.glob("*.json") if p.stem != "en"))
 def test_parity(lang: str) -> None:
-    """Same keys as English, same placeholders in every string."""
+    """Same keys as English, same placeholders in every string, no empty string."""
     en, other = _load("en"), _load(lang)
     assert sorted(other) == sorted(en)
     for key, text in en.items():
+        assert isinstance(other[key], str), f"{lang}: {key}"
+        assert other[key].strip(), f"{lang}: {key}"
         assert sorted(PLACEHOLDER.findall(other[key])) == sorted(PLACEHOLDER.findall(text)), f"{lang}: {key}"
 
 
@@ -54,10 +64,10 @@ def test_serbian_scripts_match() -> None:
         assert "".join(_TO_LATIN.get(ch, ch) for ch in text) == latin[key], key
 
 
-@pytest.mark.parametrize("lang", ["sr", "sr-Latn"])
+@pytest.mark.parametrize("lang", ["sr", "sr-Latn", "pl"])
 @pytest.mark.parametrize("key", ["exceptions.title_many.message", "exceptions.check_many.message"])
 def test_serbian_counts_agree_with_any_number(lang: str, key: str) -> None:
-    """Serbian nouns change form after 2–4 and after 5+: the count goes after a colon, not before the noun."""
+    """Serbian and Polish nouns change form after 2–4 and after 5+: the count goes after a colon, not before."""
     text = _load(lang)[key]
     assert not text.startswith("{count}"), text
     assert text.endswith(": {count}"), text

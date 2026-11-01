@@ -14,7 +14,7 @@ custom_components/battery_monitor/
 ├── button.py        # notify_now
 ├── entity.py        # Shared service device, listener on BatteryMonitor
 ├── frontend/battery-monitor-card.js   # custom:battery-monitor-card, reads sensor.*_low_batteries attributes
-├── const.py / icons.json / services.yaml / translations/{en,fr,de,es,sr,sr-Latn}.json / brand/
+├── const.py / icons.json / services.yaml / translations/{en,fr,de,es,it,nl,pt,pt-BR,pl,sr,sr-Latn}.json / brand/
 ```
 
 ## Rules
