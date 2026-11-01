@@ -52,8 +52,10 @@ function fakeRoot() {
         dataset: { id: /data-id="([^"]*)"/.exec(tag)?.[1], view: /data-view="([^"]*)"/.exec(tag)?.[1] },
         classList: /class="([^"]*)"/.exec(tag)[1].split(' '),
         addEventListener() {},
-        focus() {
+        // The options of the last call, to tell a focus that scrolls the page from one that does not.
+        focus(options) {
           root.activeElement = this;
+          this.focusOptions = options;
         },
       });
     }
@@ -835,26 +837,67 @@ const keydown = (key, shiftKey = false) => {
   return ev;
 };
 
-test('header: the pill gives way to the title and never pushes the buttons out of the card', () => {
-  // The title keeps a few letters and shrinks with an ellipsis.
+test('header: short of room, the pill goes whole under the title instead of being cut', () => {
+  // The title, the notify button and the pill share a wrapping block: the title takes what is left on the line (it
+  // does not claim its whole text first), keeping a few letters; the pill keeps its whole text and goes to the next
+  // line when it does not fit beside them.
+  const main = rule('.main');
+  for (const decl of ['flex: 1 1 0', 'min-width: 0', 'display: flex', 'flex-wrap: wrap']) assert.ok(main.includes(decl), `.main: ${decl}`);
   const title = rule('.title');
-  assert.match(title, /flex: 1 1 auto/);
-  assert.match(title, /min-width: [\d.]+ch/);
+  assert.match(title, /flex: 1 1 0;/);
+  assert.match(title, /min-width: min\(100%, [4-9](\.\d+)?ch\)/);
   assert.match(title, /text-overflow: ellipsis/);
-  // The pill shrinks (at most half of the header), its text cut with an ellipsis.
   const pill = rule('.pill');
-  for (const decl of ['flex: 0 1 auto', 'min-width: 0', 'max-width: 50%', 'overflow: hidden', 'white-space: nowrap']) {
-    assert.ok(pill.includes(decl), `.pill: ${decl}`);
-  }
-  assert.match(rule('.pt'), /text-overflow: ellipsis/);
+  for (const decl of ['flex: 0 1 auto', 'min-width: 0', 'max-width: 100%']) assert.ok(pill.includes(decl), `.pill: ${decl}`);
+  // Never cut: no ellipsis, no single line forced, no half-width cap, no dot-only mode.
+  assert.doesNotMatch(pill, /white-space: nowrap|max-width: 50%/);
+  assert.doesNotMatch(rule('.pt'), /text-overflow|clip/);
+  assert.doesNotMatch(allStyles(), /\.pill::before|\.pt \{[^}]*position: absolute/);
   // The icon buttons never shrink.
   for (const button of ['.notify', '.full', '.close']) assert.match(rule(button), /flex: none/, button);
-  // Narrow, the pill is only its coloured dot; its text stays for screen readers and in its tooltip.
+  // The card and the full screen use the same block, the pill after the title.
+  const card = makeCard({ notify_button: true });
+  card.hass = hassWith(registry(), { [SENSOR]: realState });
+  assert.match(html(card), /<div class="main"><div class="title">[^<]+<\/div>(<button class="notify"[^>]*><ha-icon[^>]*><\/ha-icon><\/button>)?<div class="pill"/);
+  card._openPopup();
+  assert.match(popupRoot().innerHTML, /<div class="main"><div class="title">[^<]+<\/div>(<button class="notify"[^>]*><ha-icon[^>]*><\/ha-icon><\/button>)?<div class="pill"/);
+  card._closePopup();
+});
+
+test('size container: the card keeps a width in a parent sized by its content, and still shrinks in a grid', () => {
+  // A size container takes no width from its content: inline-block or an `auto` grid column would shrink it to its
+  // padding (24px) without a width of its own...
   assert.match(rule('ha-card'), /container-type: inline-size/);
-  const narrow = /@container \(max-width: (\d+)px\) \{([^@]*)\}/.exec(allStyles());
-  assert.ok(narrow, 'no container query for a narrow card');
-  assert.match(narrow[2], /\.pill::before \{[^}]*display: block/);
-  assert.match(narrow[2], /\.pt \{[^}]*clip: rect\(0 0 0 0\)/);
+  assert.match(rule('ha-card'), /contain-intrinsic-inline-size: \d+px/);
+  // ...which must not become a minimum: in a `1fr 1fr` grid (layout-card, horizontal stack) the card shrinks to its
+  // track, so the host is a block with min-width: 0, and never a minimum width in px.
+  const host = rule(':host');
+  assert.match(host, /display: block;/);
+  assert.match(host, /min-width: 0;/);
+  assert.doesNotMatch(BatteryMonitorCard.styles, /:host \{[^}]*min-width: [1-9]\d*px/);
+});
+
+test('narrow card (half of a phone section): the badge goes and each level goes under its name', () => {
+  const narrow = [...allStyles().matchAll(/@container \(max-width: (\d+)px\) \{([^@]*)\}\s*\n/g)];
+  const phone = narrow.find(([, width]) => Number(width) >= 156 && Number(width) <= 200);
+  assert.ok(phone, 'no container query for half a phone section');
+  assert.match(phone[2], /\.badge \{ display: none; \}/);
+  assert.match(phone[2], /\.row \{ display: grid; grid-template-columns: auto minmax\(0, 1fr\)/);
+  assert.match(phone[2], /\.lvl \{[^}]*max-width: none; min-width: 0;/);
+});
+
+test('full screen: giving the focus to its close button does not scroll the page', () => {
+  const card = focusableCard();
+  card.hass = typedHass();
+  card._openPopup();
+  try {
+    assert.equal(popupRoot().activeElement?.key, '.close');
+    assert.equal(popupRoot().activeElement.focusOptions?.preventScroll, true);
+  } finally {
+    card._closePopup();
+  }
+  assert.equal(card.shadowRoot.activeElement?.key, '.full');
+  assert.equal(card.shadowRoot.activeElement.focusOptions?.preventScroll, true);
 });
 
 test('header: the pill carries its whole text in its tooltip, in its own span', () => {
