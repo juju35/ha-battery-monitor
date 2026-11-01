@@ -20,11 +20,14 @@ if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         pytest.fail("ffmpeg and ffprobe are required", pytrace=False)
     pytest.skip("ffmpeg and ffprobe are required", allow_module_level=True)
 
-# The script imports Playwright at load time; the comparator does not use it.
-sys.modules.setdefault("playwright", types.ModuleType("playwright"))
-_sync_api = types.ModuleType("playwright.sync_api")
-_sync_api.sync_playwright = None
-sys.modules.setdefault("playwright.sync_api", _sync_api)
+# The script imports Playwright at load time; the comparator does not use it, so a stand-in does without it.
+try:
+    import playwright.sync_api  # noqa: F401
+except ImportError:
+    sys.modules["playwright"] = types.ModuleType("playwright")
+    _sync_api = types.ModuleType("playwright.sync_api")
+    _sync_api.sync_playwright = None
+    sys.modules["playwright.sync_api"] = _sync_api
 _spec = importlib.util.spec_from_file_location("screenshots", Path(__file__).parents[1] / "screenshots.py")
 screenshots = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(screenshots)
