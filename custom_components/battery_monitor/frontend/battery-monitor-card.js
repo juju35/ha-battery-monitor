@@ -833,9 +833,7 @@ class BatteryMonitorCard extends HTMLElement {
       <ha-card class="lvl-${level}">
         <div class="head">
           <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
-          <div class="title">${bmEsc(c.title || this._t('title'))}</div>
-          ${this._notifyButton()}
-          ${this._pill(status)}
+          ${this._headMain(c.title || this._t('title'), status)}
           ${
             c.popup !== false && st
               ? `<button class="full" title="${bmEsc(this._t('popup_open'))}" aria-label="${bmEsc(this._t('popup_open'))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>`
@@ -861,7 +859,13 @@ class BatteryMonitorCard extends HTMLElement {
     return counts.length ? counts.join(' · ') : this._t(all.length ? 'all_ok' : 'no_batteries');
   }
 
-  // The status pill: its text cut with an ellipsis when the header is short of room, whole in its tooltip.
+  // The title, the "Notify now" button and the status pill, in a block of their own between the badge and the full
+  // screen (or close) button: short of room on one line, the pill goes under the title, whole, rather than being cut.
+  _headMain(title, status) {
+    return `<div class="main"><div class="title">${bmEsc(title)}</div>${this._notifyButton()}${this._pill(status)}</div>`;
+  }
+
+  // The status pill: its whole text, on its own line under the title when the header is short of room.
   _pill(status) {
     const text = bmEsc(status);
     return `<div class="pill" title="${text}"><span class="pt">${text}</span></div>`;
@@ -1008,7 +1012,7 @@ class BatteryMonitorCard extends HTMLElement {
     this._view ||= 'room';
     this._renderPopup();
     // The keyboard goes with the dialog: its close button first.
-    root.querySelector('.close')?.focus?.();
+    root.querySelector('.close')?.focus?.({ preventScroll: true });
   }
 
   // Tab from the last control goes back to the first one, Shift+Tab from the first to the last: the focus never
@@ -1155,9 +1159,7 @@ class BatteryMonitorCard extends HTMLElement {
         <ha-card class="popup lvl-${level}">
           <div class="head">
             <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
-            <div class="title">${title}</div>
-            ${this._notifyButton()}
-            ${this._pill(status)}
+            ${this._headMain(c.title || this._t('title'), status)}
             <button class="close" title="${bmEsc(this._t('popup_close'))}" aria-label="${bmEsc(this._t('popup_close'))}"><ha-icon icon="mdi:close"></ha-icon></button>
           </div>
           <div class="bar-top">
@@ -1176,7 +1178,10 @@ class BatteryMonitorCard extends HTMLElement {
 
   static get styles() {
     return `
+      /* A block, never narrower than its grid or flex track (min-width: 0): see the size container below. */
       :host {
+        display: block;
+        min-width: 0;
         --bm-ok: var(--success-color, #43a047);
         --bm-warn: var(--warning-color, #ffa600);
         --bm-alert: var(--error-color, #db4437);
@@ -1188,25 +1193,27 @@ class BatteryMonitorCard extends HTMLElement {
         --bm-alert-text: color-mix(in srgb, var(--bm-alert) 40%, var(--primary-text-color, #212121));
         --bm-primary-text: color-mix(in srgb, var(--primary-color, #03a9f4) 40%, var(--primary-text-color, #212121));
       }
-      /* The card is a size container: the header and the list adapt to its own width (the Sections view's columns). */
-      ha-card { padding: 12px; overflow: hidden; container-type: inline-size; }
+      /* The card is a size container: the header and the list adapt to its own width (the Sections view's columns).
+         A size container takes no width from its content: in a parent sized by its content (inline-block, an \`auto\`
+         grid column of layout-card) it would shrink to its padding, hence a width of its own there. */
+      ha-card { padding: 12px; overflow: hidden; container-type: inline-size; contain-intrinsic-inline-size: 240px; }
       ha-card.lvl-ok    { --c: var(--bm-ok); --ct: var(--bm-ok-text); }
       ha-card.lvl-warn  { --c: var(--bm-warn); --ct: var(--bm-warn-text); }
       ha-card.lvl-alert { --c: var(--bm-alert); --ct: var(--bm-alert-text); }
 
-      /* Short of room, the pill gives way first (down to its dot), then the title (down to a few letters);
-         the icon buttons never shrink. */
+      /* Short of room on one line, the pill goes under the title (its text wrapping if it is longer than the line);
+         the title keeps a few letters, the icon buttons never shrink. */
       .head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .main { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
       .badge { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
       .badge ha-icon { --mdc-icon-size: 24px; }
-      .title { flex: 1 1 auto; min-width: 4.5ch; font-size: 16px; font-weight: 500; color: var(--primary-text-color);
+      .title { flex: 1 1 0; min-width: min(100%, 8ch); font-size: 16px; font-weight: 500; color: var(--primary-text-color);
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .pill { flex: 0 1 auto; min-width: 0; max-width: 50%; overflow: hidden; white-space: nowrap; position: relative;
-              box-sizing: border-box; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+      .pill { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-wrap: anywhere;
+              box-sizing: border-box; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 9px;
               color: var(--ct); background: color-mix(in srgb, var(--c) 14%, transparent); }
-      .pt { display: block; overflow: hidden; text-overflow: ellipsis; }
-      .pill::before { content: ''; display: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+      .pt { display: block; }
       .notify { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
                 display: grid; place-items: center; color: var(--secondary-text-color); }
       .notify:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); }
@@ -1257,18 +1264,22 @@ class BatteryMonitorCard extends HTMLElement {
                background: color-mix(in srgb, var(--secondary-text-color) 22%, transparent); }
       .bar { display: block; height: 100%; border-radius: 2px; background: var(--t); }
 
-      /* Narrow (a card of 6 columns, half a section on a phone): the pill keeps only its dot, its text stays for
-         screen readers and in its tooltip; the spacing tightens. */
+      /* Narrow (a card of 6 columns, half a section on a phone): the spacing tightens and the badge shrinks. */
       @container (max-width: 240px) {
         .head { gap: 6px; }
-        .pill { flex: none; padding: 3px; }
-        .pill::before { display: block; }
-        .pt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .main { column-gap: 6px; }
         .badge { width: 32px; height: 32px; }
         .badge ha-icon { --mdc-icon-size: 20px; }
       }
-      /* Narrower still (6 columns of a small phone's section): the badge goes, its colour stays on the pill's dot. */
-      @container (max-width: 150px) { .badge { display: none; } }
+      /* Narrower still (half of a phone's section): the badge goes, its colour stays on the pill; each battery's
+         level goes under its name, so that a status such as "Unavailable" no longer squeezes the name out. */
+      @container (max-width: 180px) {
+        .badge { display: none; }
+        .row { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; row-gap: 3px; }
+        .ic { grid-row: span 2; }
+        .lvl { max-width: none; min-width: 0; flex-direction: row; align-items: center; justify-content: flex-start;
+               gap: 6px; text-align: left; overflow-wrap: anywhere; }
+      }
 
       @keyframes bm-blink { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
       @keyframes bm-spin { to { transform: rotate(360deg) } }
