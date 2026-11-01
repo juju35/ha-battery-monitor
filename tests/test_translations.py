@@ -27,12 +27,17 @@ def _load(lang: str) -> dict[str, str]:
     return _flatten(json.loads((TRANSLATIONS / f"{lang}.json").read_text(encoding="utf-8")))
 
 
-LANGUAGES = {"en", "fr", "de", "es", "it", "nl", "pt", "pl", "sr", "sr-Latn"}
+LANGUAGES = {"en", "fr", "de", "es", "it", "nl", "pt", "pt-BR", "pl", "sr", "sr-Latn"}
 
 
 def test_languages() -> None:
     """Every language of the card is shipped for the integration too."""
     assert {p.stem for p in TRANSLATIONS.glob("*.json")} == LANGUAGES
+
+
+def test_brazilian_portuguese_is_european() -> None:
+    """Home Assistant doesn't fall back from pt-BR to pt: pt-BR is an exact copy of the European Portuguese file."""
+    assert (TRANSLATIONS / "pt-BR.json").read_bytes() == (TRANSLATIONS / "pt.json").read_bytes()
 
 
 @pytest.mark.parametrize("lang", sorted(p.stem for p in TRANSLATIONS.glob("*.json") if p.stem != "en"))

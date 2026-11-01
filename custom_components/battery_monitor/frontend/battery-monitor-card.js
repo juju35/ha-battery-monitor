@@ -388,16 +388,16 @@ const BM_I18N = {
   nl: {
     title: 'Batterijen',
     all_ok: 'Alles in orde',
-    low_one: '{n} bijna leeg',
-    low_many: '{n} bijna leeg',
+    low_one: '{n} laag',
+    low_many: '{n} laag',
     unavailable_one: '{n} niet beschikbaar',
     unavailable_many: '{n} niet beschikbaar',
     no_batteries: 'Geen batterij gevonden',
     not_loaded: 'Battery Monitor is niet ingesteld',
-    low: 'Bijna leeg',
+    low: 'Laag',
     unavailable: 'Niet beschikbaar',
     notify_now: 'Nu melden',
-    since: 'al {d} bijna leeg',
+    since: 'al {d} laag',
     since_unavailable: 'al {d} niet beschikbaar',
     hours: '{n} u',
     days: '{n} d',
@@ -533,8 +533,8 @@ const BM_I18N = {
     devices_one: '1 urządzenie',
     popup_open: 'Pełny ekran',
     popup_close: 'Zamknij',
-    by_room: 'Według pomieszczenia',
-    by_type: 'Według typu baterii',
+    by_room: 'Pomieszczenia',
+    by_type: 'Typy baterii',
     no_area: 'Bez pomieszczenia',
     unknown_type: 'Nieznany typ',
     unknown_type_hint: 'Ustaw typ w edytorze karty',
@@ -1109,7 +1109,9 @@ class BatteryMonitorCard extends HTMLElement {
       .sub { font-size: 11px; line-height: 1.2; color: var(--secondary-text-color);
              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .row.warn .sub, .row.alert .sub { color: var(--tt); }
-      .lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+      /* A status of several words (nl “Niet beschikbaar”) wraps rather than squeezing the name out of a narrow column;
+         it never gets narrower than its longest word */
+      .lvl { flex: 0 1 auto; max-width: 45%; min-width: min-content; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
              font-size: 12px; font-weight: 500; color: var(--primary-text-color); font-variant-numeric: tabular-nums; }
       .row:not(.ok) .lvl { color: var(--tt); }
       .track { width: 44px; height: 4px; border-radius: 2px; overflow: hidden;
@@ -1299,7 +1301,7 @@ class BatteryMonitorCardEditor extends HTMLElement {
               { value: 'es', label: 'Español' },
               { value: 'it', label: 'Italiano' },
               { value: 'nl', label: 'Nederlands' },
-              { value: 'pt', label: 'Português' },
+              { value: 'pt', label: 'Português (Portugal)' },
               { value: 'pl', label: 'Polski' },
               { value: 'sr', label: 'Српски' },
               { value: 'sr-Latn', label: 'Srpski (latinica)' },

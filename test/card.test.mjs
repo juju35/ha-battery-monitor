@@ -228,7 +228,7 @@ test('editor: the language list offers every translation, once', () => {
   assert.deepEqual(Array.from(options, (o) => o.value).sort(), LANGUAGES);
   assert.deepEqual(
     Object.fromEntries(options.filter((o) => ['it', 'nl', 'pt', 'pl'].includes(o.value)).map((o) => [o.value, o.label])),
-    { it: 'Italiano', nl: 'Nederlands', pt: 'Português', pl: 'Polski' },
+    { it: 'Italiano', nl: 'Nederlands', pt: 'Português (Portugal)', pl: 'Polski' },
   );
 });
 

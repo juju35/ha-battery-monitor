@@ -204,7 +204,8 @@ The integration and the card follow the language of Home Assistant. Currently su
 | Español | `es` |
 | Italiano | `it` |
 | Nederlands | `nl` |
-| Português (European Portuguese; also used for Brazilian Portuguese) | `pt` |
+| Português (European Portuguese) | `pt` |
+| Português (pt-BR uses the European Portuguese texts) | `pt-BR` |
 | Polski | `pl` |
 | Српски (Serbian, Cyrillic) | `sr` |
 | Srpski (Serbian, Latin) | `sr-Latn` |

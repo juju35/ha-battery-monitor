@@ -94,7 +94,7 @@
   "services": {
     "notify": {
       "name": "Bijna lege batterijen melden",
-      "description": "Verstuurt de melding nu, met alle batterijen onder de drempel of niet beschikbaar ongeacht de duur, of een bericht dat er geen aandacht nodig heeft."
+      "description": "Verstuurt nu de melding met alle batterijen die onder de drempel zitten of niet beschikbaar zijn, ongeacht hoe lang al, of anders een bericht dat geen enkele batterij aandacht nodig heeft."
     }
   },
   "exceptions": {
