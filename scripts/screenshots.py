@@ -3,10 +3,13 @@
 Usage: python scripts/screenshots.py  (needs `pip install playwright` and `playwright install chromium`)
 CHROMIUM_PATH=/path/to/chrome to use another browser. The clock is frozen so the "low for" durations stay the same.
 Every capture keeps a 16 px frame of the theme background around the card or the full screen view.
+A file is only rewritten when its decoded pixels differ from the one already there (PNG or every GIF frame, compared
+through ffmpeg): a re-encode that looks the same leaves the repository untouched.
 """
 
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -245,6 +248,56 @@ def open_card(browser, shot, config, viewport, view=None):
     return page, ROOT / "screenshots" / f"{shot['file']}.png"
 
 
+def pixels(path):
+    """The decoded RGBA pixels of an image (every frame of a GIF), with its size, or None when unreadable."""
+    try:
+        size = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-select_streams",
+                "v:0",
+                "-show_entries",
+                "stream=width,height",
+                "-of",
+                "csv=p=0",
+                str(path),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        raw = subprocess.run(
+            ["ffmpeg", "-v", "error", "-i", str(path), "-f", "rawvideo", "-pix_fmt", "rgba", "-"],
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return size, raw
+
+
+def keep_if_same(new, dest):
+    """Move the fresh capture `new` onto `dest`, unless `dest` already holds the same pixels."""
+    dest = Path(dest)
+    if dest.exists():
+        old = pixels(dest)
+        if old is not None and old == pixels(new):
+            Path(new).unlink()
+            return False
+    shutil.move(str(new), dest)
+    return True
+
+
+def capture(page, path, **kwargs):
+    """Screenshot to a temporary file next to `path`, kept only if it differs from the file already there."""
+    tmp = path.with_name(f".new-{path.name}")
+    page.screenshot(path=str(tmp), **kwargs)
+    changed = keep_if_same(tmp, path)
+    print(path.relative_to(ROOT), "" if changed else "(unchanged)")
+
+
 def animate(browser, shot, config, viewport, *, fps=20, seconds=3):
     """Record the due-battery blink as a looping screenshots/<file>.gif (needs ffmpeg). Every animation is paused and
     stepped frame by frame, so the GIF is identical whatever the machine's speed."""
@@ -261,7 +314,8 @@ def animate(browser, shot, config, viewport, *, fps=20, seconds=3):
             )
             page.screenshot(path=f"{frame_dir}/f{i:03d}.png", clip=clip)
         page.close()
-        out = str(ROOT / "screenshots" / f"{shot['file']}.gif")
+        dest = ROOT / "screenshots" / f"{shot['file']}.gif"
+        out = str(dest.with_name(f".new-{dest.name}"))
         subprocess.run(
             [
                 "ffmpeg",
@@ -280,7 +334,8 @@ def animate(browser, shot, config, viewport, *, fps=20, seconds=3):
             ],
             check=True,
         )
-    print(f"screenshots/{shot['file']}.gif")
+        changed = keep_if_same(out, dest)
+    print(f"screenshots/{shot['file']}.gif", "" if changed else "(unchanged)")
 
 
 def main():
@@ -291,14 +346,12 @@ def main():
             # The card with the 16 px page padding around it, on the theme background.
             box = page.locator("#root").bounding_box()
             clip = {"x": 0, "y": 0, "width": WIDTH + 32, "height": int(box["height"] + 0.999) + 32}
-            page.screenshot(path=str(path), clip=clip, animations="disabled")
-            print(path.relative_to(ROOT))
+            capture(page, path, clip=clip, animations="disabled")
             page.close()
         for shot in POPUP_SHOTS:
             width, height = shot["viewport"]
             page, path = open_card(browser, shot, CARD_CONFIG, (width + 32, height + 32), shot["view"])
-            page.screenshot(path=str(path), animations="disabled")
-            print(path.relative_to(ROOT))
+            capture(page, path, animations="disabled")
             page.close()
         animate(browser, {"file": "due", "theme": "light"}, {}, (1000, 1600))
         animate(browser, {"file": "due-dark", "theme": "dark"}, {}, (1000, 1600))
