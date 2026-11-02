@@ -121,10 +121,10 @@ type: custom:battery-monitor-card
 |---|---|---|
 | `entity` | Auto | The **Low batteries** sensor; found automatically |
 | `title` | `Batteries` | Card title |
-| `columns` | `1` | Number of battery columns (1–3) |
+| `columns` | `1` | Number of battery columns (1–3); a card too narrow for them shows fewer, each at least 160 px wide |
 | `only_low` | `false` | Show only the batteries below the threshold or unavailable |
 | `hide_when_ok` | `false` | Hide the whole card when every battery is above the threshold and available |
-| `notify_button` | `true` | Bell button in the header that sends the notification now |
+| `notify_button` | `true` | Bell button in the header that sends the notification now: it turns while sending, then shows a check mark, or the reason in its tooltip when it fails; disabled while the button entity is unavailable |
 | `popup` | `true` | Full screen button in the header |
 | `battery_models` | — | The battery type of every device of a model Battery Notes doesn't know: `Hue dimmer switch: CR2450`, `Radiator Thermostat W600: 2× AA` |
 | `battery_types` | — | The type of one battery, by battery entity, for one without a model or that differs from its model: `sensor.remote_battery: 2× AAA` |
@@ -134,7 +134,7 @@ Tap a battery to open its details.
 
 #### Full screen
 
-The **full screen** button (top right) shows every battery over the whole screen, grouped **by room** or **by battery type**, with **To replace**: how many batteries of each type to buy for the ones low or unavailable. It closes with its button, Escape, a click outside, or the back button on a phone. On a phone the groups follow one another; wider, they sit side by side in balanced columns.
+The **full screen** button (top right) shows every battery over the whole screen, grouped **by room** or **by battery type**, with **To replace**: how many batteries of each type to buy for the ones low or unavailable. It closes with its button, Escape, a click outside, or the back button on a phone. From the keyboard, the focus goes to its close button, Tab stays inside it, and the focus returns to the full screen button once it is closed. On a phone the groups follow one another; wider, they sit side by side in balanced columns.
 
 The battery type comes from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) when it is installed (the `battery_type` and `battery_quantity` of the battery, or its device's *Battery type* sensor). For the others, set it once per **device model**: the card editor's **Battery types by model** section lists the models (with their manufacturer and how many devices) whose type is not detected; pick a type (CR2032, CR2450, AA, AAA, 2× AA, 9V, built-in rechargeable…) or type your own. A battery without a model, or one that differs from its model, gets its own type in **Battery types by battery**, which wins over its model. `2× AA` (or `2x AA`, `AA x2`) counts two batteries; the batteries without a type are grouped under **Unknown type**. The order: the battery's own type, then its model's, then Battery Notes.
 
