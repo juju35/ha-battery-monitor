@@ -5,13 +5,13 @@
 [![Validate](https://github.com/juju35/ha-battery-monitor/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/validate.yml)
 [![Lint](https://github.com/juju35/ha-battery-monitor/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/lint.yml)
 [![Release](https://img.shields.io/github/v/release/juju35/ha-battery-monitor)](https://github.com/juju35/ha-battery-monitor/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/juju35/ha-battery-monitor/blob/main/LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/julienstep9)
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="custom_components/battery_monitor/brand/dark_logo.png">
-    <img src="custom_components/battery_monitor/brand/logo.png" alt="Battery Monitor" height="64">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/custom_components/battery_monitor/brand/dark_logo.png">
+    <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/custom_components/battery_monitor/brand/logo.png" alt="Battery Monitor" height="64">
   </picture>
 </p>
 
@@ -156,22 +156,22 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 
 | Light | Dark |
 |---|---|
-| ![due battery animation](screenshots/due.gif) | ![due battery animation dark](screenshots/due-dark.gif) |
+| ![due battery animation](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/due.gif) | ![due battery animation dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/due-dark.gif) |
 
 | Every battery | Low batteries only |
 |---|---|
-| ![card](screenshots/card.png) | ![low](screenshots/card-low.png) |
-| ![card dark](screenshots/card-dark.png) | ![low dark](screenshots/card-low-dark.png) |
+| ![card](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png) | ![low](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png) |
+| ![card dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-dark.png) | ![low dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low-dark.png) |
 
 | Full screen, by room | Full screen, by battery type |
 |---|---|
-| ![full screen by room](screenshots/popup.png) | ![full screen by type](screenshots/popup-type.png) |
-| ![full screen by room dark](screenshots/popup-dark.png) | ![full screen by type dark](screenshots/popup-type-dark.png) |
+| ![full screen by room](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup.png) | ![full screen by type](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-type.png) |
+| ![full screen by room dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-dark.png) | ![full screen by type dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-type-dark.png) |
 
 | Phone, by room | Phone, by battery type |
 |---|---|
-| ![phone by room](screenshots/popup-phone.png) | ![phone by type](screenshots/popup-phone-type.png) |
-| ![phone by room dark](screenshots/popup-phone-dark.png) | ![phone by type dark](screenshots/popup-phone-type-dark.png) |
+| ![phone by room](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone.png) | ![phone by type](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-type.png) |
+| ![phone by room dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-dark.png) | ![phone by type dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-type-dark.png) |
 
 ## How it works
 
@@ -191,7 +191,7 @@ python scripts/screenshots.py  # renders the card with mock batteries into scree
 ### Releasing
 
 1. Bump the version in `custom_components/battery_monitor/manifest.json`, `const.py` (`VERSION`) and the card (`BATTERY_MONITOR_CARD_VERSION`)
-2. Add a `## <version>` section at the top of [CHANGELOG.md](CHANGELOG.md)
+2. Add a `## <version>` section at the top of [CHANGELOG.md](https://github.com/juju35/ha-battery-monitor/blob/main/CHANGELOG.md)
 3. Push to `main`: the **Release** workflow creates the tag and the GitHub release with the changelog section as notes, and attaches `battery_monitor.zip`
 
 ## Translations
@@ -228,7 +228,7 @@ Contributions for additional languages are welcome!
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/juju35/ha-battery-monitor/blob/main/LICENSE)
 
 ## Support
 
