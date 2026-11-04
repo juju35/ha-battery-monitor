@@ -569,7 +569,7 @@ async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant) -> None:
         ("it", "3 batterie scariche", "3 batterie da controllare", "1 batteria scarica"),
         ("nl", "3 bijna lege batterijen", "3 batterijen te controleren", "1 bijna lege batterij"),
         ("pt", "3 baterias fracas", "3 baterias a verificar", "1 bateria fraca"),
-        ("ro", "Baterii descărcate: 3", "Baterii de verificat: 3", "1 baterie descărcată"),
+        ("ro", "Baterii scăzute: 3", "Baterii de verificat: 3", "1 baterie scăzută"),
         ("da", "3 lave batterier", "3 batterier skal tjekkes", "1 lavt batteri"),
         ("sv", "3 låga batterier", "3 batterier att kontrollera", "1 lågt batteri"),
         ("bg", "3 изтощени батерии", "3 батерии за проверка", "1 изтощена батерия"),

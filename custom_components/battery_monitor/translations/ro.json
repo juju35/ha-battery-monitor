@@ -3,9 +3,9 @@
     "step": {
       "user": {
         "title": "Battery Monitor",
-        "description": "Trimite de două ori pe zi notificări pentru dispozitivele a căror baterie a rămas descărcată.",
+        "description": "Trimite de două ori pe zi notificări pentru dispozitivele a căror baterie a rămas scăzută.",
         "data": {
-          "threshold": "Prag de baterie descărcată",
+          "threshold": "Prag de baterie scăzută",
           "duration": "Descărcată de cel puțin",
           "morning_time": "Notificarea de dimineață",
           "evening_time": "Notificarea de seară",
@@ -14,7 +14,7 @@
           "ignored_integrations": "Integrări ignorate"
         },
         "data_description": {
-          "threshold": "O baterie este descărcată sub acest nivel.",
+          "threshold": "Sub acest nivel, bateria este considerată scăzută.",
           "duration": "Numărul de ore în care o baterie trebuie să fi rămas sub prag înainte de a fi notificată (0: la următoarea notificare).",
           "morning_time": "Prima dintre cele două notificări zilnice.",
           "evening_time": "A doua dintre cele două notificări zilnice.",
@@ -34,7 +34,7 @@
       "init": {
         "title": "Opțiuni Battery Monitor",
         "data": {
-          "threshold": "Prag de baterie descărcată",
+          "threshold": "Prag de baterie scăzută",
           "duration": "Descărcată de cel puțin",
           "morning_time": "Notificarea de dimineață",
           "evening_time": "Notificarea de seară",
@@ -43,7 +43,7 @@
           "ignored_integrations": "Integrări ignorate"
         },
         "data_description": {
-          "threshold": "O baterie este descărcată sub acest nivel.",
+          "threshold": "Sub acest nivel, bateria este considerată scăzută.",
           "duration": "Numărul de ore în care o baterie trebuie să fi rămas sub prag înainte de a fi notificată (0: la următoarea notificare).",
           "morning_time": "Prima dintre cele două notificări zilnice.",
           "evening_time": "A doua dintre cele două notificări zilnice.",
@@ -62,7 +62,7 @@
     },
     "sensor": {
       "low_batteries": {
-        "name": "Baterii descărcate",
+        "name": "Baterii scăzute",
         "state_attributes": {
           "unavailable": {
             "name": "Indisponibile"
@@ -93,22 +93,22 @@
   },
   "services": {
     "notify": {
-      "name": "Notifică bateriile descărcate",
+      "name": "Notifică bateriile scăzute",
       "description": "Trimite notificarea acum, cu fiecare baterie sub prag sau indisponibilă indiferent de durată, sau un mesaj că niciuna nu necesită atenție."
     }
   },
   "exceptions": {
     "title_one": {
-      "message": "1 baterie descărcată"
+      "message": "1 baterie scăzută"
     },
     "title_many": {
-      "message": "Baterii descărcate: {count}"
+      "message": "Baterii scăzute: {count}"
     },
     "line": {
       "message": "• {name}{area}: {level} %"
     },
     "line_no_level": {
-      "message": "• {name}{area}: descărcată"
+      "message": "• {name}{area}: scăzută"
     },
     "none_title": {
       "message": "Nicio baterie de verificat"

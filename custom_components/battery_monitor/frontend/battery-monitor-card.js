@@ -606,7 +606,7 @@ const BM_I18N = {
     ed_hide_when_ok: 'Ascunde cardul când toate bateriile sunt în regulă',
     ed_hide_when_ok_helper: 'Cardul apare doar când o baterie este sub prag sau indisponibilă',
     ed_notify_button: 'Butonul „Notifică acum”',
-    ed_notify_button_helper: 'Trimite din antet notificarea bateriilor descărcate',
+    ed_notify_button_helper: 'Trimite din antet notificarea bateriilor scăzute',
     ed_language: 'Limbă',
     ed_language_helper: 'Lăsați gol pentru a urma Home Assistant',
     ed_popup: 'Buton ecran complet',
