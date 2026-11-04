@@ -11,7 +11,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/custom_components/battery_monitor/brand/dark_logo.png">
-    <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/custom_components/battery_monitor/brand/logo.png" alt="Battery Monitor" height="64">
+    <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/custom_components/battery_monitor/brand/logo.png" alt="Battery Monitor" height="64" width="400">
   </picture>
 </p>
 
@@ -23,7 +23,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 
 | Every battery | Low batteries only |
 |---|---|
-| ![Battery Monitor card](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png) | ![Battery Monitor card, low batteries only](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png" alt="Battery Monitor card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png" alt="Battery Monitor card, low batteries only" width="400"> |
 
 ## Features
 
@@ -156,22 +156,22 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 
 | Light | Dark |
 |---|---|
-| ![due battery animation](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/due.gif) | ![due battery animation dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/due-dark.gif) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/due.gif" alt="due battery animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/due-dark.gif" alt="due battery animation dark" width="400"> |
 
 | Every battery | Low batteries only |
 |---|---|
-| ![card](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png) | ![low](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png) |
-| ![card dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-dark.png) | ![low dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low-dark.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png" alt="low" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-dark.png" alt="card dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low-dark.png" alt="low dark" width="400"> |
 
 | Full screen, by room | Full screen, by battery type |
 |---|---|
-| ![full screen by room](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup.png) | ![full screen by type](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-type.png) |
-| ![full screen by room dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-dark.png) | ![full screen by type dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-type-dark.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup.png" alt="full screen by room" width="700"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-type.png" alt="full screen by type" width="700"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-dark.png" alt="full screen by room dark" width="700"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-type-dark.png" alt="full screen by type dark" width="700"> |
 
 | Phone, by room | Phone, by battery type |
 |---|---|
-| ![phone by room](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone.png) | ![phone by type](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-type.png) |
-| ![phone by room dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-dark.png) | ![phone by type dark](https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-type-dark.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone.png" alt="phone by room" width="241"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-type.png" alt="phone by type" width="241"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-dark.png" alt="phone by room dark" width="241"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-phone-type-dark.png" alt="phone by type dark" width="241"> |
 
 ## How it works
 
