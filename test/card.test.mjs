@@ -246,8 +246,8 @@ test('bmLang: Italian, Dutch, Portuguese and Polish, by full code then base lang
   assert.equal(bmLang({ language: 'ja' }, {}), 'en');
 });
 
-test('bmLang: the fourteen languages of 1.10.5, by full code then base language', () => {
-  for (const lang of ['ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv', 'el']) {
+test('bmLang: the twelve languages of 1.10.5, by full code then base language', () => {
+  for (const lang of ['ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'sk', 'cs', 'sl', 'lv', 'el']) {
     assert.equal(bmLang({ language: lang }, {}), lang);
   }
   assert.equal(bmLang({ locale: { language: 'sv-SE' } }, {}), 'sv');
@@ -256,8 +256,8 @@ test('bmLang: the fourteen languages of 1.10.5, by full code then base language'
   assert.equal(bmLang({ language: 'el-GR' }, {}), 'el');
 });
 
-test('I18N: where the noun changes form with the number (Slavic, Baltic, Romanian, Irish, Maltese), counts go after a colon', () => {
-  for (const lang of ['ro', 'ru', 'uk', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv']) {
+test('I18N: where the noun changes form with the number (Slavic, Baltic, Romanian), counts go after a colon', () => {
+  for (const lang of ['ro', 'ru', 'uk', 'sk', 'cs', 'sl', 'lv']) {
     for (const key of ['low_many', 'unavailable_many', 'count', 'cells', 'devices_n', 'to_check']) {
       assert.match(BM_I18N[lang][key], /: \{n\}$/, `${lang}.${key}`);
     }
@@ -293,7 +293,7 @@ test('I18N Serbian: a battery is feminine, and a count reads right for any numbe
 });
 
 const LANGUAGES = [
-  'bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'ga', 'hu', 'it', 'lv', 'mt', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr', 'sr-Latn', 'sv', 'uk',
+  'bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'hu', 'it', 'lv', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr', 'sr-Latn', 'sv', 'uk',
 ];
 
 test('I18N parity: every language has exactly the English keys and placeholders, and no empty text', () => {
@@ -329,11 +329,9 @@ test('editor: the language list offers every translation, once', () => {
     ru: 'Русский',
     uk: 'Українська',
     hu: 'Magyar',
-    ga: 'Gaeilge',
     sk: 'Slovenčina',
     cs: 'Čeština',
     sl: 'Slovenščina',
-    mt: 'Malti',
     lv: 'Latviešu',
     el: 'Ελληνικά',
   };

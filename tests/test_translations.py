@@ -29,7 +29,7 @@ def _load(lang: str) -> dict[str, str]:
 
 LANGUAGES = {
     "en", "fr", "de", "es", "it", "nl", "pt", "pt-BR", "pl", "sr", "sr-Latn",
-    "ro", "da", "sv", "bg", "ru", "uk", "hu", "ga", "sk", "cs", "sl", "mt", "lv", "el",
+    "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el",
 }  # fmt: skip
 
 
@@ -67,7 +67,7 @@ def test_serbian_scripts_match() -> None:
         assert "".join(_TO_LATIN.get(ch, ch) for ch in text) == latin[key], key
 
 
-@pytest.mark.parametrize("lang", ["sr", "sr-Latn", "pl", "ro", "ru", "uk", "ga", "sk", "cs", "sl", "mt", "lv"])
+@pytest.mark.parametrize("lang", ["sr", "sr-Latn", "pl", "ro", "ru", "uk", "sk", "cs", "sl", "lv"])
 @pytest.mark.parametrize("key", ["exceptions.title_many.message", "exceptions.check_many.message"])
 def test_serbian_counts_agree_with_any_number(lang: str, key: str) -> None:
     """Serbian, Polish and the like change the noun with the number (2–4, 5+, 20+…): the count goes after a colon."""
