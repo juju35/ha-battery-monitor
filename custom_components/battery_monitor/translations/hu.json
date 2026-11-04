@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Naponta kétszer értesít azokról az eszközökről, amelyeknek az eleme tartósan gyenge maradt.",
+        "data": {
+          "threshold": "Gyenge elem küszöbértéke",
+          "duration": "Legalább ennyi ideje gyenge",
+          "morning_time": "Reggeli értesítés",
+          "evening_time": "Esti értesítés",
+          "notify_services": "Értesítési műveletek",
+          "ignored_entities": "Figyelmen kívül hagyott elemek",
+          "ignored_integrations": "Figyelmen kívül hagyott integrációk"
+        },
+        "data_description": {
+          "threshold": "Ez alatt a szint alatt az elem gyengének számít.",
+          "duration": "Hány órán át kell egy elemnek a küszöbérték alatt maradnia, mielőtt értesítés megy róla (0: a következő értesítéskor).",
+          "morning_time": "A két napi értesítés közül az első.",
+          "evening_time": "A két napi értesítés közül a második.",
+          "notify_services": "Az értesítések küldése ezekkel a műveletekkel (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
+          "ignored_entities": "Soha nem figyelt elemek.",
+          "ignored_integrations": "Integrációk, amelyek elemeit soha nem figyeli (alapértelmezés szerint a mobilalkalmazás telefonjai és táblagépei). Írjon be egy domaint egy még be nem állított integráció hozzáadásához."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "A Battery Monitor már be van állítva.",
+      "single_instance_allowed": "A Battery Monitor már be van állítva."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Battery Monitor beállításai",
+        "data": {
+          "threshold": "Gyenge elem küszöbértéke",
+          "duration": "Legalább ennyi ideje gyenge",
+          "morning_time": "Reggeli értesítés",
+          "evening_time": "Esti értesítés",
+          "notify_services": "Értesítési műveletek",
+          "ignored_entities": "Figyelmen kívül hagyott elemek",
+          "ignored_integrations": "Figyelmen kívül hagyott integrációk"
+        },
+        "data_description": {
+          "threshold": "Ez alatt a szint alatt az elem gyengének számít.",
+          "duration": "Hány órán át kell egy elemnek a küszöbérték alatt maradnia, mielőtt értesítés megy róla (0: a következő értesítéskor).",
+          "morning_time": "A két napi értesítés közül az első.",
+          "evening_time": "A két napi értesítés közül a második.",
+          "notify_services": "Az értesítések küldése ezekkel a műveletekkel (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
+          "ignored_entities": "Soha nem figyelt elemek.",
+          "ignored_integrations": "Integrációk, amelyek elemeit soha nem figyeli (alapértelmezés szerint a mobilalkalmazás telefonjai és táblagépei). Írjon be egy domaint egy még be nem állított integráció hozzáadásához."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Értesítés most"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Gyenge elemek",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Nem elérhető"
+          },
+          "due": {
+            "name": "Értesítendő"
+          },
+          "threshold": {
+            "name": "Küszöbérték"
+          },
+          "duration": {
+            "name": "Időtartam"
+          },
+          "batteries": {
+            "name": "Elemek"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Utolsó értesítés",
+        "state_attributes": {
+          "notified": {
+            "name": "Értesített elemek"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Értesítés a gyenge elemekről",
+      "description": "Azonnal elküldi az értesítést minden küszöbérték alatti vagy nem elérhető elemmel, időtartamtól függetlenül, vagy egy üzenetet arról, hogy egyik sem igényel figyelmet."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 gyenge elem"
+    },
+    "title_many": {
+      "message": "{count} gyenge elem"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: gyenge"
+    },
+    "none_title": {
+      "message": "Nincs ellenőrizendő elem"
+    },
+    "none": {
+      "message": "Minden elem {threshold} % felett van és elérhető."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: nem elérhető"
+    },
+    "check_one": {
+      "message": "1 ellenőrizendő elem"
+    },
+    "check_many": {
+      "message": "{count} ellenőrizendő elem"
+    },
+    "not_loaded": {
+      "message": "A Battery Monitor nincs betöltve."
+    }
+  }
+}

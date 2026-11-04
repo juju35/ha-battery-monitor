@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Dvakrát denně upozorní na zařízení, jejichž baterie zůstala slabá.",
+        "data": {
+          "threshold": "Práh slabé baterie",
+          "duration": "Slabá alespoň",
+          "morning_time": "Ranní oznámení",
+          "evening_time": "Večerní oznámení",
+          "notify_services": "Akce oznámení",
+          "ignored_entities": "Ignorované baterie",
+          "ignored_integrations": "Ignorované integrace"
+        },
+        "data_description": {
+          "threshold": "Pod touto úrovní je baterie slabá.",
+          "duration": "Počet hodin, po které musí baterie zůstat pod prahem, než na ni přijde upozornění (0: při příštím oznámení).",
+          "morning_time": "První ze dvou denních oznámení.",
+          "evening_time": "Druhé ze dvou denních oznámení.",
+          "notify_services": "Odesílat oznámení pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy.",
+          "ignored_entities": "Baterie, které se nikdy nesledují.",
+          "ignored_integrations": "Integrace, jejichž baterie se nikdy nesledují (ve výchozím nastavení telefony a tablety mobilní aplikace). Zadejte doménu pro přidání integrace, která ještě není nastavena."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor je již nastaven.",
+      "single_instance_allowed": "Battery Monitor je již nastaven."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti Battery Monitor",
+        "data": {
+          "threshold": "Práh slabé baterie",
+          "duration": "Slabá alespoň",
+          "morning_time": "Ranní oznámení",
+          "evening_time": "Večerní oznámení",
+          "notify_services": "Akce oznámení",
+          "ignored_entities": "Ignorované baterie",
+          "ignored_integrations": "Ignorované integrace"
+        },
+        "data_description": {
+          "threshold": "Pod touto úrovní je baterie slabá.",
+          "duration": "Počet hodin, po které musí baterie zůstat pod prahem, než na ni přijde upozornění (0: při příštím oznámení).",
+          "morning_time": "První ze dvou denních oznámení.",
+          "evening_time": "Druhé ze dvou denních oznámení.",
+          "notify_services": "Odesílat oznámení pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy.",
+          "ignored_entities": "Baterie, které se nikdy nesledují.",
+          "ignored_integrations": "Integrace, jejichž baterie se nikdy nesledují (ve výchozím nastavení telefony a tablety mobilní aplikace). Zadejte doménu pro přidání integrace, která ještě není nastavena."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Upozornit nyní"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Slabé baterie",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Nedostupné"
+          },
+          "due": {
+            "name": "K oznámení"
+          },
+          "threshold": {
+            "name": "Práh"
+          },
+          "duration": {
+            "name": "Doba trvání"
+          },
+          "batteries": {
+            "name": "Baterie"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Poslední oznámení",
+        "state_attributes": {
+          "notified": {
+            "name": "Oznámené baterie"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Upozornit na slabé baterie",
+      "description": "Okamžitě odešle oznámení se všemi bateriemi pod prahem nebo nedostupnými bez ohledu na dobu trvání, nebo zprávu, že žádná nevyžaduje pozornost."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 slabá baterie"
+    },
+    "title_many": {
+      "message": "Slabé baterie: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: slabá"
+    },
+    "none_title": {
+      "message": "Žádná baterie ke kontrole"
+    },
+    "none": {
+      "message": "Všechny baterie jsou nad {threshold} % a dostupné."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: nedostupná"
+    },
+    "check_one": {
+      "message": "1 baterie ke kontrole"
+    },
+    "check_many": {
+      "message": "Baterie ke kontrole: {count}"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor není načten."
+    }
+  }
+}

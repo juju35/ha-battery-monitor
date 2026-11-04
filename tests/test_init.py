@@ -569,12 +569,24 @@ async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant) -> None:
         ("it", "3 batterie scariche", "3 batterie da controllare", "1 batteria scarica"),
         ("nl", "3 bijna lege batterijen", "3 batterijen te controleren", "1 bijna lege batterij"),
         ("pt", "3 baterias fracas", "3 baterias a verificar", "1 bateria fraca"),
+        ("ro", "Baterii scăzute: 3", "Baterii de verificat: 3", "1 baterie scăzută"),
+        ("da", "3 lave batterier", "3 batterier skal tjekkes", "1 lavt batteri"),
+        ("sv", "3 låga batterier", "3 batterier att kontrollera", "1 lågt batteri"),
+        ("bg", "3 изтощени батерии", "3 батерии за проверка", "1 изтощена батерия"),
+        ("ru", "Разряженные батареи: 3", "Батареи для проверки: 3", "1 разряженная батарея"),
+        ("uk", "Розряджені батареї: 3", "Батареї для перевірки: 3", "1 розряджена батарея"),
+        ("hu", "3 gyenge elem", "3 ellenőrizendő elem", "1 gyenge elem"),
+        ("sk", "Slabé batérie: 3", "Batérie na kontrolu: 3", "1 slabá batéria"),
+        ("cs", "Slabé baterie: 3", "Baterie ke kontrole: 3", "1 slabá baterie"),
+        ("sl", "Šibke baterije: 3", "Baterije za preverjanje: 3", "1 šibka baterija"),
+        ("lv", "Izlādētas baterijas: 3", "Pārbaudāmas baterijas: 3", "1 izlādēta baterija"),
+        ("el", "3 χαμηλές μπαταρίες", "3 μπαταρίες για έλεγχο", "1 χαμηλή μπαταρία"),
     ],
 )
 async def test_notification_titles(
     hass: HomeAssistant, language: str, title_many: str, check_many: str, title_one: str
 ) -> None:
-    """Notification titles in each language; Serbian and Polish read right for 2–4 batteries too."""
+    """Notification titles in each language; where the noun changes with the number, the count goes after a colon."""
     hass.config.language = language
     calls = async_mock_service(hass, "notify", "mobile_app_phone")
     add_battery(hass, "Door", "12")

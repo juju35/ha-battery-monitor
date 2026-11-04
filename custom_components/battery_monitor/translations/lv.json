@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Divreiz dienā paziņo par ierīcēm, kuru baterija joprojām ir izlādēta.",
+        "data": {
+          "threshold": "Izlādētas baterijas slieksnis",
+          "duration": "Izlādēta vismaz",
+          "morning_time": "Rīta paziņojums",
+          "evening_time": "Vakara paziņojums",
+          "notify_services": "Paziņošanas darbības",
+          "ignored_entities": "Ignorētās baterijas",
+          "ignored_integrations": "Ignorētās integrācijas"
+        },
+        "data_description": {
+          "threshold": "Zem šī līmeņa baterija ir izlādēta.",
+          "duration": "Stundas, cik ilgi baterijai jābūt zem sliekšņa, pirms par to tiek paziņots (0: nākamajā paziņojumā).",
+          "morning_time": "Pirmais no diviem ikdienas paziņojumiem.",
+          "evening_time": "Otrais no diviem ikdienas paziņojumiem.",
+          "notify_services": "Sūtīt paziņojumus ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
+          "ignored_entities": "Baterijas, kas nekad netiek uzraudzītas.",
+          "ignored_integrations": "Integrācijas, kuru baterijas nekad netiek uzraudzītas (pēc noklusējuma mobilās lietotnes tālruņi un planšetdatori). Ierakstiet domēnu, lai pievienotu vēl neiestatītu integrāciju."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor jau ir konfigurēts.",
+      "single_instance_allowed": "Battery Monitor jau ir konfigurēts."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Battery Monitor opcijas",
+        "data": {
+          "threshold": "Izlādētas baterijas slieksnis",
+          "duration": "Izlādēta vismaz",
+          "morning_time": "Rīta paziņojums",
+          "evening_time": "Vakara paziņojums",
+          "notify_services": "Paziņošanas darbības",
+          "ignored_entities": "Ignorētās baterijas",
+          "ignored_integrations": "Ignorētās integrācijas"
+        },
+        "data_description": {
+          "threshold": "Zem šī līmeņa baterija ir izlādēta.",
+          "duration": "Stundas, cik ilgi baterijai jābūt zem sliekšņa, pirms par to tiek paziņots (0: nākamajā paziņojumā).",
+          "morning_time": "Pirmais no diviem ikdienas paziņojumiem.",
+          "evening_time": "Otrais no diviem ikdienas paziņojumiem.",
+          "notify_services": "Sūtīt paziņojumus ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
+          "ignored_entities": "Baterijas, kas nekad netiek uzraudzītas.",
+          "ignored_integrations": "Integrācijas, kuru baterijas nekad netiek uzraudzītas (pēc noklusējuma mobilās lietotnes tālruņi un planšetdatori). Ierakstiet domēnu, lai pievienotu vēl neiestatītu integrāciju."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Paziņot tagad"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Izlādētas baterijas",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Nav pieejamas"
+          },
+          "due": {
+            "name": "Jāpaziņo"
+          },
+          "threshold": {
+            "name": "Slieksnis"
+          },
+          "duration": {
+            "name": "Ilgums"
+          },
+          "batteries": {
+            "name": "Baterijas"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Pēdējais paziņojums",
+        "state_attributes": {
+          "notified": {
+            "name": "Paziņotās baterijas"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Paziņot par izlādētām baterijām",
+      "description": "Nekavējoties nosūta paziņojumu ar visām baterijām, kas ir zem sliekšņa vai nav pieejamas, neatkarīgi no ilguma, vai ziņojumu, ka nevienai nav nepieciešama uzmanība."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 izlādēta baterija"
+    },
+    "title_many": {
+      "message": "Izlādētas baterijas: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: izlādēta"
+    },
+    "none_title": {
+      "message": "Nav bateriju, ko pārbaudīt"
+    },
+    "none": {
+      "message": "Visas baterijas ir virs {threshold} % un pieejamas."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: nav pieejama"
+    },
+    "check_one": {
+      "message": "1 pārbaudāma baterija"
+    },
+    "check_many": {
+      "message": "Pārbaudāmas baterijas: {count}"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor nav ielādēts."
+    }
+  }
+}

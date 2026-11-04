@@ -35,7 +35,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; only the batteries needing attention are tinted: orange while low, red when unavailable or once notified (blinking once notified)
 - **Full screen view** from the card: every battery grouped **by room** or **by battery type** (CR2032, AA…), with what to buy for the ones to replace; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** sensor, **Notify now** button and `battery_monitor.notify` action
-- UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish and Serbian (Cyrillic and Latin)
+- UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian, Greek and Serbian (Cyrillic and Latin)
 
 ## Prerequisites
 
@@ -129,7 +129,7 @@ type: custom:battery-monitor-card
 | `popup` | `true` | Full screen button in the header |
 | `battery_models` | — | The battery type of every device of a model Battery Notes doesn't know: `Hue dimmer switch: CR2450`, `Radiator Thermostat W600: 2× AA` |
 | `battery_types` | — | The type of one battery, by battery entity, for one without a model or that differs from its model: `sensor.remote_battery: 2× AAA` |
-| `language` | Auto | Force language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt` (European Portuguese), `pl`, `sr` (Serbian, Cyrillic) or `sr-Latn` (Serbian, Latin) |
+| `language` | Auto | Force language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt` (European Portuguese), `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv`, `el`, `sr` (Serbian, Cyrillic) or `sr-Latn` (Serbian, Latin) |
 
 Tap a battery to open its details.
 
@@ -208,6 +208,18 @@ The integration and the card follow the language of Home Assistant. Currently su
 | Português (European Portuguese) | `pt` |
 | Português (pt-BR uses the European Portuguese texts) | `pt-BR` |
 | Polski | `pl` |
+| Română | `ro` |
+| Dansk | `da` |
+| Svenska | `sv` |
+| Български | `bg` |
+| Русский | `ru` |
+| Українська | `uk` |
+| Magyar | `hu` |
+| Slovenčina | `sk` |
+| Čeština | `cs` |
+| Slovenščina | `sl` |
+| Latviešu | `lv` |
+| Ελληνικά | `el` |
 | Српски (Serbian, Cyrillic) | `sr` |
 | Srpski (Serbian, Latin) | `sr-Latn` |
 

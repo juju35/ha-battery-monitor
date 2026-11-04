@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Giver besked to gange om dagen om de enheder, hvis batteri er forblevet lavt.",
+        "data": {
+          "threshold": "Tærskel for lavt batteri",
+          "duration": "Lavt i mindst",
+          "morning_time": "Morgennotifikation",
+          "evening_time": "Aftennotifikation",
+          "notify_services": "Notifikationshandlinger",
+          "ignored_entities": "Ignorerede batterier",
+          "ignored_integrations": "Ignorerede integrationer"
+        },
+        "data_description": {
+          "threshold": "Et batteri er lavt under dette niveau.",
+          "duration": "Antal timer et batteri skal have været under tærsklen, før der gives besked om det (0: ved næste notifikation).",
+          "morning_time": "Den første af de to daglige notifikationer.",
+          "evening_time": "Den anden af de to daglige notifikationer.",
+          "notify_services": "Send notifikationerne med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation.",
+          "ignored_entities": "Batterier, der aldrig overvåges.",
+          "ignored_integrations": "Integrationer, hvis batterier aldrig overvåges (som standard telefoner og tablets fra mobilappen). Skriv et domæne for at tilføje en, der endnu ikke er sat op."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor er allerede konfigureret.",
+      "single_instance_allowed": "Battery Monitor er allerede konfigureret."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Indstillinger for Battery Monitor",
+        "data": {
+          "threshold": "Tærskel for lavt batteri",
+          "duration": "Lavt i mindst",
+          "morning_time": "Morgennotifikation",
+          "evening_time": "Aftennotifikation",
+          "notify_services": "Notifikationshandlinger",
+          "ignored_entities": "Ignorerede batterier",
+          "ignored_integrations": "Ignorerede integrationer"
+        },
+        "data_description": {
+          "threshold": "Et batteri er lavt under dette niveau.",
+          "duration": "Antal timer et batteri skal have været under tærsklen, før der gives besked om det (0: ved næste notifikation).",
+          "morning_time": "Den første af de to daglige notifikationer.",
+          "evening_time": "Den anden af de to daglige notifikationer.",
+          "notify_services": "Send notifikationerne med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation.",
+          "ignored_entities": "Batterier, der aldrig overvåges.",
+          "ignored_integrations": "Integrationer, hvis batterier aldrig overvåges (som standard telefoner og tablets fra mobilappen). Skriv et domæne for at tilføje en, der endnu ikke er sat op."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Underret nu"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Lave batterier",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Utilgængelige"
+          },
+          "due": {
+            "name": "Skal meldes"
+          },
+          "threshold": {
+            "name": "Tærskel"
+          },
+          "duration": {
+            "name": "Varighed"
+          },
+          "batteries": {
+            "name": "Batterier"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Seneste notifikation",
+        "state_attributes": {
+          "notified": {
+            "name": "Meldte batterier"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Giv besked om lave batterier",
+      "description": "Sender notifikationen nu med alle batterier under tærsklen eller utilgængelige uanset varighed, eller en besked om, at intet kræver opmærksomhed."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 lavt batteri"
+    },
+    "title_many": {
+      "message": "{count} lave batterier"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: lavt"
+    },
+    "none_title": {
+      "message": "Ingen batterier at tjekke"
+    },
+    "none": {
+      "message": "Alle batterier er over {threshold} % og tilgængelige."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: utilgængeligt"
+    },
+    "check_one": {
+      "message": "1 batteri skal tjekkes"
+    },
+    "check_many": {
+      "message": "{count} batterier skal tjekkes"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor er ikke indlæst."
+    }
+  }
+}

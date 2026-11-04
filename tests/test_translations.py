@@ -27,7 +27,10 @@ def _load(lang: str) -> dict[str, str]:
     return _flatten(json.loads((TRANSLATIONS / f"{lang}.json").read_text(encoding="utf-8")))
 
 
-LANGUAGES = {"en", "fr", "de", "es", "it", "nl", "pt", "pt-BR", "pl", "sr", "sr-Latn"}
+LANGUAGES = {
+    "en", "fr", "de", "es", "it", "nl", "pt", "pt-BR", "pl", "sr", "sr-Latn",
+    "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el",
+}  # fmt: skip
 
 
 def test_languages() -> None:
@@ -64,10 +67,10 @@ def test_serbian_scripts_match() -> None:
         assert "".join(_TO_LATIN.get(ch, ch) for ch in text) == latin[key], key
 
 
-@pytest.mark.parametrize("lang", ["sr", "sr-Latn", "pl"])
+@pytest.mark.parametrize("lang", ["sr", "sr-Latn", "pl", "ro", "ru", "uk", "sk", "cs", "sl", "lv"])
 @pytest.mark.parametrize("key", ["exceptions.title_many.message", "exceptions.check_many.message"])
 def test_serbian_counts_agree_with_any_number(lang: str, key: str) -> None:
-    """Serbian and Polish nouns change form after 2–4 and after 5+: the count goes after a colon, not before."""
+    """Serbian, Polish and the like change the noun with the number (2–4, 5+, 20+…): the count goes after a colon."""
     text = _load(lang)[key]
     assert not text.startswith("{count}"), text
     assert text.endswith(": {count}"), text
