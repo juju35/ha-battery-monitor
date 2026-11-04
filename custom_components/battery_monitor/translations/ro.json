@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Trimite de două ori pe zi notificări pentru dispozitivele a căror baterie a rămas descărcată.",
+        "data": {
+          "threshold": "Prag de baterie descărcată",
+          "duration": "Descărcată de cel puțin",
+          "morning_time": "Notificarea de dimineață",
+          "evening_time": "Notificarea de seară",
+          "notify_services": "Acțiuni de notificare",
+          "ignored_entities": "Baterii ignorate",
+          "ignored_integrations": "Integrări ignorate"
+        },
+        "data_description": {
+          "threshold": "O baterie este descărcată sub acest nivel.",
+          "duration": "Numărul de ore în care o baterie trebuie să fi rămas sub prag înainte de a fi notificată (0: la următoarea notificare).",
+          "morning_time": "Prima dintre cele două notificări zilnice.",
+          "evening_time": "A doua dintre cele două notificări zilnice.",
+          "notify_services": "Trimite notificările cu aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
+          "ignored_entities": "Baterii care nu sunt monitorizate niciodată.",
+          "ignored_integrations": "Integrări ale căror baterii nu sunt monitorizate niciodată (implicit telefoanele și tabletele aplicației mobile). Introduceți un domeniu pentru a adăuga unul care nu este încă configurat."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor este deja configurat.",
+      "single_instance_allowed": "Battery Monitor este deja configurat."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opțiuni Battery Monitor",
+        "data": {
+          "threshold": "Prag de baterie descărcată",
+          "duration": "Descărcată de cel puțin",
+          "morning_time": "Notificarea de dimineață",
+          "evening_time": "Notificarea de seară",
+          "notify_services": "Acțiuni de notificare",
+          "ignored_entities": "Baterii ignorate",
+          "ignored_integrations": "Integrări ignorate"
+        },
+        "data_description": {
+          "threshold": "O baterie este descărcată sub acest nivel.",
+          "duration": "Numărul de ore în care o baterie trebuie să fi rămas sub prag înainte de a fi notificată (0: la următoarea notificare).",
+          "morning_time": "Prima dintre cele două notificări zilnice.",
+          "evening_time": "A doua dintre cele două notificări zilnice.",
+          "notify_services": "Trimite notificările cu aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
+          "ignored_entities": "Baterii care nu sunt monitorizate niciodată.",
+          "ignored_integrations": "Integrări ale căror baterii nu sunt monitorizate niciodată (implicit telefoanele și tabletele aplicației mobile). Introduceți un domeniu pentru a adăuga unul care nu este încă configurat."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Notifică acum"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Baterii descărcate",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Indisponibile"
+          },
+          "due": {
+            "name": "De notificat"
+          },
+          "threshold": {
+            "name": "Prag"
+          },
+          "duration": {
+            "name": "Durată"
+          },
+          "batteries": {
+            "name": "Baterii"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Ultima notificare",
+        "state_attributes": {
+          "notified": {
+            "name": "Baterii notificate"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Notifică bateriile descărcate",
+      "description": "Trimite notificarea acum, cu fiecare baterie sub prag sau indisponibilă indiferent de durată, sau un mesaj că niciuna nu necesită atenție."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 baterie descărcată"
+    },
+    "title_many": {
+      "message": "Baterii descărcate: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: descărcată"
+    },
+    "none_title": {
+      "message": "Nicio baterie de verificat"
+    },
+    "none": {
+      "message": "Toate bateriile sunt peste {threshold} % și disponibile."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: indisponibilă"
+    },
+    "check_one": {
+      "message": "1 baterie de verificat"
+    },
+    "check_many": {
+      "message": "Baterii de verificat: {count}"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor nu este încărcat."
+    }
+  }
+}

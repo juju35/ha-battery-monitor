@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.5 - 2026-11-04
+
+### What's new
+- Added Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Irish, Slovak, Czech, Slovenian, Maltese, Latvian and Greek translations: the setup and options, the entities, the notifications and the card with its visual editor (Română, Dansk, Svenska, Български, Русский, Українська, Magyar, Gaeilge, Slovenčina, Čeština, Slovenščina, Malti, Latviešu and Ελληνικά in the `language` option).
+
 ## 1.10.4 - 2026-11-01
 
 ### Fixes

@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Tinnotifika darbtejn kuljum dwar l-apparati li l-batterija tagħhom baqgħet baxxa.",
+        "data": {
+          "threshold": "Limitu ta’ batterija baxxa",
+          "duration": "Baxxa għal mill-inqas",
+          "morning_time": "Notifika ta’ filgħodu",
+          "evening_time": "Notifika ta’ filgħaxija",
+          "notify_services": "Azzjonijiet ta’ notifika",
+          "ignored_entities": "Batteriji injorati",
+          "ignored_integrations": "Integrazzjonijiet injorati"
+        },
+        "data_description": {
+          "threshold": "Batterija hija baxxa taħt dan il-livell.",
+          "duration": "Is-sigħat li batterija trid tkun baqgħet taħt il-limitu qabel ma tiġi nnotifikata (0: fin-notifika li jmiss).",
+          "morning_time": "L-ewwel waħda miż-żewġ notifiki ta’ kuljum.",
+          "evening_time": "It-tieni waħda miż-żewġ notifiki ta’ kuljum.",
+          "notify_services": "Ibgħat in-notifiki b’dawn l-azzjonijiet (notify.mobile_app_…). Notifika persistenti tinħoloq dejjem.",
+          "ignored_entities": "Batteriji li qatt ma jiġu mmonitorjati.",
+          "ignored_integrations": "Integrazzjonijiet li l-batteriji tagħhom qatt ma jiġu mmonitorjati (b’mod awtomatiku t-telefowns u t-tablets tal-app mobbli). Ikteb dominju biex iżżid wieħed li għadu mhux issettjat."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor diġà kkonfigurat.",
+      "single_instance_allowed": "Battery Monitor diġà kkonfigurat."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Għażliet ta’ Battery Monitor",
+        "data": {
+          "threshold": "Limitu ta’ batterija baxxa",
+          "duration": "Baxxa għal mill-inqas",
+          "morning_time": "Notifika ta’ filgħodu",
+          "evening_time": "Notifika ta’ filgħaxija",
+          "notify_services": "Azzjonijiet ta’ notifika",
+          "ignored_entities": "Batteriji injorati",
+          "ignored_integrations": "Integrazzjonijiet injorati"
+        },
+        "data_description": {
+          "threshold": "Batterija hija baxxa taħt dan il-livell.",
+          "duration": "Is-sigħat li batterija trid tkun baqgħet taħt il-limitu qabel ma tiġi nnotifikata (0: fin-notifika li jmiss).",
+          "morning_time": "L-ewwel waħda miż-żewġ notifiki ta’ kuljum.",
+          "evening_time": "It-tieni waħda miż-żewġ notifiki ta’ kuljum.",
+          "notify_services": "Ibgħat in-notifiki b’dawn l-azzjonijiet (notify.mobile_app_…). Notifika persistenti tinħoloq dejjem.",
+          "ignored_entities": "Batteriji li qatt ma jiġu mmonitorjati.",
+          "ignored_integrations": "Integrazzjonijiet li l-batteriji tagħhom qatt ma jiġu mmonitorjati (b’mod awtomatiku t-telefowns u t-tablets tal-app mobbli). Ikteb dominju biex iżżid wieħed li għadu mhux issettjat."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Innotifika issa"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Batteriji baxxi",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Mhux disponibbli"
+          },
+          "due": {
+            "name": "Biex jiġu nnotifikati"
+          },
+          "threshold": {
+            "name": "Limitu"
+          },
+          "duration": {
+            "name": "Tul ta’ żmien"
+          },
+          "batteries": {
+            "name": "Batteriji"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "L-aħħar notifika",
+        "state_attributes": {
+          "notified": {
+            "name": "Batteriji nnotifikati"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Innotifika l-batteriji baxxi",
+      "description": "Tibgħat in-notifika issa, bil-batteriji kollha taħt il-limitu jew mhux disponibbli irrispettivament mit-tul ta’ żmien, jew messaġġ li ebda waħda ma teħtieġ attenzjoni."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 batterija baxxa"
+    },
+    "title_many": {
+      "message": "Batteriji baxxi: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: baxxa"
+    },
+    "none_title": {
+      "message": "L-ebda batterija biex tiġi ċċekkjata"
+    },
+    "none": {
+      "message": "Il-batteriji kollha huma ’l fuq minn {threshold} % u disponibbli."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: mhux disponibbli"
+    },
+    "check_one": {
+      "message": "1 batterija biex tiġi ċċekkjata"
+    },
+    "check_many": {
+      "message": "Batteriji biex jiġu ċċekkjati: {count}"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor mhuwiex mgħobbi."
+    }
+  }
+}

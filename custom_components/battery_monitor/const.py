@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "battery_monitor"
-VERSION: Final = "1.10.4"
+VERSION: Final = "1.10.5"
 
 CONF_THRESHOLD: Final = "threshold"
 CONF_DURATION: Final = "duration"

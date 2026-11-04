@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Dvakrat na dan obvesti o napravah, katerih baterija je ostala šibka.",
+        "data": {
+          "threshold": "Prag šibke baterije",
+          "duration": "Šibka vsaj",
+          "morning_time": "Jutranje obvestilo",
+          "evening_time": "Večerno obvestilo",
+          "notify_services": "Dejanja obveščanja",
+          "ignored_entities": "Prezrte baterije",
+          "ignored_integrations": "Prezrte integracije"
+        },
+        "data_description": {
+          "threshold": "Pod to ravnjo je baterija šibka.",
+          "duration": "Število ur, ko mora baterija ostati pod pragom, preden je vključena v obvestilo (0: ob naslednjem obvestilu).",
+          "morning_time": "Prvo od dveh dnevnih obvestil.",
+          "evening_time": "Drugo od dveh dnevnih obvestil.",
+          "notify_services": "Pošlji obvestila s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
+          "ignored_entities": "Baterije, ki se nikoli ne spremljajo.",
+          "ignored_integrations": "Integracije, katerih baterije se nikoli ne spremljajo (privzeto telefoni in tablice mobilne aplikacije). Vpišite domeno, da dodate integracijo, ki še ni nastavljena."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Battery Monitor je že nastavljen.",
+      "single_instance_allowed": "Battery Monitor je že nastavljen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti za Battery Monitor",
+        "data": {
+          "threshold": "Prag šibke baterije",
+          "duration": "Šibka vsaj",
+          "morning_time": "Jutranje obvestilo",
+          "evening_time": "Večerno obvestilo",
+          "notify_services": "Dejanja obveščanja",
+          "ignored_entities": "Prezrte baterije",
+          "ignored_integrations": "Prezrte integracije"
+        },
+        "data_description": {
+          "threshold": "Pod to ravnjo je baterija šibka.",
+          "duration": "Število ur, ko mora baterija ostati pod pragom, preden je vključena v obvestilo (0: ob naslednjem obvestilu).",
+          "morning_time": "Prvo od dveh dnevnih obvestil.",
+          "evening_time": "Drugo od dveh dnevnih obvestil.",
+          "notify_services": "Pošlji obvestila s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
+          "ignored_entities": "Baterije, ki se nikoli ne spremljajo.",
+          "ignored_integrations": "Integracije, katerih baterije se nikoli ne spremljajo (privzeto telefoni in tablice mobilne aplikacije). Vpišite domeno, da dodate integracijo, ki še ni nastavljena."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Obvesti zdaj"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Šibke baterije",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Ni na voljo"
+          },
+          "due": {
+            "name": "Za obvestilo"
+          },
+          "threshold": {
+            "name": "Prag"
+          },
+          "duration": {
+            "name": "Trajanje"
+          },
+          "batteries": {
+            "name": "Baterije"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "Zadnje obvestilo",
+        "state_attributes": {
+          "notified": {
+            "name": "Baterije v obvestilu"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Obvesti o šibkih baterijah",
+      "description": "Takoj pošlje obvestilo z vsemi baterijami pod pragom ali ki niso na voljo, ne glede na trajanje, ali sporočilo, da nobena ne potrebuje pozornosti."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "1 šibka baterija"
+    },
+    "title_many": {
+      "message": "Šibke baterije: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: šibka"
+    },
+    "none_title": {
+      "message": "Nobene baterije za preverjanje"
+    },
+    "none": {
+      "message": "Vse baterije so nad {threshold} % in na voljo."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: ni na voljo"
+    },
+    "check_one": {
+      "message": "1 baterija za preverjanje"
+    },
+    "check_many": {
+      "message": "Baterije za preverjanje: {count}"
+    },
+    "not_loaded": {
+      "message": "Battery Monitor ni naložen."
+    }
+  }
+}

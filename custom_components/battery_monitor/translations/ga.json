@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Seolann sé fógra dhá uair sa lá faoi na gléasanna a bhfuil a gceallra fós íseal.",
+        "data": {
+          "threshold": "Tairseach ceallra ísil",
+          "duration": "Íseal ar feadh ar a laghad",
+          "morning_time": "Fógra na maidine",
+          "evening_time": "Fógra an tráthnóna",
+          "notify_services": "Gníomhartha fógartha",
+          "ignored_entities": "Ceallraí a ndéantar neamhaird orthu",
+          "ignored_integrations": "Comhtháthuithe a ndéantar neamhaird orthu"
+        },
+        "data_description": {
+          "threshold": "Bíonn ceallra íseal faoin leibhéal seo.",
+          "duration": "Líon na n-uaireanta a chaithfidh ceallra a bheith faoin tairseach sula seoltar fógra faoi (0: ag an gcéad fhógra eile).",
+          "morning_time": "An chéad cheann den dá fhógra laethúla.",
+          "evening_time": "An dara ceann den dá fhógra laethúla.",
+          "notify_services": "Seol na fógraí leis na gníomhartha seo (notify.mobile_app_…). Cruthaítear fógra buan i gcónaí.",
+          "ignored_entities": "Ceallraí nach ndéantar monatóireacht orthu riamh.",
+          "ignored_integrations": "Comhtháthuithe nach ndéantar monatóireacht ar a gceallraí riamh (fóin agus táibléid na haipe móibílí de réir réamhshocraithe). Clóscríobh fearann chun ceann nach bhfuil socraithe fós a chur leis."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Tá Battery Monitor cumraithe cheana féin.",
+      "single_instance_allowed": "Tá Battery Monitor cumraithe cheana féin."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Roghanna Battery Monitor",
+        "data": {
+          "threshold": "Tairseach ceallra ísil",
+          "duration": "Íseal ar feadh ar a laghad",
+          "morning_time": "Fógra na maidine",
+          "evening_time": "Fógra an tráthnóna",
+          "notify_services": "Gníomhartha fógartha",
+          "ignored_entities": "Ceallraí a ndéantar neamhaird orthu",
+          "ignored_integrations": "Comhtháthuithe a ndéantar neamhaird orthu"
+        },
+        "data_description": {
+          "threshold": "Bíonn ceallra íseal faoin leibhéal seo.",
+          "duration": "Líon na n-uaireanta a chaithfidh ceallra a bheith faoin tairseach sula seoltar fógra faoi (0: ag an gcéad fhógra eile).",
+          "morning_time": "An chéad cheann den dá fhógra laethúla.",
+          "evening_time": "An dara ceann den dá fhógra laethúla.",
+          "notify_services": "Seol na fógraí leis na gníomhartha seo (notify.mobile_app_…). Cruthaítear fógra buan i gcónaí.",
+          "ignored_entities": "Ceallraí nach ndéantar monatóireacht orthu riamh.",
+          "ignored_integrations": "Comhtháthuithe nach ndéantar monatóireacht ar a gceallraí riamh (fóin agus táibléid na haipe móibílí de réir réamhshocraithe). Clóscríobh fearann chun ceann nach bhfuil socraithe fós a chur leis."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "notify_now": {
+        "name": "Seol fógra anois"
+      }
+    },
+    "sensor": {
+      "low_batteries": {
+        "name": "Ceallraí ísle",
+        "state_attributes": {
+          "unavailable": {
+            "name": "Gan fáil"
+          },
+          "due": {
+            "name": "Le fógairt"
+          },
+          "threshold": {
+            "name": "Tairseach"
+          },
+          "duration": {
+            "name": "Fad"
+          },
+          "batteries": {
+            "name": "Ceallraí"
+          }
+        }
+      },
+      "last_notification": {
+        "name": "An fógra deireanach",
+        "state_attributes": {
+          "notified": {
+            "name": "Ceallraí a fógraíodh"
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Fógair ceallraí ísle",
+      "description": "Seolann sé an fógra anois, le gach ceallra faoin tairseach nó gan fáil beag beann ar an bhfad, nó teachtaireacht nach bhfuil aird ag teastáil ó aon cheann acu."
+    }
+  },
+  "exceptions": {
+    "title_one": {
+      "message": "Ceallra íseal amháin"
+    },
+    "title_many": {
+      "message": "Ceallraí ísle: {count}"
+    },
+    "line": {
+      "message": "• {name}{area}: {level} %"
+    },
+    "line_no_level": {
+      "message": "• {name}{area}: íseal"
+    },
+    "none_title": {
+      "message": "Níl ceallra ar bith le seiceáil"
+    },
+    "none": {
+      "message": "Tá gach ceallra os cionn {threshold} % agus ar fáil."
+    },
+    "line_unavailable": {
+      "message": "• {name}{area}: gan fáil"
+    },
+    "check_one": {
+      "message": "Ceallra amháin le seiceáil"
+    },
+    "check_many": {
+      "message": "Ceallraí le seiceáil: {count}"
+    },
+    "not_loaded": {
+      "message": "Níl Battery Monitor luchtaithe."
+    }
+  }
+}

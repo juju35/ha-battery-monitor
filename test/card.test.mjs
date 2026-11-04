@@ -246,6 +246,24 @@ test('bmLang: Italian, Dutch, Portuguese and Polish, by full code then base lang
   assert.equal(bmLang({ language: 'ja' }, {}), 'en');
 });
 
+test('bmLang: the fourteen languages of 1.10.5, by full code then base language', () => {
+  for (const lang of ['ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv', 'el']) {
+    assert.equal(bmLang({ language: lang }, {}), lang);
+  }
+  assert.equal(bmLang({ locale: { language: 'sv-SE' } }, {}), 'sv');
+  assert.equal(bmLang({ locale: { language: 'cs-CZ' } }, {}), 'cs');
+  assert.equal(bmLang({ language: 'en' }, { language: 'uk' }), 'uk');
+  assert.equal(bmLang({ language: 'el-GR' }, {}), 'el');
+});
+
+test('I18N: where the noun changes form with the number (Slavic, Baltic, Romanian, Irish, Maltese), counts go after a colon', () => {
+  for (const lang of ['ro', 'ru', 'uk', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv']) {
+    for (const key of ['low_many', 'unavailable_many', 'count', 'cells', 'devices_n', 'to_check']) {
+      assert.match(BM_I18N[lang][key], /: \{n\}$/, `${lang}.${key}`);
+    }
+  }
+});
+
 test('I18N Polish: counts above one go after a colon, so the noun reads right for 2–4 and 5+', () => {
   for (const key of ['low_many', 'unavailable_many', 'count', 'cells', 'devices_n', 'to_check']) {
     assert.match(BM_I18N.pl[key], /: \{n\}$/, key);
@@ -274,7 +292,9 @@ test('I18N Serbian: a battery is feminine, and a count reads right for any numbe
   assert.equal(BM_I18N['sr-Latn'].count, 'Baterija: {n}');
 });
 
-const LANGUAGES = ['de', 'en', 'es', 'fr', 'it', 'nl', 'pl', 'pt', 'sr', 'sr-Latn'];
+const LANGUAGES = [
+  'bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'ga', 'hu', 'it', 'lv', 'mt', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr', 'sr-Latn', 'sv', 'uk',
+];
 
 test('I18N parity: every language has exactly the English keys and placeholders, and no empty text', () => {
   const en = BM_I18N.en;
@@ -301,6 +321,23 @@ test('editor: the language list offers every translation, once', () => {
     Object.fromEntries(options.filter((o) => ['it', 'nl', 'pt', 'pl'].includes(o.value)).map((o) => [o.value, o.label])),
     { it: 'Italiano', nl: 'Nederlands', pt: 'Português (Portugal)', pl: 'Polski' },
   );
+  const added = {
+    ro: 'Română',
+    da: 'Dansk',
+    sv: 'Svenska',
+    bg: 'Български',
+    ru: 'Русский',
+    uk: 'Українська',
+    hu: 'Magyar',
+    ga: 'Gaeilge',
+    sk: 'Slovenčina',
+    cs: 'Čeština',
+    sl: 'Slovenščina',
+    mt: 'Malti',
+    lv: 'Latviešu',
+    el: 'Ελληνικά',
+  };
+  assert.deepEqual(Object.fromEntries(options.filter((o) => o.value in added).map((o) => [o.value, o.label])), added);
 });
 
 test('the sensor restored without its battery list at the first render is found once its state arrives', () => {
