@@ -1140,7 +1140,7 @@ test('hide_when_ok: hidden when every battery is fine, shown again in edit mode 
 
 test('full screen by replacement date: now, within 30 days, later, no forecast; next replacement and CSV', () => {
   const batteries = [
-    { entity_id: 'sensor.a_battery', name: 'Hub', area: 'Office', level: 45, low: false, days_left: 12, drain_per_day: 0.25, replace_by: '2026-11-19T12:00:00+01:00', icon: 'mdi:battery-50' },
+    { entity_id: 'sensor.a_battery', name: 'Hub', area: 'Office', level: 45, low: false, days_left: 12, drain_per_day: 0.25, replace_by: '2026-11-19T10:00:00+01:00', icon: 'mdi:battery-50' },
     { entity_id: 'sensor.b_battery', name: 'Clock', area: 'Kitchen', level: 95, low: false, days_left: 300, drain_per_day: 0.05, replace_by: '2027-09-03T00:00:00+02:00', icon: 'mdi:battery' },
     { entity_id: 'sensor.c_battery', name: 'Door', area: 'Entrance', level: 12, low: true, alert: true, days_left: 0, icon: 'mdi:battery-10', below_since: new Date(Date.now() - 3 * 864e5).toISOString() },
     { entity_id: 'sensor.d_battery', name: 'Leak, "basement"', level: null, low: false, icon: 'mdi:battery' },
