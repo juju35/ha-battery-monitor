@@ -1,6 +1,6 @@
 # ha-battery-monitor
 
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![Marketplace](https://img.shields.io/badge/Marketplace-Custom-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/)
 [![HACS Validation](https://github.com/juju35/ha-battery-monitor/actions/workflows/hacs.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/hacs.yml)
 [![Validate](https://github.com/juju35/ha-battery-monitor/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/validate.yml)
 [![Lint](https://github.com/juju35/ha-battery-monitor/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/lint.yml)
@@ -19,7 +19,7 @@ Home Assistant integration that watches every battery of your home and tells you
 
 It comes with a **Lovelace card** listing every battery with its icon, name, room and level, the lowest first.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=juju35&repository=ha-battery-monitor&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-battery-monitor&category=integration)
 
 | Every battery | Low batteries only |
 |---|---|
@@ -45,15 +45,15 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 
 ## Installation
 
-### Via HACS (recommended)
+### Via the Marketplace (recommended)
 
-[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=juju35&repository=ha-battery-monitor&category=integration)
+[![Add to the Marketplace](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-battery-monitor&category=integration)
 
 Or manually:
 
-1. Open HACS → **⋮** → **Custom repositories**
+1. Open **Settings → Marketplace → Add from link** (top right; this needs a GitHub account connected)
 2. Add `https://github.com/juju35/ha-battery-monitor` — Type: **Integration**
-3. Search for **Battery Monitor** and download it
+3. Open **Battery Monitor** and click **Install**
 4. Restart Home Assistant
 
 ### Manual
@@ -64,7 +64,7 @@ Or manually:
 
 ### Removal
 
-Remove the integration from **Settings → Devices & services**: its notification and the card resource are removed with it. Then remove the repository from HACS.
+Remove the integration from **Settings → Devices & services**: its notification and the card resource are removed with it. Then uninstall the repository in **Settings → Marketplace**.
 
 ## Configuration
 
