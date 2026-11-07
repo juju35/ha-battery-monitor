@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.10.6';
+var BATTERY_MONITOR_CARD_VERSION = '1.11.0';
 
 const BM_I18N = {
   en: {
@@ -26,6 +26,7 @@ const BM_I18N = {
     since_unavailable: 'unavailable for {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ {d} left',
     ed_entity: 'Battery Monitor sensor',
     ed_entity_helper: 'Leave empty to find it automatically',
     ed_title: 'Title',
@@ -83,6 +84,7 @@ const BM_I18N = {
     since_unavailable: 'indisponible depuis {d}',
     hours: '{n} h',
     days: '{n} j',
+    forecast: '≈ {d} restants',
     ed_entity: 'Capteur Battery Monitor',
     ed_entity_helper: 'Laisser vide pour le trouver automatiquement',
     ed_title: 'Titre',
@@ -140,6 +142,7 @@ const BM_I18N = {
     since_unavailable: 'nicht verfügbar seit {d}',
     hours: '{n} h',
     days: '{n} Tg.',
+    forecast: '≈ noch {d}',
     ed_entity: 'Battery-Monitor-Sensor',
     ed_entity_helper: 'Leer lassen, um ihn automatisch zu finden',
     ed_title: 'Titel',
@@ -197,6 +200,7 @@ const BM_I18N = {
     since_unavailable: 'no disponible desde hace {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ {d} restantes',
     ed_entity: 'Sensor de Battery Monitor',
     ed_entity_helper: 'Déjalo vacío para encontrarlo automáticamente',
     ed_title: 'Título',
@@ -254,6 +258,7 @@ const BM_I18N = {
     since_unavailable: 'недоступна већ {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ преостало {d}',
     ed_entity: 'Battery Monitor сензор',
     ed_entity_helper: 'Остави празно за аутоматско проналажење',
     ed_title: 'Наслов',
@@ -311,6 +316,7 @@ const BM_I18N = {
     since_unavailable: 'nedostupna već {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ preostalo {d}',
     ed_entity: 'Battery Monitor senzor',
     ed_entity_helper: 'Ostavi prazno za automatsko pronalaženje',
     ed_title: 'Naslov',
@@ -368,6 +374,7 @@ const BM_I18N = {
     since_unavailable: 'non disponibile da {d}',
     hours: '{n} h',
     days: '{n} g',
+    forecast: '≈ {d} rimanenti',
     ed_entity: 'Sensore Battery Monitor',
     ed_entity_helper: 'Lascia vuoto per trovarlo automaticamente',
     ed_title: 'Titolo',
@@ -425,6 +432,7 @@ const BM_I18N = {
     since_unavailable: 'al {d} niet beschikbaar',
     hours: '{n} u',
     days: '{n} d',
+    forecast: '≈ nog {d}',
     ed_entity: 'Battery Monitor-sensor',
     ed_entity_helper: 'Leeg laten om hem automatisch te vinden',
     ed_title: 'Titel',
@@ -482,6 +490,7 @@ const BM_I18N = {
     since_unavailable: 'indisponível há {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ {d} restantes',
     ed_entity: 'Sensor Battery Monitor',
     ed_entity_helper: 'Deixe vazio para o encontrar automaticamente',
     ed_title: 'Título',
@@ -539,6 +548,7 @@ const BM_I18N = {
     since_unavailable: 'niedostępna od {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ pozostało {d}',
     ed_entity: 'Czujnik Battery Monitor',
     ed_entity_helper: 'Pozostaw puste, aby znaleźć go automatycznie',
     ed_title: 'Tytuł',
@@ -596,6 +606,7 @@ const BM_I18N = {
     since_unavailable: 'indisponibilă de {d}',
     hours: '{n} h',
     days: '{n} z',
+    forecast: '≈ {d} rămase',
     ed_entity: 'Senzor Battery Monitor',
     ed_entity_helper: 'Lăsați gol pentru a-l găsi automat',
     ed_title: 'Titlu',
@@ -653,6 +664,7 @@ const BM_I18N = {
     since_unavailable: 'utilgængeligt i {d}',
     hours: '{n} t',
     days: '{n} d',
+    forecast: '≈ {d} tilbage',
     ed_entity: 'Battery Monitor-sensor',
     ed_entity_helper: 'Lad feltet være tomt for at finde den automatisk',
     ed_title: 'Titel',
@@ -710,6 +722,7 @@ const BM_I18N = {
     since_unavailable: 'otillgängligt i {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ {d} kvar',
     ed_entity: 'Battery Monitor-sensor',
     ed_entity_helper: 'Lämna tomt för att hitta den automatiskt',
     ed_title: 'Rubrik',
@@ -767,6 +780,7 @@ const BM_I18N = {
     since_unavailable: 'недостъпна от {d}',
     hours: '{n} ч',
     days: '{n} д',
+    forecast: '≈ остават {d}',
     ed_entity: 'Сензор на Battery Monitor',
     ed_entity_helper: 'Оставете празно, за да бъде открит автоматично',
     ed_title: 'Заглавие',
@@ -824,6 +838,7 @@ const BM_I18N = {
     since_unavailable: 'недоступна {d}',
     hours: '{n} ч',
     days: '{n} дн.',
+    forecast: '≈ осталось {d}',
     ed_entity: 'Датчик Battery Monitor',
     ed_entity_helper: 'Оставьте пустым, чтобы найти его автоматически',
     ed_title: 'Заголовок',
@@ -881,6 +896,7 @@ const BM_I18N = {
     since_unavailable: 'недоступна {d}',
     hours: '{n} год',
     days: '{n} дн.',
+    forecast: '≈ залишилось {d}',
     ed_entity: 'Датчик Battery Monitor',
     ed_entity_helper: 'Залиште порожнім, щоб знайти його автоматично',
     ed_title: 'Заголовок',
@@ -938,6 +954,7 @@ const BM_I18N = {
     since_unavailable: '{d} óta nem elérhető',
     hours: '{n} ó',
     days: '{n} nap',
+    forecast: '≈ még {d}',
     ed_entity: 'Battery Monitor érzékelő',
     ed_entity_helper: 'Hagyja üresen az automatikus kereséshez',
     ed_title: 'Cím',
@@ -995,6 +1012,7 @@ const BM_I18N = {
     since_unavailable: 'nedostupná už {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ zostáva {d}',
     ed_entity: 'Senzor Battery Monitor',
     ed_entity_helper: 'Nechajte prázdne na automatické vyhľadanie',
     ed_title: 'Názov',
@@ -1052,6 +1070,7 @@ const BM_I18N = {
     since_unavailable: 'nedostupná již {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ zbývá {d}',
     ed_entity: 'Senzor Battery Monitor',
     ed_entity_helper: 'Ponechte prázdné pro automatické vyhledání',
     ed_title: 'Název',
@@ -1109,6 +1128,7 @@ const BM_I18N = {
     since_unavailable: 'ni na voljo že {d}',
     hours: '{n} h',
     days: '{n} d',
+    forecast: '≈ še {d}',
     ed_entity: 'Senzor Battery Monitor',
     ed_entity_helper: 'Pustite prazno za samodejno iskanje',
     ed_title: 'Naslov',
@@ -1166,6 +1186,7 @@ const BM_I18N = {
     since_unavailable: 'nav pieejama {d}',
     hours: '{n} h',
     days: '{n} d.',
+    forecast: '≈ atlikuši {d}',
     ed_entity: 'Battery Monitor sensors',
     ed_entity_helper: 'Atstājiet tukšu, lai to atrastu automātiski',
     ed_title: 'Virsraksts',
@@ -1223,6 +1244,7 @@ const BM_I18N = {
     since_unavailable: 'μη διαθέσιμη επί {d}',
     hours: '{n} ώ.',
     days: '{n} ημ.',
+    forecast: '≈ απομένουν {d}',
     ed_entity: 'Αισθητήρας Battery Monitor',
     ed_entity_helper: 'Αφήστε κενό για αυτόματο εντοπισμό',
     ed_title: 'Τίτλος',
@@ -1283,6 +1305,8 @@ const bmT = (lang, key, vars = {}) =>
 const bmEsc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+// Days left under which a battery's replacement forecast is shown in the list.
+const BM_FORECAST_DAYS = 60;
 const BM_DEFAULTS = { columns: 1, only_low: false, hide_when_ok: false, notify_button: true, popup: true };
 
 // ── Battery types ────────────────────────────────────────────────────────────
@@ -1636,7 +1660,12 @@ class BatteryMonitorCard extends HTMLElement {
     const kind = `${b.unavailable || b.due ? 'alert' : b.low ? 'warn' : 'ok'}${b.unavailable ? ' na' : ''}${b.due ? ' due' : ''}`;
     const value = b.unavailable ? this._t('unavailable') : b.level == null ? this._t('low') : `${b.level} %`;
     const since = b.below_since ? this._since(b.below_since, b.unavailable ? 'since_unavailable' : 'since') : null;
-    const sub = [context, since].filter(Boolean).join(' · ');
+    // Replacement forecast from the measured drain: shown once the threshold is less than two months away.
+    const forecast =
+      !b.alert && Number.isInteger(b.days_left) && b.days_left <= BM_FORECAST_DAYS
+        ? this._t('forecast', { d: this._t('days', { n: b.days_left }) })
+        : null;
+    const sub = [context, since || forecast].filter(Boolean).join(' · ');
     const bar = b.level == null ? '' : `<span class="bar" style="width:${Math.max(2, Math.min(100, b.level))}%"></span>`;
     return `
           <button class="row ${kind}" data-id="${bmEsc(b.entity_id)}" title="${bmEsc(b.name)} — ${bmEsc(value)}">

@@ -1,1 +1,7 @@
 notify:
+export:
+  fields:
+    path:
+      example: "/config/battery_monitor.csv"
+      selector:
+        text:

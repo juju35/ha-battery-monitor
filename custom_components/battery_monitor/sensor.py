@@ -24,6 +24,7 @@ async def async_setup_entry(
         [
             LowBatteriesSensor(m, entry.entry_id, "low_batteries"),
             LastNotificationSensor(m, entry.entry_id, "last_notification"),
+            NextReplacementSensor(m, entry.entry_id, "next_replacement"),
         ]
     )
 
@@ -63,3 +64,27 @@ class LastNotificationSensor(BatteryMonitorEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"notified": self.monitor.last_notified}
+
+
+class NextReplacementSensor(BatteryMonitorEntity, SensorEntity):
+    """Date the first battery is forecast to reach the threshold (since when, for one already low or unavailable)."""
+
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def native_value(self) -> datetime | None:
+        battery = self.monitor.next_replacement
+        if battery is None:
+            return None
+        return battery.replace_by or battery.below_since
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        battery = self.monitor.next_replacement
+        return {
+            "entity_id": battery.entity_id if battery else None,
+            "name": battery.name if battery else None,
+            "level": battery.level if battery else None,
+            "days_left": (0 if battery.alert else battery.days_left) if battery else None,
+            "forecast_at": self.monitor.forecast_at.isoformat() if self.monitor.forecast_at else None,
+        }

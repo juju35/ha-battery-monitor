@@ -88,6 +88,26 @@
             "name": "Gemelde batterijen"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Volgende vervanging",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entiteit"
+          },
+          "name": {
+            "name": "Batterij"
+          },
+          "level": {
+            "name": "Niveau"
+          },
+          "days_left": {
+            "name": "Resterende dagen"
+          },
+          "forecast_at": {
+            "name": "Prognose gemeten"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Bijna lege batterijen melden",
       "description": "Verstuurt nu de melding met alle batterijen die onder de drempel zitten of niet beschikbaar zijn, ongeacht hoe lang al, of anders een bericht dat geen enkele batterij aandacht nodig heeft."
+    },
+    "export": {
+      "name": "Batterijen exporteren naar CSV",
+      "description": "Schrijft elke bewaakte batterij (niveau, kamer, laag, niet beschikbaar, te behandelen, sinds wanneer, ontlading per dag, resterende dagen, vervangingsdatum) naar een CSV-bestand.",
+      "fields": {
+        "path": {
+          "name": "Bestand",
+          "description": "Pad van het CSV-bestand; battery_monitor.csv in de configuratiemap indien leeg."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor is niet geladen."
+    },
+    "path_not_allowed": {
+      "message": "{path} ligt buiten de toegestane mappen (configuratiemap of allowlist_external_dirs)."
     }
   }
 }

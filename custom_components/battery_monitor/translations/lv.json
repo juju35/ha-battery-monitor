@@ -88,6 +88,26 @@
             "name": "Paziņotās baterijas"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Nākamā nomaiņa",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entītija"
+          },
+          "name": {
+            "name": "Baterija"
+          },
+          "level": {
+            "name": "Līmenis"
+          },
+          "days_left": {
+            "name": "Atlikušās dienas"
+          },
+          "forecast_at": {
+            "name": "Prognoze izmērīta"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Paziņot par izlādētām baterijām",
       "description": "Nekavējoties nosūta paziņojumu ar visām baterijām, kas ir zem sliekšņa vai nav pieejamas, neatkarīgi no ilguma, vai ziņojumu, ka nevienai nav nepieciešama uzmanība."
+    },
+    "export": {
+      "name": "Eksportēt baterijas uz CSV",
+      "description": "Ieraksta katru uzraudzīto bateriju (līmenis, telpa, zema, nav pieejama, jārisina, kopš kura laika, izlāde dienā, atlikušās dienas, nomaiņas datums) CSV failā.",
+      "fields": {
+        "path": {
+          "name": "Fails",
+          "description": "CSV faila ceļš; battery_monitor.csv konfigurācijas mapē, ja tukšs."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor nav ielādēts."
+    },
+    "path_not_allowed": {
+      "message": "{path} ir ārpus atļautajām mapēm (konfigurācijas mape vai allowlist_external_dirs)."
     }
   }
 }

@@ -88,6 +88,26 @@
             "name": "Zgłoszone baterie"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Następna wymiana",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Encja"
+          },
+          "name": {
+            "name": "Bateria"
+          },
+          "level": {
+            "name": "Poziom"
+          },
+          "days_left": {
+            "name": "Pozostałe dni"
+          },
+          "forecast_at": {
+            "name": "Prognoza zmierzona"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Powiadom o słabych bateriach",
       "description": "Wysyła powiadomienie od razu, ze wszystkimi bateriami poniżej progu lub niedostępnymi niezależnie od czasu trwania, albo wiadomość, że żadna nie wymaga uwagi."
+    },
+    "export": {
+      "name": "Eksportuj baterie do CSV",
+      "description": "Zapisuje każdą monitorowaną baterię (poziom, pomieszczenie, niski, niedostępna, do obsłużenia, od kiedy, rozładowanie na dzień, pozostałe dni, data wymiany) do pliku CSV.",
+      "fields": {
+        "path": {
+          "name": "Plik",
+          "description": "Ścieżka pliku CSV; battery_monitor.csv w folderze konfiguracji, gdy puste."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor nie jest załadowany."
+    },
+    "path_not_allowed": {
+      "message": "{path} jest poza dozwolonymi folderami (folder konfiguracji lub allowlist_external_dirs)."
     }
   }
 }

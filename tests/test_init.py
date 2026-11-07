@@ -608,3 +608,109 @@ async def test_notification_titles(
     await hass.async_block_till_done()
     await hass.services.async_call(DOMAIN, "notify", {}, blocking=True)
     assert calls[-1].data["title"] == title_one
+
+
+def test_drain_per_day() -> None:
+    from custom_components.battery_monitor.monitor import drain_per_day
+
+    now = dt_util.utcnow()
+    day = timedelta(days=1)
+    # 1 % a day over ten days.
+    assert drain_per_day([(now - day * (10 - i), 100 - i) for i in range(10)]) == 1.0
+    # Stable level: no drain, a stable battery has no replacement date.
+    assert drain_per_day([(now - day * 10, 80), (now - day * 5, 80), (now, 80)]) == 0.0
+    # Too short, or too few points: unknown.
+    assert drain_per_day([(now - day * 2, 90), (now - day, 89), (now, 88)]) is None
+    assert drain_per_day([(now - day * 10, 90), (now, 80)]) is None
+    # A jump up is a new battery: only the points from there count (two points, so unknown yet).
+    assert drain_per_day([(now - day * 20, 40), (now - day * 10, 30), (now - day * 2, 100), (now, 99)]) is None
+    # A small rise (reading noise) does not reset the measure.
+    assert drain_per_day([(now - day * 10, 50), (now - day * 6, 47), (now - day * 5, 48), (now, 40)]) == 1.0
+
+
+async def test_forecast_days_left_and_next_replacement(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
+    now = dt_util.utcnow()
+    day = timedelta(days=1)
+    door = add_battery(hass, "Door", "60")
+    lamp = add_battery(hass, "Lamp", "90")
+    add_battery(hass, "Smoke", "off", domain="binary_sensor")
+    history = {
+        # 2 % a day: 60 % is 20 days from the 20 % threshold.
+        door: [State(door, str(100 - 2 * i), last_changed=now - day * (20 - i)) for i in range(21)],
+        # Stable.
+        lamp: [State(lamp, "90", last_changed=now - day * (10 - 3 * i)) for i in range(3)],
+    }
+    with patch("custom_components.battery_monitor.monitor._async_history", AsyncMock(return_value=history)) as mock:
+        entry = await _setup(hass)
+        await hass.async_block_till_done()
+        # Only the level sensors are read, once at setup.
+        assert mock.call_count == 1
+        assert sorted(mock.call_args.args[1]) == sorted([door, lamp])
+
+    batteries = {b["name"]: b for b in _batteries(hass)}
+    assert batteries["Door"]["drain_per_day"] == 2.0
+    assert batteries["Door"]["days_left"] == 20
+    replace_by = dt_util.start_of_local_day(now + day * 20)
+    assert batteries["Door"]["replace_by"] == replace_by.isoformat()
+    assert batteries["Lamp"]["drain_per_day"] == 0.0
+    assert batteries["Lamp"]["days_left"] is None
+    assert batteries["Smoke"]["drain_per_day"] is None
+    sensor = next(s for s in hass.states.async_all("sensor") if s.entity_id.endswith("_next_replacement"))
+    assert dt_util.parse_datetime(sensor.state) == replace_by
+    assert sensor.attributes["name"] == "Door"
+    assert sensor.attributes["days_left"] == 20
+
+    # The level moved on: the days left follow without reading the history again, which is reread once a day.
+    hass.states.async_set(door, "40", {"device_class": "battery"})
+    await hass.async_block_till_done()
+    assert {b["name"]: b["days_left"] for b in _batteries(hass)}["Door"] == 10
+    with patch("custom_components.battery_monitor.monitor._async_history", AsyncMock(return_value=history)) as mock:
+        freezer.tick(timedelta(hours=23))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+        assert mock.call_count == 0
+        freezer.tick(timedelta(hours=1, minutes=10))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+        assert mock.call_count == 1
+
+    # A battery already low comes first in the next replacement, since when it went low.
+    hass.states.async_set(door, "10", {"device_class": "battery"})
+    await hass.async_block_till_done()
+    sensor = next(s for s in hass.states.async_all("sensor") if s.entity_id.endswith("_next_replacement"))
+    assert sensor.attributes["name"] == "Door"
+    assert sensor.attributes["days_left"] == 0
+    assert dt_util.parse_datetime(sensor.state) == dt_util.utcnow().replace(microsecond=0)
+    assert entry.state.name == "LOADED"
+
+
+async def test_export_csv(hass: HomeAssistant, tmp_path) -> None:
+    import csv
+
+    from homeassistant.exceptions import ServiceValidationError
+
+    add_battery(hass, "Door", "12", area="Entrance")
+    add_battery(hass, "Lamp", "90")
+    await _setup(hass)
+    await hass.async_block_till_done()
+
+    # Default: battery_monitor.csv in the configuration folder.
+    response = await hass.services.async_call(DOMAIN, "export", {}, blocking=True, return_response=True)
+    path = hass.config.path("battery_monitor.csv")
+    assert response == {"path": path, "batteries": 2}
+    with open(path, encoding="utf-8", newline="") as file:
+        rows = list(csv.DictReader(file))
+    assert [r["name"] for r in rows] == ["Door", "Lamp"]
+    assert rows[0]["area"] == "Entrance"
+    assert rows[0]["level"] == "12"
+    assert rows[0]["low"] == "1"
+    assert rows[1]["low"] == "0"
+    assert "days_left" in rows[0]
+
+    # A relative path is inside the configuration folder; a path outside the allowed folders is refused.
+    response = await hass.services.async_call(
+        DOMAIN, "export", {"path": "exports/batteries.csv"}, blocking=True, return_response=True
+    )
+    assert response["path"] == hass.config.path("exports/batteries.csv")
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(DOMAIN, "export", {"path": str(tmp_path / "out.csv")}, blocking=True)

@@ -7,10 +7,10 @@ Home Assistant custom integration that finds every battery, tracks how long each
 
 ```
 custom_components/battery_monitor/
-├── __init__.py      # Static path + dashboard resource for the card, action notify, entry setup: state listener, 10-min refresh, two time triggers
-├── monitor.py       # BatteryMonitor: discovery, low / due tracking (persisted in .storage), notifications
+├── __init__.py      # Static path + dashboard resource for the card, actions notify and export (CSV), entry setup: state listener, 10-min refresh (+ daily forecast), two time triggers
+├── monitor.py       # BatteryMonitor: discovery, low / due tracking (persisted in .storage), notifications, replacement forecast (drain_per_day)
 ├── config_flow.py   # Single entry; options: threshold (%), duration (h), morning_time, evening_time, notify_services, ignored_entities, ignored_integrations
-├── sensor.py        # low_batteries (count + batteries list for the card), last_notification (timestamp + notified)
+├── sensor.py        # low_batteries (count + batteries list for the card), last_notification (timestamp + notified), next_replacement (timestamp)
 ├── button.py        # notify_now
 ├── entity.py        # Shared service device, listener on BatteryMonitor
 ├── frontend/battery-monitor-card.js   # custom:battery-monitor-card, reads sensor.*_low_batteries attributes
@@ -23,7 +23,9 @@ custom_components/battery_monitor/
 - A battery already low when first seen (not in the store): `below_since` is read from the recorder history (up to `MAX_DURATION` h): right after its last state above the threshold, or its first recorded state when low all along. Recorded states are `LazyState` (no `.domain`): read the domain from the entity ID.
 - *Due*: alert for at least `duration` hours. Only due batteries are notified on schedule; the button and the action (`manual=True`) send every alert, or a *none* message. Title *low batteries*, or *batteries to check* when one is unavailable.
 - Notifications at `morning_time` and `evening_time` (local time), from the button and from the `battery_monitor.notify` action: persistent notification id `battery_monitor_low` (replaced; dismissed when nothing is due) + each `notify.*` action. Texts in translations `exceptions.*` (rendered with `str.format`). A failing notifier is logged and doesn't stop the others.
-- The list is rebuilt on every battery state change and every 10 minutes (durations move on without state changes). Sorted alerts first: lowest level, low binary sensors, then unavailable.
+- The list is rebuilt on every battery state change and every 10 minutes (durations move on without state changes).
+- *Forecast*: `async_forecast` (at setup as a background task, then from the 10-min refresh once `FORECAST_HOURS` passed) reads the history of the level sensors over `FORECAST_DAYS` and keeps `drain_per_day(points)` per entity (least-squares slope since the last rise ≥ `FORECAST_RESET_JUMP`, None under `FORECAST_MIN_DAYS` / 3 points, 0.0 under `FORECAST_MIN_DRAIN`). `async_refresh` derives `days_left` / `replace_by` (start of local day) for the batteries not in alert. `next_replacement`: first alert battery (its `below_since`), else the earliest `replace_by`.
+- `export` action: `Battery.as_row()` → CSV in the executor; the path must be inside the configuration folder or `is_allowed_path` (`_allowed`, blocking, run in the executor). Sorted alerts first: lowest level, low binary sensors, then unavailable.
 - The card is served at `/battery_monitor/battery-monitor-card.js` and added to the dashboard resources (storage mode) or loaded with `add_extra_js_url` (YAML mode); removed with the entry. `_storage_resources()` reads `hass.data["lovelace"]` as a dict (before 2025.2) or a dataclass (`mode`, then `resource_mode` from 2026.2).
 - Card lookup (`_lookup`): the registry part (integration sensors, the device's button) is cached per `hass.entities` object, never when empty; the sensor is picked from the states at each render (the one with a `batteries` list), so a sensor restored or missing at the first render is found when its state arrives.
 - Card full screen (`popup`): a host `div` appended to `document.body` with its own shadow root (no dashboard container clips it), events delegated on that root; closing removes the host once (a second `removeChild` throws and would leave the popup marked open). Grouped by room (`area`) or by battery type; *To replace* sums the types of the batteries low or unavailable.

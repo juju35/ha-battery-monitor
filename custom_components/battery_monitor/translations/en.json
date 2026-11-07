@@ -88,6 +88,26 @@
             "name": "Batteries notified"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Next replacement",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entity"
+          },
+          "name": {
+            "name": "Battery"
+          },
+          "level": {
+            "name": "Level"
+          },
+          "days_left": {
+            "name": "Days left"
+          },
+          "forecast_at": {
+            "name": "Forecast measured"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Notify low batteries",
       "description": "Sends the notification now, with every battery below the threshold or unavailable whatever the duration, or a message saying none needs attention."
+    },
+    "export": {
+      "name": "Export batteries to CSV",
+      "description": "Writes every monitored battery (level, room, low, unavailable, due, since when, drain per day, days left, replacement date) to a CSV file.",
+      "fields": {
+        "path": {
+          "name": "File",
+          "description": "Path of the CSV file; battery_monitor.csv in the configuration folder when empty."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor is not loaded."
+    },
+    "path_not_allowed": {
+      "message": "{path} is outside the allowed folders (configuration folder, or allowlist_external_dirs)."
     }
   }
 }
