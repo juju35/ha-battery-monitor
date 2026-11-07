@@ -685,6 +685,31 @@ async def test_forecast_days_left_and_next_replacement(hass: HomeAssistant, free
     assert entry.state.name == "LOADED"
 
 
+async def test_first_forecast_waits_for_start(hass: HomeAssistant) -> None:
+    from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+    from homeassistant.core import CoreState
+
+    now = dt_util.utcnow()
+    day = timedelta(days=1)
+    hass.set_state(CoreState.starting)
+    with patch("custom_components.battery_monitor.monitor._async_history", AsyncMock(return_value={})) as mock:
+        await _setup(hass)
+        # Not before Home Assistant is started: the batteries of integrations loading later are not there yet.
+        assert mock.call_count == 0
+        door = add_battery(hass, "Door", "60")
+        await hass.async_block_till_done()
+        assert mock.call_count == 0
+        mock.return_value = {
+            door: [State(door, str(100 - 2 * i), last_changed=now - day * (20 - i)) for i in range(21)]
+        }
+        hass.set_state(CoreState.running)
+        hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+        await hass.async_block_till_done()
+        assert mock.call_count == 1
+        assert mock.call_args.args[1] == [door]
+    assert _batteries(hass)[0]["drain_per_day"] == 2.0
+
+
 async def test_export_csv(hass: HomeAssistant, tmp_path) -> None:
     import csv
 
