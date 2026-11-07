@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "battery_monitor"
-VERSION: Final = "1.12.1"
+VERSION: Final = "1.13.0"
 
 CONF_THRESHOLD: Final = "threshold"
 CONF_DURATION: Final = "duration"
@@ -45,6 +45,9 @@ SERVICE_NOTIFY: Final = "notify"
 SERVICE_EXPORT: Final = "export"
 ATTR_PATH: Final = "path"
 NOTIFICATION_ID: Final = f"{DOMAIN}_low"
+# Bus events: a battery went below the threshold, a battery was replaced (its level rose by FORECAST_RESET_JUMP).
+EVENT_LOW: Final = f"{DOMAIN}_low"
+EVENT_REPLACED: Final = f"{DOMAIN}_replaced"
 STORAGE_KEY: Final = f"{DOMAIN}.below_since"
 STORAGE_VERSION: Final = 1
 

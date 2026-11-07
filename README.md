@@ -36,6 +36,8 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; only the batteries needing attention are tinted: orange while low, red when unavailable or once notified (blinking once notified)
 - **Full screen view** from the card: every battery grouped **by room**, **by battery type** (CR2032, AA…) or **by replacement date** (forecast from the measured drain), with what to buy for the ones to replace, the next replacement and a CSV export; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
 - **Replacement forecast**: the drain of each level battery is measured once a day on its recorded history (last 30 days, since the last replacement); the card shows *≈ 12 d left* when the threshold is less than two months away, and the **Next replacement** sensor gives the date the first battery reaches it
+- **Events** for your automations: `battery_monitor_low` when a battery goes below the threshold, `battery_monitor_replaced` when a new battery is detected
+- **Mini card**: the status and only the batteries needing attention, with a button that shows the full card
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** and **Next replacement** sensors, **Notify now** button, `battery_monitor.notify` and `battery_monitor.export` (CSV) actions
 - UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian, Greek and Serbian (Cyrillic and Latin)
 
@@ -124,6 +126,44 @@ data:
 response_variable: result  # {"path": "/config/exports/batteries.csv", "batteries": 23}
 ```
 
+### Events
+
+Battery Monitor fires two events on the Home Assistant bus, on a change only (never for a battery already low at start-up, after a reload or when first found):
+
+| Event | When | Data |
+|---|---|---|
+| `battery_monitor_low` | A battery goes below the threshold (or a low-battery binary sensor turns `on`); a battery that goes unavailable and comes back still low does not fire it again | `entry_id`, `entity_id`, `device_id`, `name`, `level` (`null` for a binary sensor), `threshold` |
+| `battery_monitor_replaced` | A battery's level rises by 15 points or more since its last reading (the same rule that restarts the replacement forecast), even with an unavailable gap while the battery was out | `entry_id`, `entity_id`, `device_id`, `name`, `level`, `previous_level` |
+
+For example, a notification on your phone as soon as a battery goes low, and a logbook entry when one is replaced:
+
+```yaml
+automation:
+  - alias: Battery low
+    triggers:
+      - trigger: event
+        event_type: battery_monitor_low
+    actions:
+      - action: notify.mobile_app_phone
+        data:
+          title: Low battery
+          message: "{{ trigger.event.data.name }}: {{ trigger.event.data.level }} %"
+  - alias: Battery replaced
+    triggers:
+      - trigger: event
+        event_type: battery_monitor_replaced
+    actions:
+      - action: logbook.log
+        data:
+          name: "{{ trigger.event.data.name }}"
+          message: "battery replaced ({{ trigger.event.data.previous_level }} % → {{ trigger.event.data.level }} %)"
+          entity_id: "{{ trigger.event.data.entity_id }}"
+```
+
+### Diagnostics
+
+**Settings → Devices & services → Battery Monitor → ⋮ → Download diagnostics** gives the options and every monitored battery (level, status, times, forecast), to attach to an issue. The notify actions, which name your phones, are redacted.
+
 ### Card
 
 The card is added to the dashboard resources by the integration. Add it from the dashboard (**Add card → Battery Monitor Card**) or in YAML:
@@ -146,6 +186,14 @@ type: custom:battery-monitor-card
 | `language` | Auto | Force language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt` (European Portuguese), `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv`, `el`, `sr` (Serbian, Cyrillic) or `sr-Latn` (Serbian, Latin) |
 
 Tap a battery to open its details.
+
+#### Mini card
+
+A compact card for a half-width column: the header with its status and **Notify now** button, and only the batteries needing attention (nothing more when every battery is fine). The detail button (top right) shows the full card, with every battery and its full screen button; a click outside the card brings the compact view back. Same options and editor as the card (**Add card → Battery Monitor Mini Card**):
+
+```yaml
+type: custom:battery-monitor-mini-card
+```
 
 #### Full screen
 
@@ -175,6 +223,10 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png" alt="low" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-dark.png" alt="card dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low-dark.png" alt="low dark" width="400"> |
+
+| Mini card | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/mini.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/mini-dark.png" alt="mini card dark" width="400"> |
 
 | Full screen, by replacement date | Dark |
 |---|---|

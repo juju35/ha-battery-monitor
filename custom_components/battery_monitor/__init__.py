@@ -197,6 +197,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntr
         options.get(CONF_NOTIFY, []),
         options.get(CONF_IGNORED_ENTITIES, []),
         options.get(CONF_IGNORED_INTEGRATIONS, DEFAULT_IGNORED_INTEGRATIONS),
+        entry.entry_id,
     )
     if hass.state is CoreState.running:
         # async_setup runs once per start: after the entry was removed (which drops the card resource) and

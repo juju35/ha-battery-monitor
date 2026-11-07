@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.12.1';
+var BATTERY_MONITOR_CARD_VERSION = '1.13.0';
 
 const BM_I18N = {
   en: {
@@ -75,6 +75,8 @@ const BM_I18N = {
     replace_on: 'around {date}',
     next_replacement: 'Next replacement',
     export_csv: 'Export CSV',
+    zoom_in: 'Show the full card',
+    zoom_out: 'Back to the compact view',
   },
   fr: {
     title: 'Batteries',
@@ -144,6 +146,8 @@ const BM_I18N = {
     replace_on: 'vers le {date}',
     next_replacement: 'Prochain remplacement',
     export_csv: 'Exporter en CSV',
+    zoom_in: 'Afficher la carte complète',
+    zoom_out: 'Revenir à la vue compacte',
   },
   de: {
     title: 'Batterien',
@@ -213,6 +217,8 @@ const BM_I18N = {
     replace_on: 'um den {date}',
     next_replacement: 'Nächster Austausch',
     export_csv: 'Als CSV exportieren',
+    zoom_in: 'Vollständige Karte anzeigen',
+    zoom_out: 'Zurück zur kompakten Ansicht',
   },
   es: {
     title: 'Baterías',
@@ -282,6 +288,8 @@ const BM_I18N = {
     replace_on: 'hacia el {date}',
     next_replacement: 'Próximo cambio',
     export_csv: 'Exportar a CSV',
+    zoom_in: 'Mostrar la tarjeta completa',
+    zoom_out: 'Volver a la vista compacta',
   },
   sr: {
     title: 'Батерије',
@@ -351,6 +359,8 @@ const BM_I18N = {
     replace_on: 'око {date}',
     next_replacement: 'Следећа замена',
     export_csv: 'Извези у CSV',
+    zoom_in: 'Прикажи целу картицу',
+    zoom_out: 'Назад на компактни приказ',
   },
   'sr-Latn': {
     title: 'Baterije',
@@ -420,6 +430,8 @@ const BM_I18N = {
     replace_on: 'oko {date}',
     next_replacement: 'Sledeća zamena',
     export_csv: 'Izvezi u CSV',
+    zoom_in: 'Prikaži celu karticu',
+    zoom_out: 'Nazad na kompaktni prikaz',
   },
   it: {
     title: 'Batterie',
@@ -489,6 +501,8 @@ const BM_I18N = {
     replace_on: 'verso il {date}',
     next_replacement: 'Prossima sostituzione',
     export_csv: 'Esporta in CSV',
+    zoom_in: 'Mostra la scheda completa',
+    zoom_out: 'Torna alla vista compatta',
   },
   nl: {
     title: 'Batterijen',
@@ -558,6 +572,8 @@ const BM_I18N = {
     replace_on: 'rond {date}',
     next_replacement: 'Volgende vervanging',
     export_csv: 'Exporteren als CSV',
+    zoom_in: 'Volledige kaart tonen',
+    zoom_out: 'Terug naar de compacte weergave',
   },
   pt: {
     title: 'Baterias',
@@ -627,6 +643,8 @@ const BM_I18N = {
     replace_on: 'por volta de {date}',
     next_replacement: 'Próxima substituição',
     export_csv: 'Exportar para CSV',
+    zoom_in: 'Mostrar o cartão completo',
+    zoom_out: 'Voltar à vista compacta',
   },
   pl: {
     title: 'Baterie',
@@ -696,6 +714,8 @@ const BM_I18N = {
     replace_on: 'około {date}',
     next_replacement: 'Następna wymiana',
     export_csv: 'Eksportuj do CSV',
+    zoom_in: 'Pokaż pełną kartę',
+    zoom_out: 'Wróć do widoku kompaktowego',
   },
   ro: {
     title: 'Baterii',
@@ -765,6 +785,8 @@ const BM_I18N = {
     replace_on: 'în jur de {date}',
     next_replacement: 'Următoarea înlocuire',
     export_csv: 'Exportă CSV',
+    zoom_in: 'Afișează cardul complet',
+    zoom_out: 'Înapoi la vizualizarea compactă',
   },
   da: {
     title: 'Batterier',
@@ -834,6 +856,8 @@ const BM_I18N = {
     replace_on: 'omkring {date}',
     next_replacement: 'Næste udskiftning',
     export_csv: 'Eksportér CSV',
+    zoom_in: 'Vis hele kortet',
+    zoom_out: 'Tilbage til kompakt visning',
   },
   sv: {
     title: 'Batterier',
@@ -903,6 +927,8 @@ const BM_I18N = {
     replace_on: 'runt {date}',
     next_replacement: 'Nästa byte',
     export_csv: 'Exportera CSV',
+    zoom_in: 'Visa hela kortet',
+    zoom_out: 'Tillbaka till kompakt vy',
   },
   bg: {
     title: 'Батерии',
@@ -972,6 +998,8 @@ const BM_I18N = {
     replace_on: 'около {date}',
     next_replacement: 'Следваща смяна',
     export_csv: 'Експорт в CSV',
+    zoom_in: 'Покажи цялата карта',
+    zoom_out: 'Обратно към компактния изглед',
   },
   ru: {
     title: 'Батареи',
@@ -1041,6 +1069,8 @@ const BM_I18N = {
     replace_on: 'около {date}',
     next_replacement: 'Следующая замена',
     export_csv: 'Экспорт в CSV',
+    zoom_in: 'Показать полную карточку',
+    zoom_out: 'Вернуться к компактному виду',
   },
   uk: {
     title: 'Батареї',
@@ -1110,6 +1140,8 @@ const BM_I18N = {
     replace_on: 'близько {date}',
     next_replacement: 'Наступна заміна',
     export_csv: 'Експорт у CSV',
+    zoom_in: 'Показати повну картку',
+    zoom_out: 'Повернутися до компактного вигляду',
   },
   hu: {
     title: 'Elemek',
@@ -1179,6 +1211,8 @@ const BM_I18N = {
     replace_on: '{date} körül',
     next_replacement: 'Következő csere',
     export_csv: 'Exportálás CSV-be',
+    zoom_in: 'Teljes kártya megjelenítése',
+    zoom_out: 'Vissza a kompakt nézethez',
   },
   sk: {
     title: 'Batérie',
@@ -1248,6 +1282,8 @@ const BM_I18N = {
     replace_on: 'okolo {date}',
     next_replacement: 'Ďalšia výmena',
     export_csv: 'Exportovať do CSV',
+    zoom_in: 'Zobraziť celú kartu',
+    zoom_out: 'Späť na kompaktné zobrazenie',
   },
   cs: {
     title: 'Baterie',
@@ -1317,6 +1353,8 @@ const BM_I18N = {
     replace_on: 'kolem {date}',
     next_replacement: 'Další výměna',
     export_csv: 'Exportovat do CSV',
+    zoom_in: 'Zobrazit celou kartu',
+    zoom_out: 'Zpět na kompaktní zobrazení',
   },
   sl: {
     title: 'Baterije',
@@ -1386,6 +1424,8 @@ const BM_I18N = {
     replace_on: 'okoli {date}',
     next_replacement: 'Naslednja zamenjava',
     export_csv: 'Izvozi v CSV',
+    zoom_in: 'Prikaži celotno kartico',
+    zoom_out: 'Nazaj na kompaktni pogled',
   },
   lv: {
     title: 'Baterijas',
@@ -1455,6 +1495,8 @@ const BM_I18N = {
     replace_on: 'ap {date}',
     next_replacement: 'Nākamā nomaiņa',
     export_csv: 'Eksportēt CSV',
+    zoom_in: 'Rādīt pilno karti',
+    zoom_out: 'Atpakaļ uz kompakto skatu',
   },
   el: {
     title: 'Μπαταρίες',
@@ -1524,6 +1566,8 @@ const BM_I18N = {
     replace_on: 'γύρω στις {date}',
     next_replacement: 'Επόμενη αντικατάσταση',
     export_csv: 'Εξαγωγή σε CSV',
+    zoom_in: 'Εμφάνιση πλήρους κάρτας',
+    zoom_out: 'Επιστροφή στη συμπαγή προβολή',
   },
 };
 
@@ -1763,7 +1807,9 @@ class BatteryMonitorCard extends HTMLElement {
     const unavailable = all.filter((b) => b.unavailable);
     const attention = low.length + unavailable.length;
     const due = all.filter((b) => b.due);
-    const shown = c.only_low ? all.filter((b) => b.low || b.unavailable) : all;
+    // The compact mini card lists only the batteries needing attention, like only_low.
+    const compact = this._compact();
+    const shown = c.only_low || compact ? all.filter((b) => b.low || b.unavailable) : all;
     this._shown = shown.length;
 
     // The current hour too: "low for X h" is computed from the clock, while below_since doesn't change.
@@ -1774,7 +1820,7 @@ class BatteryMonitorCard extends HTMLElement {
     const hour = Math.floor(Date.now() / 3600000);
     // The button's availability too: an unavailable "Notify now" button is disabled.
     const buttonUnavailable = this._hass.states?.[button]?.state === 'unavailable';
-    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, icons, button, buttonUnavailable, hour]);
+    const sig = JSON.stringify([c, bmLang(this._hass, c), entity, st?.state, all, types, icons, button, buttonUnavailable, hour, compact]);
     this._sigHour = hour;
     if (sig === this._sig) return;
     this._sig = sig;
@@ -1802,22 +1848,33 @@ class BatteryMonitorCard extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>${BatteryMonitorCard.styles}</style>
-      <ha-card class="lvl-${level}">
+      <ha-card class="lvl-${level}${compact ? ' mini' : ''}">
         <div class="head">
           <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
           ${this._headMain(c.title || this._t('title'), status)}
           ${
-            c.popup !== false && st
+            c.popup !== false && st && !compact
               ? `<button class="full" title="${bmEsc(this._t('popup_open'))}" aria-label="${bmEsc(this._t('popup_open'))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>`
               : ''
           }
+          ${this._zoomButton()}
         </div>
         ${rows ? `<div class="list" style="--cols:${cols}">${rows}</div>` : ''}
       </ha-card>`;
 
     this.shadowRoot.querySelector('.notify')?.addEventListener('click', () => this._notify());
     this.shadowRoot.querySelector('.full')?.addEventListener('click', () => this._openPopup());
+    this.shadowRoot.querySelector('.zoom')?.addEventListener('click', (ev) => this._onZoom(ev));
     for (const el of this.shadowRoot.querySelectorAll('.row')) el.addEventListener('click', () => this._moreInfo(el.dataset.id));
+  }
+
+  // Overridden by the mini card: compact (only the batteries needing attention), and its detail button.
+  _compact() {
+    return false;
+  }
+
+  _zoomButton() {
+    return '';
   }
 
   // 'alert' when a battery is due, 'warn' when one needs attention, else 'ok'.
@@ -2316,6 +2373,15 @@ class BatteryMonitorCard extends HTMLElement {
       .full:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
       .full:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .full ha-icon { --mdc-icon-size: 16px; }
+      /* Mini card: the detail button, top right, like the full screen button it replaces while compact. */
+      .zoom { all: unset; cursor: pointer; flex: none; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%;
+              display: grid; place-items: center; color: var(--secondary-text-color); }
+      .zoom:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
+      .zoom:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+      .zoom ha-icon { --mdc-icon-size: 16px; }
+      /* The header icon of the mini card keeps the full card's size (40px), even narrow. */
+      ha-card.mini .badge { display: grid; width: 40px; height: 40px; }
+      ha-card.mini .badge ha-icon { --mdc-icon-size: 24px; }
 
       /* Up to --cols columns, each at least 160px wide (or the whole card, if narrower): fewer columns when they do not fit */
       .list { display: grid; gap: 6px; margin-top: 8px;
@@ -2440,6 +2506,78 @@ class BatteryMonitorCard extends HTMLElement {
       @keyframes bm-sheet { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: none } }
       @media (prefers-reduced-motion: reduce) { .backdrop, .sheet { animation: none !important; } }
     `;
+  }
+}
+
+// ── Mini card ────────────────────────────────────────────────────────────────
+// A click in a dialog opened from the card (a battery's more-info) does not fold it back.
+const bmInDialog = (ev) => ev.composedPath().some((n) => ['ha-more-info-dialog', 'ha-dialog', 'dialog'].includes(n.localName));
+
+/**
+ * Compact card: the header (status, "Notify now") and only the batteries needing attention. Its detail button (top
+ * right) switches it to the full card and back; a click outside the card brings the compact view back.
+ */
+class BatteryMonitorMiniCard extends BatteryMonitorCard {
+  constructor() {
+    super();
+    this._zoomed = false;
+    this._onOutside = (ev) => {
+      if (!this._zoomed || bmInDialog(ev)) return;
+      const path = ev.composedPath();
+      // The full screen opened from the zoomed card lives on the page's body, outside the card.
+      if (path.includes(this) || (this._popup && path.includes(this._popup))) return;
+      this._setZoom(false);
+    };
+  }
+
+  static getStubConfig() {
+    return {};
+  }
+
+  setConfig(config) {
+    // The host attribute behind the mini card's styles; never set in the constructor.
+    this.setAttribute?.('mini', '');
+    super.setConfig(config);
+  }
+
+  connectedCallback() {
+    document.addEventListener('click', this._onOutside, true);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener('click', this._onOutside, true);
+  }
+
+  getCardSize() {
+    return this._zoomed ? super.getCardSize() : 1 + (this._shown || 0);
+  }
+
+  getGridOptions() {
+    return this._zoomed ? super.getGridOptions() : { columns: 6, min_columns: 6, rows: 'auto' };
+  }
+
+  _compact() {
+    return !this._zoomed;
+  }
+
+  _setZoom(zoomed) {
+    this._zoomed = zoomed;
+    this._sig = null;
+    this._render();
+  }
+
+  _zoomButton() {
+    if (!this._state?.entity) return '';
+    const label = bmEsc(this._t(this._zoomed ? 'zoom_out' : 'zoom_in'));
+    return `<button class="zoom" title="${label}" aria-label="${label}" aria-expanded="${this._zoomed}"><ha-icon icon="mdi:${this._zoomed ? 'arrow-collapse' : 'arrow-expand'}"></ha-icon></button>`;
+  }
+
+  _onZoom(ev) {
+    ev?.stopPropagation?.();
+    this._setZoom(!this._zoomed);
+    // Keyboard use (Enter / Space: no click count) keeps the focus on the button, without scrolling the page.
+    if (!ev?.detail) this.shadowRoot.querySelector('.zoom')?.focus?.({ preventScroll: true });
   }
 }
 
@@ -2598,14 +2736,24 @@ function bmTypeSection(name, icon, names, options, lang) {
 if (!customElements.get('battery-monitor-card')) {
   customElements.define('battery-monitor-card', BatteryMonitorCard);
   customElements.define('battery-monitor-card-editor', BatteryMonitorCardEditor);
+  customElements.define('battery-monitor-mini-card', BatteryMonitorMiniCard);
   window.customCards = window.customCards || [];
-  window.customCards.push({
-    type: 'battery-monitor-card',
-    name: 'Battery Monitor Card',
-    description: 'The batteries watched by Battery Monitor: icon, name and level, the lowest first',
-    preview: true,
-    documentationURL: 'https://github.com/juju35/ha-battery-monitor',
-  });
+  window.customCards.push(
+    {
+      type: 'battery-monitor-card',
+      name: 'Battery Monitor Card',
+      description: 'The batteries watched by Battery Monitor: icon, name and level, the lowest first',
+      preview: true,
+      documentationURL: 'https://github.com/juju35/ha-battery-monitor',
+    },
+    {
+      type: 'battery-monitor-mini-card',
+      name: 'Battery Monitor Mini Card',
+      description: 'Compact: the status and only the batteries needing attention, with a button for the full card',
+      preview: true,
+      documentationURL: 'https://github.com/juju35/ha-battery-monitor',
+    },
+  );
   console.info(
     `%c BATTERY-MONITOR-CARD %c v${BATTERY_MONITOR_CARD_VERSION} `,
     'background:#14b8a6;color:#fff;font-weight:700',

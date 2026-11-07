@@ -178,10 +178,10 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.bm = { BatteryMonitorCard, BatteryMonitorCardEditor, BM_I18N, bmEsc, bmLang, bmParseType, bmTypeOf };`,
+  `${source}\nthis.bm = { BatteryMonitorCard, BatteryMonitorMiniCard, BatteryMonitorCardEditor, BM_I18N, bmEsc, bmLang, bmParseType, bmTypeOf };`,
   context,
 );
-const { BatteryMonitorCard, BatteryMonitorCardEditor, BM_I18N, bmEsc, bmLang, bmParseType, bmTypeOf } = context.bm;
+const { BatteryMonitorCard, BatteryMonitorMiniCard, BatteryMonitorCardEditor, BM_I18N, bmEsc, bmLang, bmParseType, bmTypeOf } = context.bm;
 
 const SENSOR = 'sensor.battery_monitor_low_batteries';
 const BUTTON = 'button.battery_monitor_notify_now';
@@ -1164,4 +1164,45 @@ test('full screen by replacement date: now, within 30 days, later, no forecast; 
   assert.match(csv.find((l) => l.startsWith('Hub')), /^Hub,Office,,45,ok,0\.25,12,2026-11-19,,sensor\.a_battery$/);
   assert.match(csv.find((l) => l.includes('basement')), /^"Leak, ""basement""",/);
   card._closePopup();
+});
+
+test('mini card: compact with the batteries needing attention, the detail button shows the full card', () => {
+  const card = new BatteryMonitorMiniCard();
+  const attrs = {};
+  card.setAttribute = (name, value) => (attrs[name] = value);
+  card.style = {};
+  card.dispatchEvent = () => {};
+  card.attachShadow = () => {
+    card.shadowRoot = fakeRoot();
+    return card.shadowRoot;
+  };
+  card.setConfig({});
+  assert.equal(attrs.mini, '');
+  card.connectedCallback();
+  card.hass = hassWith(registry(), { [SENSOR]: realState, [BUTTON]: { state: 'unknown', attributes: {} } });
+  let out = html(card);
+  assert.match(out, /<ha-card class="lvl-alert mini">/);
+  assert.ok(out.includes('Leak') && out.includes('Door'));
+  assert.ok(!out.includes('Lamp'), 'a battery in good shape stays out of the compact view');
+  assert.doesNotMatch(out, /class="full"/);
+  assert.match(out, /<button class="zoom" title="Show the full card"[^>]*aria-expanded="false"><ha-icon icon="mdi:arrow-expand">/);
+  assert.match(out, /<div class="badge">/);
+  assert.deepEqual({ ...card.getGridOptions() }, { columns: 6, min_columns: 6, rows: 'auto' });
+
+  card._onZoom({ detail: 1, stopPropagation() {} });
+  out = html(card);
+  assert.ok(out.includes('Lamp'));
+  assert.match(out, /<ha-card class="lvl-alert">/);
+  assert.match(out, /class="full"/);
+  assert.match(out, /<button class="zoom" title="Back to the compact view"[^>]*aria-expanded="true">/);
+  assert.deepEqual({ ...card.getGridOptions() }, { columns: 12, min_columns: 6, rows: 'auto' });
+
+  // A click in the card, or in a more-info opened from it, keeps the full card; a click elsewhere folds it back.
+  listeners.click({ composedPath: () => [card] });
+  listeners.click({ composedPath: () => [{ localName: 'ha-more-info-dialog' }] });
+  assert.ok(html(card).includes('Lamp'));
+  listeners.click({ composedPath: () => [{ localName: 'div' }] });
+  assert.ok(!html(card).includes('Lamp'));
+  card.disconnectedCallback();
+  assert.equal(listeners.click, undefined);
 });
