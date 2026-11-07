@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
@@ -714,3 +715,69 @@ async def test_export_csv(hass: HomeAssistant, tmp_path) -> None:
     assert response["path"] == hass.config.path("exports/batteries.csv")
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(DOMAIN, "export", {"path": str(tmp_path / "out.csv")}, blocking=True)
+
+
+async def test_export_admin_only(hass: HomeAssistant, tmp_path, hass_admin_user, hass_read_only_user) -> None:
+    from homeassistant.core import Context
+    from homeassistant.exceptions import Unauthorized
+
+    hass.config.config_dir = str(tmp_path)
+    add_battery(hass, "Door", "12")
+    await _setup(hass)
+    await hass.async_block_till_done()
+
+    with pytest.raises(Unauthorized):
+        await hass.services.async_call(
+            DOMAIN, "export", {}, blocking=True, context=Context(user_id=hass_read_only_user.id)
+        )
+    assert not os.path.exists(hass.config.path("battery_monitor.csv"))
+
+    response = await hass.services.async_call(
+        DOMAIN, "export", {}, blocking=True, return_response=True, context=Context(user_id=hass_admin_user.id)
+    )
+    assert response == {"path": hass.config.path("battery_monitor.csv"), "batteries": 1}
+
+    # A .csv in an allowlist_external_dirs folder is still written.
+    external = tmp_path.parent / f"{tmp_path.name}_external"
+    external.mkdir()
+    hass.config.allowlist_external_dirs = {str(external)}
+    response = await hass.services.async_call(
+        DOMAIN, "export", {"path": str(external / "b.csv")}, blocking=True, return_response=True
+    )
+    assert response == {"path": str(external / "b.csv"), "batteries": 1}
+
+
+@pytest.mark.parametrize(
+    ("path", "key"),
+    [
+        ("configuration.yaml", "path_not_csv"),
+        ("batteries.CSV.yaml", "path_not_csv"),
+        (".storage/core.config_entries", "path_hidden"),
+        (".storage/batteries.csv", "path_hidden"),
+        ("exports/.hidden/batteries.csv", "path_hidden"),
+        (".batteries.csv", "path_hidden"),
+        ("folder.csv", "path_not_csv"),
+        ("link.csv", "path_not_csv"),
+        ("../outside.csv", "path_not_allowed"),
+    ],
+)
+async def test_export_refused(hass: HomeAssistant, tmp_path, path: str, key: str) -> None:
+    from homeassistant.exceptions import ServiceValidationError
+
+    hass.config.config_dir = str(tmp_path / "config")
+    os.makedirs(hass.config.config_dir)
+    config = hass.config.path("configuration.yaml")
+    with open(config, "w", encoding="utf-8") as file:
+        file.write("homeassistant:\n")
+    os.makedirs(hass.config.path("folder.csv"))
+    os.symlink(config, hass.config.path("link.csv"))  # a .csv name pointing to configuration.yaml
+    add_battery(hass, "Door", "12")
+    await _setup(hass)
+    await hass.async_block_till_done()
+
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(DOMAIN, "export", {"path": path}, blocking=True)
+    assert err.value.translation_key == key
+    with open(config, encoding="utf-8") as file:
+        assert file.read() == "homeassistant:\n"
+    assert not os.path.exists(hass.config.path(".storage/batteries.csv"))

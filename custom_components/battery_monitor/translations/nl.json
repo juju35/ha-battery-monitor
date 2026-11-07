@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} ligt buiten de toegestane mappen (configuratiemap of allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} is geen CSV-bestand (.csv): de export schrijft alleen CSV-bestanden."
+    },
+    "path_hidden": {
+      "message": "{path} staat in een verborgen map (zoals .storage): de export schrijft daar niet."
     }
   }
 }

@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} este în afara dosarelor permise (dosarul de configurare sau allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} nu este un fișier CSV (.csv): exportul scrie doar fișiere CSV."
+    },
+    "path_hidden": {
+      "message": "{path} se află într-un dosar ascuns (precum .storage): exportul nu scrie acolo."
     }
   }
 }

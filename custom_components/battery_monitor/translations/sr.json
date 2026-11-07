@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} је изван дозвољених фасцикли (фасцикла конфигурације или allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} није ЦСВ датотека: извоз пише само ЦСВ датотеке."
+    },
+    "path_hidden": {
+      "message": "{path} је у скривеној фасцикли: извоз тамо не пише."
     }
   }
 }

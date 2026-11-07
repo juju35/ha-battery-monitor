@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} je mimo povolené složky (konfigurační složka nebo allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} není soubor CSV (.csv): export zapisuje pouze soubory CSV."
+    },
+    "path_hidden": {
+      "message": "{path} je ve skryté složce (například .storage): export tam nezapisuje."
     }
   }
 }

@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "Το {path} είναι εκτός των επιτρεπόμενων φακέλων (φάκελος ρυθμίσεων ή allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "Το {path} δεν είναι αρχείο CSV (.csv): η εξαγωγή γράφει μόνο αρχεία CSV."
+    },
+    "path_hidden": {
+      "message": "Το {path} βρίσκεται σε κρυφό φάκελο (όπως .storage): η εξαγωγή δεν γράφει εκεί."
     }
   }
 }

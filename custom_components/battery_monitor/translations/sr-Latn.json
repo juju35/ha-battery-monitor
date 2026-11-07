@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} je izvan dozvoljenih fascikli (fascikla konfiguracije ili allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} nije CSV datoteka: izvoz piše samo CSV datoteke."
+    },
+    "path_hidden": {
+      "message": "{path} je u skrivenoj fascikli: izvoz tamo ne piše."
     }
   }
 }
