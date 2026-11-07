@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.11.1 - 2026-11-07
+
+### Fixes
+- `hide_when_ok`: a hidden card shows again while the dashboard is edited and in the card editor's preview, so that it can still be edited (before, it vanished from the editor as soon as nothing was wrong). A hidden card now also tells Lovelace (`card-visibility-changed`), so a sections view drops its slot instead of leaving a gap.
+
 ## 1.11.0 - 2026-11-07
 
 ### What's new
