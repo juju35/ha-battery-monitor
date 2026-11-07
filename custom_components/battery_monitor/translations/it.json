@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} è fuori dalle cartelle consentite (cartella di configurazione o allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} non è un file CSV (.csv): l'esportazione scrive solo file CSV."
+    },
+    "path_hidden": {
+      "message": "{path} si trova in una cartella nascosta (come .storage): l'esportazione non scrive lì."
     }
   }
 }

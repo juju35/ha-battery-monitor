@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} ligger utanför de tillåtna mapparna (konfigurationsmappen eller allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} är inte en CSV-fil (.csv): exporten skriver bara CSV-filer."
+    },
+    "path_hidden": {
+      "message": "{path} ligger i en dold mapp (som .storage): exporten skriver inte där."
     }
   }
 }

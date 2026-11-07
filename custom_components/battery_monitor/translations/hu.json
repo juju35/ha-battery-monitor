@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} az engedélyezett mappákon kívül van (konfigurációs mappa vagy allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} nem CSV-fájl (.csv): az exportálás csak CSV-fájlokat ír."
+    },
+    "path_hidden": {
+      "message": "{path} rejtett mappában van (például .storage): az exportálás oda nem ír."
     }
   }
 }

@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} е извън разрешените папки (папката с конфигурацията или allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} не е CSV файл (.csv): експортът записва само CSV файлове."
+    },
+    "path_hidden": {
+      "message": "{path} е в скрита папка (като .storage): експортът не записва там."
     }
   }
 }

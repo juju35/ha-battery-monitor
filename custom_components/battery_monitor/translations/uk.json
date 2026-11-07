@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} поза дозволеними теками (тека конфігурації або allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} не є файлом CSV (.csv): експорт записує лише файли CSV."
+    },
+    "path_hidden": {
+      "message": "{path} знаходиться в прихованій теці (наприклад, .storage): експорт туди не записує."
     }
   }
 }

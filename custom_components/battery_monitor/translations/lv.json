@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} ir ārpus atļautajām mapēm (konfigurācijas mape vai allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} nav CSV fails (.csv): eksports raksta tikai CSV failus."
+    },
+    "path_hidden": {
+      "message": "{path} atrodas slēptā mapē (piemēram, .storage): eksports tur neraksta."
     }
   }
 }

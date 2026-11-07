@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.1 - 2026-11-07
+
+### Security
+- `battery_monitor.export` is now for administrators only, and only writes a `.csv` file outside hidden folders such as `.storage`: before, any user could overwrite any file of the configuration folder (`configuration.yaml`, `.storage/core.config_entries`…) with CSV.
+
 ## 1.12.0 - 2026-11-07
 
 ### What's new

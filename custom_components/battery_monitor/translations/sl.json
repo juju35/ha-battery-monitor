@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} je zunaj dovoljenih map (mapa s konfiguracijo ali allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} ni datoteka CSV (.csv): izvoz zapisuje samo datoteke CSV."
+    },
+    "path_hidden": {
+      "message": "{path} je v skriti mapi (na primer .storage): izvoz tja ne zapisuje."
     }
   }
 }

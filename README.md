@@ -115,7 +115,7 @@ action: battery_monitor.notify
 
 ### Action `battery_monitor.export`
 
-Writes every monitored battery to a CSV file (`entity_id`, `name`, `area`, `level`, `low`, `unavailable`, `due`, `below_since`, `drain_per_day`, `days_left`, `replace_by`), for a spreadsheet or a report. `path` is optional: `battery_monitor.csv` in the configuration folder by default; a relative path is inside the configuration folder, an absolute one must be in the configuration folder or in `allowlist_external_dirs`. Returns the path and the number of batteries.
+Writes every monitored battery to a CSV file (`entity_id`, `name`, `area`, `level`, `low`, `unavailable`, `due`, `below_since`, `drain_per_day`, `days_left`, `replace_by`), for a spreadsheet or a report. Administrators only. `path` is optional: `battery_monitor.csv` in the configuration folder by default; a relative path is inside the configuration folder, an absolute one must be in the configuration folder or in `allowlist_external_dirs`. The file name must end in `.csv`, and hidden folders such as `.storage` are refused. Returns the path and the number of batteries.
 
 ```yaml
 action: battery_monitor.export

@@ -15,7 +15,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
 from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse, callback
-from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError, Unauthorized, UnknownUser
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 from homeassistant.helpers.storage import Store
@@ -82,6 +82,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.services.async_register(DOMAIN, SERVICE_NOTIFY, notify)
 
     async def export(call: ServiceCall) -> ServiceResponse:
+        # Admin only, as async_register_admin_service does (it takes no supports_response in 2024.12, the minimum).
+        if call.context.user_id:
+            user = await hass.auth.async_get_user(call.context.user_id)
+            if user is None:
+                raise UnknownUser(context=call.context)
+            if not user.is_admin:
+                raise Unauthorized(context=call.context)
         entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
         if not entries:
             raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
@@ -89,10 +96,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         path = Path(call.data.get(ATTR_PATH) or DEFAULT_EXPORT_FILE)
         if not path.is_absolute():
             path = Path(hass.config.path(str(path)))
-        if not await hass.async_add_executor_job(_allowed, hass, path):
+        if refused := await hass.async_add_executor_job(_refused, hass, path):
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
-                translation_key="path_not_allowed",
+                translation_key=refused,
                 translation_placeholders={"path": str(path)},
             )
         rows = [b.as_row() for b in monitor.batteries]
@@ -112,14 +119,27 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
-def _allowed(hass: HomeAssistant, path: Path) -> bool:
-    """True inside the configuration folder or an allowlist_external_dirs folder (blocking: resolves the path)."""
+def _refused(hass: HomeAssistant, path: Path) -> str | None:
+    """Why the export may not write `path` (a translation key), None when it may (blocking: resolves the path).
+
+    Only a .csv file (never an existing file of another kind, symlinks followed), outside hidden folders
+    such as .storage, inside the configuration folder or an allowlist_external_dirs folder.
+    """
     try:
-        target = (path if path.exists() else path.parent).resolve()
+        target = path.resolve()
         config = Path(hass.config.config_dir).resolve()
+        roots = [config, *(Path(d).resolve() for d in hass.config.allowlist_external_dirs)]
+        exists = target.exists()
     except OSError:
-        return False
-    return target.is_relative_to(config) or hass.config.is_allowed_path(str(path))
+        return "path_not_allowed"
+    root = next((r for r in roots if target.is_relative_to(r)), None)
+    if root is None:
+        return "path_not_allowed"
+    if any(part.startswith(".") for part in target.relative_to(root).parts):
+        return "path_hidden"
+    if target.suffix.lower() != ".csv" or (exists and not target.is_file()):
+        return "path_not_csv"
+    return None
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:

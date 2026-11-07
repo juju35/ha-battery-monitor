@@ -160,6 +160,12 @@
     },
     "path_not_allowed": {
       "message": "{path} jest poza dozwolonymi folderami (folder konfiguracji lub allowlist_external_dirs)."
+    },
+    "path_not_csv": {
+      "message": "{path} nie jest plikiem CSV (.csv): eksport zapisuje tylko pliki CSV."
+    },
+    "path_hidden": {
+      "message": "{path} znajduje się w ukrytym folderze (np. .storage): eksport tam nie zapisuje."
     }
   }
 }
