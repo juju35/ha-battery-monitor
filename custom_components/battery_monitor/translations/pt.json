@@ -88,6 +88,26 @@
             "name": "Baterias notificadas"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Próxima substituição",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entidade"
+          },
+          "name": {
+            "name": "Bateria"
+          },
+          "level": {
+            "name": "Nível"
+          },
+          "days_left": {
+            "name": "Dias restantes"
+          },
+          "forecast_at": {
+            "name": "Previsão medida"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Notificar baterias fracas",
       "description": "Envia a notificação agora, com todas as baterias abaixo do limiar ou indisponíveis independentemente da duração, ou uma mensagem a indicar que nenhuma precisa de atenção."
+    },
+    "export": {
+      "name": "Exportar baterias para CSV",
+      "description": "Escreve cada bateria monitorizada (nível, divisão, fraca, indisponível, a tratar, desde quando, descarga por dia, dias restantes, data de substituição) num ficheiro CSV.",
+      "fields": {
+        "path": {
+          "name": "Ficheiro",
+          "description": "Caminho do ficheiro CSV; battery_monitor.csv na pasta de configuração se vazio."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "O Battery Monitor não está carregado."
+    },
+    "path_not_allowed": {
+      "message": "{path} está fora das pastas permitidas (pasta de configuração ou allowlist_external_dirs)."
     }
   }
 }

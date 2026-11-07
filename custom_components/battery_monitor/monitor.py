@@ -28,7 +28,18 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, MAX_DURATION, NOTIFICATION_ID, STORAGE_KEY, STORAGE_VERSION
+from .const import (
+    DOMAIN,
+    FORECAST_DAYS,
+    FORECAST_HOURS,
+    FORECAST_MIN_DAYS,
+    FORECAST_MIN_DRAIN,
+    FORECAST_RESET_JUMP,
+    MAX_DURATION,
+    NOTIFICATION_ID,
+    STORAGE_KEY,
+    STORAGE_VERSION,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +62,10 @@ class Battery:
     unavailable: bool
     below_since: datetime | None  # since it needs attention (low or unavailable)
     due: bool
+    # Forecast (level batteries with enough history): drain in % per day, days before the threshold, that date.
+    drain_per_day: float | None = None
+    days_left: int | None = None
+    replace_by: datetime | None = None
 
     @property
     def alert(self) -> bool:
@@ -82,7 +97,53 @@ class Battery:
             "due": self.due,
             "unavailable": self.unavailable,
             "below_since": self.below_since.isoformat() if self.below_since else None,
+            "drain_per_day": self.drain_per_day,
+            "days_left": self.days_left,
+            "replace_by": self.replace_by.isoformat() if self.replace_by else None,
         }
+
+    def as_row(self) -> dict[str, Any]:
+        """Flat values for the CSV export."""
+        return {
+            "entity_id": self.entity_id,
+            "name": self.name,
+            "area": self.area or "",
+            "level": "" if self.level is None else self.level,
+            "low": int(self.low),
+            "unavailable": int(self.unavailable),
+            "due": int(self.due),
+            "below_since": self.below_since.isoformat() if self.below_since else "",
+            "drain_per_day": "" if self.drain_per_day is None else self.drain_per_day,
+            "days_left": "" if self.days_left is None else self.days_left,
+            "replace_by": self.replace_by.date().isoformat() if self.replace_by else "",
+        }
+
+
+def drain_per_day(points: list[tuple[datetime, int]]) -> float | None:
+    """Drain of a battery in % per day, from (time, level) points: least-squares slope since the last replacement.
+
+    A rise of FORECAST_RESET_JUMP points or more is a new battery: only the points from there count. None without
+    FORECAST_MIN_DAYS days of history since then, or fewer than three points; 0.0 when the level is stable.
+    """
+    start = 0
+    for i in range(1, len(points)):
+        if points[i][1] - points[i - 1][1] >= FORECAST_RESET_JUMP:
+            start = i
+    points = points[start:]
+    if len(points) < 3:
+        return None
+    days = [(t - points[0][0]).total_seconds() / 86400 for t, _ in points]
+    if days[-1] < FORECAST_MIN_DAYS:
+        return None
+    levels = [float(level) for _, level in points]
+    mean_x = sum(days) / len(days)
+    mean_y = sum(levels) / len(levels)
+    var = sum((x - mean_x) ** 2 for x in days)
+    if var == 0:
+        return None
+    slope = sum((x - mean_x) * (y - mean_y) for x, y in zip(days, levels, strict=True)) / var
+    drain = -slope
+    return round(drain, 3) if drain >= FORECAST_MIN_DRAIN else 0.0
 
 
 def _level(state: State) -> int | None:
@@ -132,6 +193,9 @@ class BatteryMonitor:
         self.last_notification: datetime | None = None
         self.last_notified: int | None = None
         self._below_since: dict[str, datetime] = {}
+        # Measured drain (% per day) per level battery, and when it was last measured.
+        self._drain: dict[str, float] = {}
+        self.forecast_at: datetime | None = None
         self._store: Store[dict[str, str]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self._listeners: list[CALLBACK_TYPE] = []
 
@@ -162,6 +226,41 @@ class BatteryMonitor:
     @property
     def due(self) -> list[Battery]:
         return [b for b in self.batteries if b.due]
+
+    @property
+    def next_replacement(self) -> Battery | None:
+        """The battery forecast to reach the threshold first (a battery already low or unavailable comes first)."""
+        alerts = [b for b in self.batteries if b.alert]
+        if alerts:
+            return alerts[0]
+        forecast = [b for b in self.batteries if b.replace_by is not None]
+        return min(forecast, key=lambda b: b.replace_by) if forecast else None
+
+    def forecast_due(self, now: datetime | None = None) -> bool:
+        """True when the drains were never measured, or more than FORECAST_HOURS ago."""
+        now = now or dt_util.utcnow()
+        return self.forecast_at is None or now - self.forecast_at >= timedelta(hours=FORECAST_HOURS)
+
+    async def async_forecast(self) -> None:
+        """Measure the drain of every level battery on its recorded history, and refresh the forecasts."""
+        now = dt_util.utcnow()
+        self.forecast_at = now
+        entity_ids = [b.entity_id for b in self.batteries if b.entity_id.startswith("sensor.")]
+        if not entity_ids:
+            self._drain = {}
+            return
+        try:
+            states = await _async_history(self.hass, entity_ids, now - timedelta(days=FORECAST_DAYS))
+        except Exception:  # noqa: BLE001 - a forecast is a nicety, never an error
+            _LOGGER.exception("Could not read the history of the batteries")
+            return
+        drains: dict[str, float] = {}
+        for entity_id in entity_ids:
+            points = [(s.last_changed, level) for s in states.get(entity_id, []) if (level := _level(s)) is not None]
+            if (drain := drain_per_day(points)) is not None:
+                drains[entity_id] = drain
+        self._drain = drains
+        self.async_refresh()
 
     async def async_load(self) -> None:
         stored = await self._store.async_load() or {}
@@ -306,19 +405,24 @@ class BatteryMonitor:
             area_id = (entry.area_id if entry else None) or (device.area_id if device else None)
             area = areas.async_get_area(area_id) if area_id else None
             name = (device.name_by_user or device.name) if device else None
-            batteries.append(
-                Battery(
-                    entity_id=state.entity_id,
-                    device_id=device.id if device else None,
-                    name=name or state.name,
-                    area=area.name if area else None,
-                    level=level,
-                    low=low,
-                    unavailable=unavailable,
-                    below_since=since,
-                    due=since is not None and now - since >= self.duration,
-                )
+            battery = Battery(
+                entity_id=state.entity_id,
+                device_id=device.id if device else None,
+                name=name or state.name,
+                area=area.name if area else None,
+                level=level,
+                low=low,
+                unavailable=unavailable,
+                below_since=since,
+                due=since is not None and now - since >= self.duration,
+                drain_per_day=self._drain.get(state.entity_id),
             )
+            # Days before the level reaches the threshold at the measured drain (a stable level has no date).
+            if battery.drain_per_day and level is not None and not battery.alert:
+                battery.days_left = max(0, int((level - self.threshold) / battery.drain_per_day))
+                # A date (the start of that day): the sensor must not move with every refresh.
+                battery.replace_by = dt_util.start_of_local_day(now + timedelta(days=battery.days_left))
+            batteries.append(battery)
 
         # Needing attention first: lowest levels, then low binary sensors, then unavailable batteries.
         batteries.sort(key=lambda b: (not b.alert, b.unavailable, b.level is None, b.level or 0, b.name.casefold()))

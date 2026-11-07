@@ -88,6 +88,26 @@
             "name": "Baterii notificate"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Următoarea înlocuire",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entitate"
+          },
+          "name": {
+            "name": "Baterie"
+          },
+          "level": {
+            "name": "Nivel"
+          },
+          "days_left": {
+            "name": "Zile rămase"
+          },
+          "forecast_at": {
+            "name": "Prognoză măsurată"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Notifică bateriile scăzute",
       "description": "Trimite notificarea acum, cu fiecare baterie sub prag sau indisponibilă indiferent de durată, sau un mesaj că niciuna nu necesită atenție."
+    },
+    "export": {
+      "name": "Exportă bateriile în CSV",
+      "description": "Scrie fiecare baterie monitorizată (nivel, cameră, scăzută, indisponibilă, de tratat, de când, descărcare pe zi, zile rămase, data înlocuirii) într-un fișier CSV.",
+      "fields": {
+        "path": {
+          "name": "Fișier",
+          "description": "Calea fișierului CSV; battery_monitor.csv în dosarul de configurare dacă este gol."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor nu este încărcat."
+    },
+    "path_not_allowed": {
+      "message": "{path} este în afara dosarelor permise (dosarul de configurare sau allowlist_external_dirs)."
     }
   }
 }

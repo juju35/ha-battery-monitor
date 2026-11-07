@@ -1102,3 +1102,17 @@ test('I18N Serbian: the pill counts read right for 1, 2, 5, 21 and 22 batteries'
   assert.equal(BM_I18N.sr.since_unavailable, 'недоступна већ {d}');
   for (const lang of LANGUAGES) assert.doesNotMatch(Object.values(BM_I18N[lang]).join('\n'), /\/(ih|их)\b/, lang);
 });
+
+test('replacement forecast under the name once the threshold is within two months, not for a low battery', () => {
+  const soon = { entity_id: 'sensor.a_battery', name: 'Hub', level: 45, low: false, days_left: 12, icon: 'mdi:battery-50' };
+  const far = { entity_id: 'sensor.b_battery', name: 'Clock', level: 95, low: false, days_left: 300, icon: 'mdi:battery' };
+  const low = { entity_id: 'sensor.c_battery', name: 'Door', level: 12, low: true, alert: true, days_left: 0, icon: 'mdi:battery-10' };
+  const card = makeCard({});
+  card.hass = hassWith(registry(), { [SENSOR]: { state: '1', attributes: { batteries: [soon, far, low] } } });
+  const out = html(card);
+  assert.match(out, /Hub<\/span>\s*<span class="sub">≈ 12 d left<\/span>/);
+  assert.doesNotMatch(out, /Clock<\/span>\s*<span class="sub">/);
+  assert.doesNotMatch(out, /Door<\/span>\s*<span class="sub">≈/);
+  card.hass = { ...hassWith(registry(), { [SENSOR]: { state: '1', attributes: { batteries: [soon] } } }), language: 'fr', locale: { language: 'fr' } };
+  assert.match(html(card), /≈ 12 j restants/);
+});

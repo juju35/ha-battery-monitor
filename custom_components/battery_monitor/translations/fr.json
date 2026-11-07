@@ -88,6 +88,26 @@
             "name": "Batteries notifiées"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Prochain remplacement",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entité"
+          },
+          "name": {
+            "name": "Batterie"
+          },
+          "level": {
+            "name": "Niveau"
+          },
+          "days_left": {
+            "name": "Jours restants"
+          },
+          "forecast_at": {
+            "name": "Prévision mesurée"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Notifier les batteries faibles",
       "description": "Envoie maintenant la notification, avec toutes les batteries sous le seuil ou indisponibles quelle que soit la durée, ou un message indiquant qu'aucune n'est à vérifier."
+    },
+    "export": {
+      "name": "Exporter les batteries en CSV",
+      "description": "Écrit chaque batterie surveillée (niveau, pièce, faible, indisponible, à traiter, depuis quand, décharge par jour, jours restants, date de remplacement) dans un fichier CSV.",
+      "fields": {
+        "path": {
+          "name": "Fichier",
+          "description": "Chemin du fichier CSV ; battery_monitor.csv dans le dossier de configuration si vide."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor n'est pas chargé."
+    },
+    "path_not_allowed": {
+      "message": "{path} est en dehors des dossiers autorisés (dossier de configuration ou allowlist_external_dirs)."
     }
   }
 }

@@ -88,6 +88,26 @@
             "name": "Baterije o kojima je poslato obaveštenje"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Sledeća zamena",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entitet"
+          },
+          "name": {
+            "name": "Baterija"
+          },
+          "level": {
+            "name": "Nivo"
+          },
+          "days_left": {
+            "name": "Preostali dani"
+          },
+          "forecast_at": {
+            "name": "Prognoza izmerena"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Obavesti o slabim baterijama",
       "description": "Šalje obaveštenje odmah, sa svim baterijama koje su ispod praga ili nedostupne bez obzira na trajanje, ili poruku da nijedna ne zahteva pažnju."
+    },
+    "export": {
+      "name": "Izvezi baterije u CSV",
+      "description": "Upisuje svaku praćenu bateriju (nivo, prostorija, slaba, nedostupna, za obradu, otkad, pražnjenje po danu, preostali dani, datum zamene) u CSV datoteku.",
+      "fields": {
+        "path": {
+          "name": "Datoteka",
+          "description": "Putanja CSV datoteke; battery_monitor.csv u fascikli konfiguracije ako je prazno."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor nije učitan."
+    },
+    "path_not_allowed": {
+      "message": "{path} je izvan dozvoljenih fascikli (fascikla konfiguracije ili allowlist_external_dirs)."
     }
   }
 }

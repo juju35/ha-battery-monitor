@@ -88,6 +88,26 @@
             "name": "Baterije v obvestilu"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Naslednja zamenjava",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entiteta"
+          },
+          "name": {
+            "name": "Baterija"
+          },
+          "level": {
+            "name": "Raven"
+          },
+          "days_left": {
+            "name": "Preostali dnevi"
+          },
+          "forecast_at": {
+            "name": "Napoved izmerjena"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Obvesti o šibkih baterijah",
       "description": "Takoj pošlje obvestilo z vsemi baterijami pod pragom ali ki niso na voljo, ne glede na trajanje, ali sporočilo, da nobena ne potrebuje pozornosti."
+    },
+    "export": {
+      "name": "Izvozi baterije v CSV",
+      "description": "Zapiše vsako spremljano baterijo (raven, soba, šibka, ni na voljo, za obravnavo, od kdaj, praznjenje na dan, preostali dnevi, datum zamenjave) v datoteko CSV.",
+      "fields": {
+        "path": {
+          "name": "Datoteka",
+          "description": "Pot do datoteke CSV; battery_monitor.csv v mapi s konfiguracijo, če je prazno."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor ni naložen."
+    },
+    "path_not_allowed": {
+      "message": "{path} je zunaj dovoljenih map (mapa s konfiguracijo ali allowlist_external_dirs)."
     }
   }
 }

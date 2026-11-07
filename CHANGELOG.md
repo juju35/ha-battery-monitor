@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.0 - 2026-11-07
+
+### What's new
+- **Replacement forecast**: once a day, the drain of each level battery is measured on its recorded history (last 30 days, since the last replacement). Each battery of the list carries `drain_per_day`, `days_left` and `replace_by`; the card shows *≈ 12 d left* under a battery's name when the threshold is less than two months away (while it is not low). New **Next replacement** sensor (timestamp): the date the first battery reaches the threshold, a battery already low or unavailable first, with `entity_id`, `name`, `level`, `days_left` and `forecast_at` attributes.
+- New action `battery_monitor.export`: every monitored battery written to a CSV file (`battery_monitor.csv` in the configuration folder, or the `path` given, inside the configuration folder or `allowlist_external_dirs`); returns the path and the number of batteries.
+
 ## 1.10.6 - 2026-11-04
 
 ### Documentation

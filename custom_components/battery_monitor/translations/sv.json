@@ -88,6 +88,26 @@
             "name": "Aviserade batterier"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Nästa byte",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entitet"
+          },
+          "name": {
+            "name": "Batteri"
+          },
+          "level": {
+            "name": "Nivå"
+          },
+          "days_left": {
+            "name": "Dagar kvar"
+          },
+          "forecast_at": {
+            "name": "Prognos uppmätt"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Avisera om låga batterier",
       "description": "Skickar aviseringen nu, med alla batterier under tröskeln eller otillgängliga oavsett varaktighet, eller ett meddelande om att inget behöver åtgärdas."
+    },
+    "export": {
+      "name": "Exportera batterier till CSV",
+      "description": "Skriver varje övervakat batteri (nivå, rum, lågt, otillgängligt, att åtgärda, sedan när, urladdning per dag, dagar kvar, bytesdatum) till en CSV-fil.",
+      "fields": {
+        "path": {
+          "name": "Fil",
+          "description": "Sökväg till CSV-filen; battery_monitor.csv i konfigurationsmappen om tom."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor är inte inläst."
+    },
+    "path_not_allowed": {
+      "message": "{path} ligger utanför de tillåtna mapparna (konfigurationsmappen eller allowlist_external_dirs)."
     }
   }
 }

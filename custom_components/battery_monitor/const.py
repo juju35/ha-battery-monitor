@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "battery_monitor"
-VERSION: Final = "1.10.6"
+VERSION: Final = "1.11.0"
 
 CONF_THRESHOLD: Final = "threshold"
 CONF_DURATION: Final = "duration"
@@ -29,7 +29,21 @@ DEFAULT_IGNORED_INTEGRATIONS: Final = ["mobile_app"]
 # Refresh of the list (levels, durations) between two state changes, in minutes.
 REFRESH_MINUTES: Final = 10
 
+# Replacement forecast: the drain of each level battery is measured on its recorded history over this many
+# days, once a day; a rise of at least FORECAST_RESET_JUMP points is a new battery, the measure starts there.
+FORECAST_DAYS: Final = 30
+FORECAST_MIN_DAYS: Final = 3
+FORECAST_RESET_JUMP: Final = 15
+FORECAST_HOURS: Final = 24
+# Below this drain (% per day) the level is taken as stable: no replacement date.
+FORECAST_MIN_DRAIN: Final = 0.05
+
+# Name of the CSV written by the export action, in the configuration folder unless a path is given.
+DEFAULT_EXPORT_FILE: Final = f"{DOMAIN}.csv"
+
 SERVICE_NOTIFY: Final = "notify"
+SERVICE_EXPORT: Final = "export"
+ATTR_PATH: Final = "path"
 NOTIFICATION_ID: Final = f"{DOMAIN}_low"
 STORAGE_KEY: Final = f"{DOMAIN}.below_since"
 STORAGE_VERSION: Final = 1

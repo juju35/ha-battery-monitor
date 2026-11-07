@@ -88,6 +88,26 @@
             "name": "Gemeldete Batterien"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Nächster Austausch",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entität"
+          },
+          "name": {
+            "name": "Batterie"
+          },
+          "level": {
+            "name": "Ladestand"
+          },
+          "days_left": {
+            "name": "Verbleibende Tage"
+          },
+          "forecast_at": {
+            "name": "Prognose gemessen"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Schwache Batterien melden",
       "description": "Sendet die Benachrichtigung sofort, mit jeder Batterie unter der Schwelle oder nicht verfügbar, unabhängig von der Dauer, oder eine Nachricht, dass keine Batterie Aufmerksamkeit erfordert."
+    },
+    "export": {
+      "name": "Batterien als CSV exportieren",
+      "description": "Schreibt jede überwachte Batterie (Ladestand, Raum, schwach, nicht verfügbar, fällig, seit wann, Entladung pro Tag, verbleibende Tage, Austauschdatum) in eine CSV-Datei.",
+      "fields": {
+        "path": {
+          "name": "Datei",
+          "description": "Pfad der CSV-Datei; battery_monitor.csv im Konfigurationsordner, wenn leer."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor ist nicht geladen."
+    },
+    "path_not_allowed": {
+      "message": "{path} liegt außerhalb der erlaubten Ordner (Konfigurationsordner oder allowlist_external_dirs)."
     }
   }
 }

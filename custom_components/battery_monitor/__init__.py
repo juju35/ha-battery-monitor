@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
+import csv
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import voluptuous as vol
 from homeassistant.components import persistent_notification
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
-from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall, callback
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse, callback
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
 from homeassistant.helpers.storage import Store
@@ -21,6 +23,7 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    ATTR_PATH,
     CARD_URL,
     CONF_DURATION,
     CONF_EVENING,
@@ -31,12 +34,14 @@ from .const import (
     CONF_THRESHOLD,
     DEFAULT_DURATION,
     DEFAULT_EVENING,
+    DEFAULT_EXPORT_FILE,
     DEFAULT_IGNORED_INTEGRATIONS,
     DEFAULT_MORNING,
     DEFAULT_THRESHOLD,
     DOMAIN,
     NOTIFICATION_ID,
     REFRESH_MINUTES,
+    SERVICE_EXPORT,
     SERVICE_NOTIFY,
     STORAGE_KEY,
     STORAGE_VERSION,
@@ -75,7 +80,56 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         await entries[0].runtime_data.async_notify(manual=True)
 
     hass.services.async_register(DOMAIN, SERVICE_NOTIFY, notify)
+
+    async def export(call: ServiceCall) -> ServiceResponse:
+        entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
+        if not entries:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
+        monitor: BatteryMonitor = entries[0].runtime_data
+        path = Path(call.data.get(ATTR_PATH) or DEFAULT_EXPORT_FILE)
+        if not path.is_absolute():
+            path = Path(hass.config.path(str(path)))
+        if not await hass.async_add_executor_job(_allowed, hass, path):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="path_not_allowed",
+                translation_placeholders={"path": str(path)},
+            )
+        rows = [b.as_row() for b in monitor.batteries]
+        try:
+            await hass.async_add_executor_job(_write_csv, path, rows)
+        except OSError as err:
+            raise HomeAssistantError(f"Could not write {path}: {err}") from err
+        return {"path": str(path), "batteries": len(rows)}
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_EXPORT,
+        export,
+        schema=vol.Schema({vol.Optional(ATTR_PATH): cv.string}),
+        supports_response=SupportsResponse.OPTIONAL,
+    )
     return True
+
+
+def _allowed(hass: HomeAssistant, path: Path) -> bool:
+    """True inside the configuration folder or an allowlist_external_dirs folder (blocking: resolves the path)."""
+    try:
+        target = (path if path.exists() else path.parent).resolve()
+        config = Path(hass.config.config_dir).resolve()
+    except OSError:
+        return False
+    return target.is_relative_to(config) or hass.config.is_allowed_path(str(path))
+
+
+def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Write the batteries as a CSV file (header from the first row's keys, UTF-8)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    columns = list(rows[0]) if rows else ["entity_id", "name", "area", "level", "low", "unavailable", "due"]
+    with path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=columns)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def _storage_resources(hass: HomeAssistant) -> Any | None:
@@ -134,10 +188,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntr
 
     # Levels and durations move on even when no battery changes.
     @callback
-    def refresh(_now: datetime) -> None:
+    def refresh(now: datetime) -> None:
         monitor.async_refresh()
+        # The drains are measured on the history once a day: a forecast of the replacement dates.
+        if monitor.forecast_due(now):
+            entry.async_create_background_task(hass, monitor.async_forecast(), f"{DOMAIN}_forecast")
 
     entry.async_on_unload(async_track_time_interval(hass, refresh, timedelta(minutes=REFRESH_MINUTES)))
+    entry.async_create_background_task(hass, monitor.async_forecast(), f"{DOMAIN}_forecast")
 
     async def scheduled(_now: datetime) -> None:
         await monitor.async_notify()

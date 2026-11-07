@@ -88,6 +88,26 @@
             "name": "Meldte batterier"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Næste udskiftning",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Enhed"
+          },
+          "name": {
+            "name": "Batteri"
+          },
+          "level": {
+            "name": "Niveau"
+          },
+          "days_left": {
+            "name": "Dage tilbage"
+          },
+          "forecast_at": {
+            "name": "Prognose målt"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Giv besked om lave batterier",
       "description": "Sender notifikationen nu med alle batterier under tærsklen eller utilgængelige uanset varighed, eller en besked om, at intet kræver opmærksomhed."
+    },
+    "export": {
+      "name": "Eksportér batterier til CSV",
+      "description": "Skriver hvert overvåget batteri (niveau, rum, lavt, utilgængeligt, forfaldent, siden hvornår, afladning pr. dag, dage tilbage, udskiftningsdato) til en CSV-fil.",
+      "fields": {
+        "path": {
+          "name": "Fil",
+          "description": "Sti til CSV-filen; battery_monitor.csv i konfigurationsmappen, hvis tom."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor er ikke indlæst."
+    },
+    "path_not_allowed": {
+      "message": "{path} er uden for de tilladte mapper (konfigurationsmappen eller allowlist_external_dirs)."
     }
   }
 }

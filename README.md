@@ -35,7 +35,8 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Ignored batteries and integrations**: phones and tablets of the mobile app are left out by default
 - **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; only the batteries needing attention are tinted: orange while low, red when unavailable or once notified (blinking once notified)
 - **Full screen view** from the card: every battery grouped **by room** or **by battery type** (CR2032, AA…), with what to buy for the ones to replace; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
-- **Low batteries** sensor with every monitored battery in its attributes, **Last notification** sensor, **Notify now** button and `battery_monitor.notify` action
+- **Replacement forecast**: the drain of each level battery is measured once a day on its recorded history (last 30 days, since the last replacement); the card shows *≈ 12 d left* when the threshold is less than two months away, and the **Next replacement** sensor gives the date the first battery reaches it
+- **Low batteries** sensor with every monitored battery in its attributes, **Last notification** and **Next replacement** sensors, **Notify now** button, `battery_monitor.notify` and `battery_monitor.export` (CSV) actions
 - UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian, Greek and Serbian (Cyrillic and Latin)
 
 ## Prerequisites
@@ -99,8 +100,9 @@ When no battery is due, nothing is sent and the persistent notification is clear
 
 | Entity | Description |
 |---|---|
-| `sensor.battery_monitor_low_batteries` | Number of batteries below the threshold. Attributes: `unavailable` (number of unavailable batteries), `due` (number needing attention for the duration), `threshold`, `duration` (h), `batteries` (every monitored battery: `entity_id`, `device_id`, `name`, `area`, `level`, `icon`, `low`, `alert` (low or unavailable), `due`, `unavailable`, `below_since`) |
+| `sensor.battery_monitor_low_batteries` | Number of batteries below the threshold. Attributes: `unavailable` (number of unavailable batteries), `due` (number needing attention for the duration), `threshold`, `duration` (h), `batteries` (every monitored battery: `entity_id`, `device_id`, `name`, `area`, `level`, `icon`, `low`, `alert` (low or unavailable), `due`, `unavailable`, `below_since`, `drain_per_day` (% per day measured on the history, `0` when stable, `null` when unknown), `days_left` (before the threshold, `null` when stable, unknown, or already low or unavailable), `replace_by` (that date)) |
 | `sensor.battery_monitor_last_notification` | Time of the last notification; attribute `notified` (number of batteries notified) |
+| `sensor.battery_monitor_next_replacement` | Date the first battery is forecast to reach the threshold; a battery already low or unavailable comes first (since when it has been). Attributes: `entity_id`, `name`, `level`, `days_left` (`0` for one already low), `forecast_at` (last measure of the drains) |
 | `button.battery_monitor_notify_now` | Sends every low battery right away, whatever the duration (or *No low battery*) |
 
 ### Action `battery_monitor.notify`
@@ -109,6 +111,17 @@ Sends every battery below the threshold right away, whatever the duration, or a 
 
 ```yaml
 action: battery_monitor.notify
+```
+
+### Action `battery_monitor.export`
+
+Writes every monitored battery to a CSV file (`entity_id`, `name`, `area`, `level`, `low`, `unavailable`, `due`, `below_since`, `drain_per_day`, `days_left`, `replace_by`), for a spreadsheet or a report. `path` is optional: `battery_monitor.csv` in the configuration folder by default; a relative path is inside the configuration folder, an absolute one must be in the configuration folder or in `allowlist_external_dirs`. Returns the path and the number of batteries.
+
+```yaml
+action: battery_monitor.export
+data:
+  path: exports/batteries.csv
+response_variable: result  # {"path": "/config/exports/batteries.csv", "batteries": 23}
 ```
 
 ### Card
@@ -180,6 +193,8 @@ A battery is a `sensor` with the `battery` device class (its level in %) or a `b
 When a battery goes below the threshold, Battery Monitor writes down the time. For a battery that is already low when it is first seen (right after installing Battery Monitor, say), that time is read from the history, up to 30 days back. It is kept while the battery is unavailable (a dead battery often makes its device unavailable) and across restarts, and forgotten once the battery is back above the threshold (replaced or recharged). A battery is notified once that time is older than the duration.
 
 The list is updated whenever a battery changes, and every 10 minutes.
+
+Once a day (and at start), the drain of each level battery is measured on its recorded history over the last 30 days: a least-squares slope of the level, counted from the last replacement (a rise of 15 points or more), when at least three days and three points are recorded. From that drain and the current level come the days left before the threshold and the replacement date; a stable level (less than 0.05 % a day) gives none. The days left follow the level between two measures.
 
 ## Development
 

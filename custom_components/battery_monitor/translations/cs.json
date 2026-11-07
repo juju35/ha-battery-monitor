@@ -88,6 +88,26 @@
             "name": "Oznámené baterie"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Další výměna",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entita"
+          },
+          "name": {
+            "name": "Baterie"
+          },
+          "level": {
+            "name": "Úroveň"
+          },
+          "days_left": {
+            "name": "Zbývající dny"
+          },
+          "forecast_at": {
+            "name": "Prognóza naměřena"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Upozornit na slabé baterie",
       "description": "Okamžitě odešle oznámení se všemi bateriemi pod prahem nebo nedostupnými bez ohledu na dobu trvání, nebo zprávu, že žádná nevyžaduje pozornost."
+    },
+    "export": {
+      "name": "Exportovat baterie do CSV",
+      "description": "Zapíše každou sledovanou baterii (úroveň, místnost, slabá, nedostupná, k řešení, odkdy, vybíjení za den, zbývající dny, datum výměny) do souboru CSV.",
+      "fields": {
+        "path": {
+          "name": "Soubor",
+          "description": "Cesta k souboru CSV; battery_monitor.csv v konfigurační složce, pokud je prázdné."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "Battery Monitor není načten."
+    },
+    "path_not_allowed": {
+      "message": "{path} je mimo povolené složky (konfigurační složka nebo allowlist_external_dirs)."
     }
   }
 }

@@ -88,6 +88,26 @@
             "name": "Értesített elemek"
           }
         }
+      },
+      "next_replacement": {
+        "name": "Következő csere",
+        "state_attributes": {
+          "entity_id": {
+            "name": "Entitás"
+          },
+          "name": {
+            "name": "Elem"
+          },
+          "level": {
+            "name": "Szint"
+          },
+          "days_left": {
+            "name": "Hátralévő napok"
+          },
+          "forecast_at": {
+            "name": "Előrejelzés mérve"
+          }
+        }
       }
     }
   },
@@ -95,6 +115,16 @@
     "notify": {
       "name": "Értesítés a gyenge elemekről",
       "description": "Azonnal elküldi az értesítést minden küszöbérték alatti vagy nem elérhető elemmel, időtartamtól függetlenül, vagy egy üzenetet arról, hogy egyik sem igényel figyelmet."
+    },
+    "export": {
+      "name": "Elemek exportálása CSV-be",
+      "description": "Minden figyelt elemet (szint, szoba, alacsony, nem elérhető, esedékes, mióta, napi lemerülés, hátralévő napok, csere dátuma) CSV-fájlba ír.",
+      "fields": {
+        "path": {
+          "name": "Fájl",
+          "description": "A CSV-fájl elérési útja; üresen battery_monitor.csv a konfigurációs mappában."
+        }
+      }
     }
   },
   "exceptions": {
@@ -127,6 +157,9 @@
     },
     "not_loaded": {
       "message": "A Battery Monitor nincs betöltve."
+    },
+    "path_not_allowed": {
+      "message": "{path} az engedélyezett mappákon kívül van (konfigurációs mappa vagy allowlist_external_dirs)."
     }
   }
 }
