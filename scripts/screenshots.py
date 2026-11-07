@@ -65,6 +65,8 @@ ICONS = {
     "battery-unknown": "M15.07,12.25L14.17,13.17C13.63,13.71 13.25,14.18 13.09,15H11.05C11.16,14.1 11.56,13.28 12.17,12.67L13.41,11.41C13.78,11.05 14,10.55 14,10C14,8.89 13.1,8 12,8A2,2 0 0,0 10,10H8A4,4 0 0,1 12,6A4,4 0 0,1 16,10C16,10.88 15.64,11.68 15.07,12.25M13,19H11V17H13M16.67,4H15V2H9V4H7.33A1.33,1.33 0 0,0 6,5.33V20.66C6,21.4 6.6,22 7.33,22H16.67C17.4,22 18,21.4 18,20.66V5.33C18,4.59 17.4,4 16.67,4Z",
     "battery-check-outline": "M16.75 21.16L14 18.16L15.16 17L16.75 18.59L20.34 15L21.5 16.41L16.75 21.16M12.35 20H8V6H16V12.35C16.63 12.13 17.3 12 18 12V5.33C18 4.6 17.4 4 16.67 4H15V2H9V4H7.33C6.6 4 6 4.6 6 5.33V20.67C6 21.4 6.6 22 7.33 22H13.54C13 21.42 12.61 20.75 12.35 20Z",
     "fullscreen": "M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M10,17V19H5V14H7V17H10Z",
+    "arrow-expand": "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z",
+    "arrow-collapse": "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z",
     "close": "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z",
     "door-open": "M12,3C10.89,3 10,3.89 10,5H3V19H2V21H22V19H21V5C21,3.89 20.11,3 19,3H12M12,5H19V19H12V5M5,11H7V13H5V11Z",
     "calendar-alert": "M6,1V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3H18V1H16V3H8V1H6M5,8H19V19H5V8M11,9V14H13V9H11M11,16V18H13V16H11Z",
@@ -201,6 +203,9 @@ SHOTS = [
     {"file": "card-dark", "theme": "dark", "config": {}},
     {"file": "card-low", "theme": "light", "config": {"only_low": True}},
     {"file": "card-low-dark", "theme": "dark", "config": {"only_low": True}},
+    # The mini card, compact: the status and the batteries needing attention.
+    {"file": "mini", "theme": "light", "config": {}, "tag": "battery-monitor-mini-card"},
+    {"file": "mini-dark", "theme": "dark", "config": {}, "tag": "battery-monitor-mini-card"},
 ]
 
 # The full screen view: on a desktop by room and by type, on a phone by room and by type (light and dark). The viewport is the size of
@@ -230,9 +235,9 @@ body {{ margin: 0; padding: 16px; background: var(--primary-background-color);
 
 # Mounts the card on a new page (the card's top-level declarations would clash in a reused page); `view` opens its
 # full screen view, by room or by type.
-MOUNT = """([hass, config, view]) => {
-    const el = document.createElement("battery-monitor-card");
-    el.setConfig({ type: "custom:battery-monitor-card", ...config });
+MOUNT = """([hass, config, view, tag]) => {
+    const el = document.createElement(tag);
+    el.setConfig({ type: `custom:${tag}`, ...config });
     el.hass = { ...hass, callService: async () => {} };
     document.getElementById("root").appendChild(el);
     if (view) {
@@ -259,7 +264,7 @@ def open_card(browser, shot, config, viewport, view=None):
     page.set_content(page_html(shot["theme"]))
     page.add_script_tag(content=HA_ELEMENTS)
     page.add_script_tag(content=CARD_JS)
-    page.evaluate(MOUNT, [mock_hass(), config, view])
+    page.evaluate(MOUNT, [mock_hass(), config, view, shot.get("tag", "battery-monitor-card")])
     if view:
         page.evaluate(FRAME_POPUP)
     page.wait_for_timeout(500 if view else 300)

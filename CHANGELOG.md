@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.13.0 - 2026-11-07
+
+### What's new
+- Events `battery_monitor_low` (a battery goes below the threshold) and `battery_monitor_replaced` (its level rises by 15 points or more, a new battery), fired on a change only, for automations.
+- Diagnostics: the options and every monitored battery can be downloaded from the integration page, with the notify actions redacted.
+- New **Battery Monitor Mini Card** (`custom:battery-monitor-mini-card`): the status and only the batteries needing attention, with a detail button that shows the full card.
+
 ## 1.12.1 - 2026-11-07
 
 ### Security

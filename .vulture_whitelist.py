@@ -18,3 +18,4 @@ _.native_value  # unused property (custom_components/battery_monitor/sensor.py:3
 _.extra_state_attributes  # unused property (custom_components/battery_monitor/sensor.py:42)
 _.native_value  # unused property (custom_components/battery_monitor/sensor.py:59)
 _.extra_state_attributes  # unused property (custom_components/battery_monitor/sensor.py:63)
+async_get_config_entry_diagnostics  # unused function (custom_components/battery_monitor/diagnostics.py:18)

@@ -30,6 +30,8 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     DOMAIN,
+    EVENT_LOW,
+    EVENT_REPLACED,
     FORECAST_DAYS,
     FORECAST_HOURS,
     FORECAST_MIN_DAYS,
@@ -182,8 +184,10 @@ class BatteryMonitor:
         notify_services: Iterable[str] = (),
         ignored_entities: Iterable[str] = (),
         ignored_integrations: Iterable[str] = (),
+        entry_id: str | None = None,
     ) -> None:
         self.hass = hass
+        self.entry_id = entry_id
         self.threshold = threshold
         self.duration = duration
         self.notify_services = list(notify_services)
@@ -197,6 +201,8 @@ class BatteryMonitor:
         self._drain: dict[str, float] = {}
         self.forecast_at: datetime | None = None
         self._store: Store[dict[str, str]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
+        # Last available reading of each battery (level, low): the events fire on a change from it.
+        self._last: dict[str, tuple[int | None, bool]] = {}
         self._listeners: list[CALLBACK_TYPE] = []
 
     # ── Listeners ───────────────────────────────────────────────────────────
@@ -432,10 +438,37 @@ class BatteryMonitor:
             tracked = {b.entity_id for b in batteries}
             self._below_since = {k: v for k, v in self._below_since.items() if k in tracked}
         self.batteries = batteries
+        self._fire_events(batteries)
         # Only write .storage when a time actually changed: a plain level change rewrites nothing.
         if self._below_since != below_before:
             self._store.async_delay_save(self._data, 5)
         self._notify_listeners()
+
+    def _fire_events(self, batteries: list[Battery]) -> None:
+        """Fire `battery_monitor_low` and `battery_monitor_replaced` on a change from the last available reading.
+
+        Only transitions seen while Home Assistant runs: a battery seen for the first time (start-up, a reload, a new
+        device) only sets its reading, and an unavailable one keeps its last reading (a battery taken out reads
+        unavailable, then the new one's level).
+        """
+        running = self.hass.state is CoreState.running
+        if running:
+            tracked = {b.entity_id for b in batteries}
+            self._last = {k: v for k, v in self._last.items() if k in tracked}
+        for b in batteries:
+            if b.unavailable:
+                continue
+            previous = self._last.get(b.entity_id)
+            self._last[b.entity_id] = (b.level, b.low)
+            if previous is None or not running:
+                continue
+            level, low = previous
+            data = {"entry_id": self.entry_id, "entity_id": b.entity_id, "device_id": b.device_id, "name": b.name}
+            # A rise of FORECAST_RESET_JUMP points or more is a new battery, as for the forecast.
+            if level is not None and b.level is not None and b.level - level >= FORECAST_RESET_JUMP:
+                self.hass.bus.async_fire(EVENT_REPLACED, {**data, "level": b.level, "previous_level": level})
+            elif b.low and not low:
+                self.hass.bus.async_fire(EVENT_LOW, {**data, "level": b.level, "threshold": self.threshold})
 
     def _data(self) -> dict[str, str]:
         return {k: v.isoformat() for k, v in self._below_since.items()}
