@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.11.0';
+var BATTERY_MONITOR_CARD_VERSION = '1.11.1';
 
 const BM_I18N = {
   en: {
@@ -1436,6 +1436,28 @@ class BatteryMonitorCard extends HTMLElement {
     this._render();
   }
 
+  // Set by Lovelace while the dashboard is edited (editMode) and in the card editor's preview (preview): a card
+  // hidden by hide_when_ok shows again there, so that it can still be edited.
+  set editMode(value) {
+    this._editMode = value;
+    this._sig = null;
+    this._render();
+  }
+
+  set preview(value) {
+    this._preview = value;
+    this._sig = null;
+    this._render();
+  }
+
+  // Hides the host and tells Lovelace (card-visibility-changed), so that a sections view drops the card's slot too.
+  _setHidden(hidden) {
+    const changed = !!this._hidden !== hidden;
+    this._hidden = hidden;
+    this.style.display = hidden ? 'none' : '';
+    if (changed) this.dispatchEvent(new CustomEvent('card-visibility-changed', { bubbles: true, composed: true }));
+  }
+
   disconnectedCallback() {
     // A dashboard edit can simply move the card in the DOM: only close the full screen if the card is really gone.
     Promise.resolve().then(() => {
@@ -1517,8 +1539,8 @@ class BatteryMonitorCard extends HTMLElement {
     this._state = { entity, button, all, low, unavailable, due, attention };
     if (this._popup) this._renderPopup();
 
-    const hidden = c.hide_when_ok && st && !attention;
-    this.style.display = hidden ? 'none' : '';
+    const hidden = c.hide_when_ok && st && !attention && !this._editMode && !this._preview;
+    this._setHidden(hidden);
     if (hidden) return;
 
     const level = this._level();

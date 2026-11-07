@@ -138,7 +138,7 @@ type: custom:battery-monitor-card
 | `title` | `Batteries` | Card title |
 | `columns` | `1` | Number of battery columns (1–3); a card too narrow for them shows fewer, each at least 160 px wide |
 | `only_low` | `false` | Show only the batteries below the threshold or unavailable |
-| `hide_when_ok` | `false` | Hide the whole card when every battery is above the threshold and available |
+| `hide_when_ok` | `false` | Hide the whole card when every battery is above the threshold and available (always shown while editing the dashboard) |
 | `notify_button` | `true` | Bell button in the header that sends the notification now: it turns while sending, then shows a check mark, or the reason in its tooltip when it fails; disabled while the button entity is unavailable |
 | `popup` | `true` | Full screen button in the header |
 | `battery_models` | — | The battery type of every device of a model Battery Notes doesn't know: `Hue dimmer switch: CR2450`, `Radiator Thermostat W600: 2× AA` |

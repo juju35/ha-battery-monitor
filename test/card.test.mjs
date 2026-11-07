@@ -1116,3 +1116,24 @@ test('replacement forecast under the name once the threshold is within two month
   card.hass = { ...hassWith(registry(), { [SENSOR]: { state: '1', attributes: { batteries: [soon] } } }), language: 'fr', locale: { language: 'fr' } };
   assert.match(html(card), /≈ 12 j restants/);
 });
+
+test('hide_when_ok: hidden when every battery is fine, shown again in edit mode and in the editor preview', () => {
+  const fine = { state: '0', attributes: { batteries: [BATTERIES[4]] } };
+  const card = makeCard({ hide_when_ok: true });
+  const events = [];
+  card.dispatchEvent = (ev) => events.push(ev.type);
+  card.hass = hassWith(registry(), { [SENSOR]: fine });
+  assert.equal(card.style.display, 'none');
+  assert.deepEqual(events, ['card-visibility-changed']);
+  card.editMode = true;
+  assert.equal(card.style.display, '');
+  assert.ok(html(card).includes('Lamp'));
+  card.editMode = false;
+  assert.equal(card.style.display, 'none');
+  card.preview = true;
+  assert.equal(card.style.display, '');
+  card.preview = false;
+  card.hass = hassWith(registry(), { [SENSOR]: realState });
+  assert.equal(card.style.display, '');
+  assert.equal(events.length, 6);
+});
