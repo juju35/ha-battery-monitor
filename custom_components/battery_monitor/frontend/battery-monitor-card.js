@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.11.1';
+var BATTERY_MONITOR_CARD_VERSION = '1.12.0';
 
 const BM_I18N = {
   en: {
@@ -64,6 +64,17 @@ const BM_I18N = {
     to_check: '{n} to check',
     to_replace: 'To replace',
     nothing_to_replace: 'Nothing to replace',
+    by_forecast: 'By replacement date',
+    fc_now: 'To replace now',
+    fc_month: 'Within 30 days',
+    fc_quarter: 'Within 3 months',
+    fc_later: 'Later',
+    fc_none: 'No forecast yet',
+    fc_none_hint: 'A forecast needs a few days of level history (not for a battery that only reports low / normal)',
+    drain: '−{n} % a day',
+    replace_on: 'around {date}',
+    next_replacement: 'Next replacement',
+    export_csv: 'Export CSV',
   },
   fr: {
     title: 'Batteries',
@@ -122,6 +133,17 @@ const BM_I18N = {
     to_check: '{n} à vérifier',
     to_replace: 'À remplacer',
     nothing_to_replace: 'Rien à remplacer',
+    by_forecast: 'Par date de remplacement',
+    fc_now: 'À remplacer maintenant',
+    fc_month: 'Sous 30 jours',
+    fc_quarter: 'Sous 3 mois',
+    fc_later: 'Plus tard',
+    fc_none: 'Pas encore de prévision',
+    fc_none_hint: 'Une prévision demande quelques jours d’historique du niveau (pas pour une pile qui indique seulement faible / normal)',
+    drain: '−{n} % par jour',
+    replace_on: 'vers le {date}',
+    next_replacement: 'Prochain remplacement',
+    export_csv: 'Exporter en CSV',
   },
   de: {
     title: 'Batterien',
@@ -180,6 +202,17 @@ const BM_I18N = {
     to_check: '{n} zu prüfen',
     to_replace: 'Zu ersetzen',
     nothing_to_replace: 'Nichts zu ersetzen',
+    by_forecast: 'Nach Austauschdatum',
+    fc_now: 'Jetzt austauschen',
+    fc_month: 'Innerhalb von 30 Tagen',
+    fc_quarter: 'Innerhalb von 3 Monaten',
+    fc_later: 'Später',
+    fc_none: 'Noch keine Prognose',
+    fc_none_hint: 'Eine Prognose braucht einige Tage Verlauf des Ladestands (nicht für eine Batterie, die nur schwach / normal meldet)',
+    drain: '−{n} % pro Tag',
+    replace_on: 'um den {date}',
+    next_replacement: 'Nächster Austausch',
+    export_csv: 'Als CSV exportieren',
   },
   es: {
     title: 'Baterías',
@@ -238,6 +271,17 @@ const BM_I18N = {
     to_check: '{n} por revisar',
     to_replace: 'Por reemplazar',
     nothing_to_replace: 'Nada que reemplazar',
+    by_forecast: 'Por fecha de cambio',
+    fc_now: 'Cambiar ahora',
+    fc_month: 'En 30 días',
+    fc_quarter: 'En 3 meses',
+    fc_later: 'Más tarde',
+    fc_none: 'Aún sin previsión',
+    fc_none_hint: 'Una previsión necesita unos días de historial del nivel (no para una pila que solo indica baja / normal)',
+    drain: '−{n} % al día',
+    replace_on: 'hacia el {date}',
+    next_replacement: 'Próximo cambio',
+    export_csv: 'Exportar a CSV',
   },
   sr: {
     title: 'Батерије',
@@ -296,6 +340,17 @@ const BM_I18N = {
     to_check: '{n} за проверу',
     to_replace: 'За замену',
     nothing_to_replace: 'Ништа за замену',
+    by_forecast: 'По датуму замене',
+    fc_now: 'Заменити сада',
+    fc_month: 'У року од 30 дана',
+    fc_quarter: 'У року од 3 месеца',
+    fc_later: 'Касније',
+    fc_none: 'Још нема прогнозе',
+    fc_none_hint: 'Прогнози треба неколико дана историје нивоа (не за батерију која јавља само слаба / нормална)',
+    drain: '−{n} % дневно',
+    replace_on: 'око {date}',
+    next_replacement: 'Следећа замена',
+    export_csv: 'Извези у CSV',
   },
   'sr-Latn': {
     title: 'Baterije',
@@ -354,6 +409,17 @@ const BM_I18N = {
     to_check: '{n} za proveru',
     to_replace: 'Za zamenu',
     nothing_to_replace: 'Ništa za zamenu',
+    by_forecast: 'Po datumu zamene',
+    fc_now: 'Zameniti sada',
+    fc_month: 'U roku od 30 dana',
+    fc_quarter: 'U roku od 3 meseca',
+    fc_later: 'Kasnije',
+    fc_none: 'Još nema prognoze',
+    fc_none_hint: 'Prognozi treba nekoliko dana istorije nivoa (ne za bateriju koja javlja samo slaba / normalna)',
+    drain: '−{n} % dnevno',
+    replace_on: 'oko {date}',
+    next_replacement: 'Sledeća zamena',
+    export_csv: 'Izvezi u CSV',
   },
   it: {
     title: 'Batterie',
@@ -412,6 +478,17 @@ const BM_I18N = {
     to_check: '{n} da controllare',
     to_replace: 'Da sostituire',
     nothing_to_replace: 'Niente da sostituire',
+    by_forecast: 'Per data di sostituzione',
+    fc_now: 'Da sostituire ora',
+    fc_month: 'Entro 30 giorni',
+    fc_quarter: 'Entro 3 mesi',
+    fc_later: 'Più avanti',
+    fc_none: 'Ancora nessuna previsione',
+    fc_none_hint: 'Una previsione richiede alcuni giorni di storico del livello (non per una batteria che indica solo scarica / normale)',
+    drain: '−{n} % al giorno',
+    replace_on: 'verso il {date}',
+    next_replacement: 'Prossima sostituzione',
+    export_csv: 'Esporta in CSV',
   },
   nl: {
     title: 'Batterijen',
@@ -470,6 +547,17 @@ const BM_I18N = {
     to_check: '{n} te controleren',
     to_replace: 'Te vervangen',
     nothing_to_replace: 'Niets te vervangen',
+    by_forecast: 'Op vervangdatum',
+    fc_now: 'Nu vervangen',
+    fc_month: 'Binnen 30 dagen',
+    fc_quarter: 'Binnen 3 maanden',
+    fc_later: 'Later',
+    fc_none: 'Nog geen voorspelling',
+    fc_none_hint: 'Een voorspelling heeft een paar dagen niveaugeschiedenis nodig (niet voor een batterij die alleen laag / normaal meldt)',
+    drain: '−{n} % per dag',
+    replace_on: 'rond {date}',
+    next_replacement: 'Volgende vervanging',
+    export_csv: 'Exporteren als CSV',
   },
   pt: {
     title: 'Baterias',
@@ -528,6 +616,17 @@ const BM_I18N = {
     to_check: '{n} a verificar',
     to_replace: 'A substituir',
     nothing_to_replace: 'Nada a substituir',
+    by_forecast: 'Por data de substituição',
+    fc_now: 'Substituir agora',
+    fc_month: 'Dentro de 30 dias',
+    fc_quarter: 'Dentro de 3 meses',
+    fc_later: 'Mais tarde',
+    fc_none: 'Ainda sem previsão',
+    fc_none_hint: 'Uma previsão precisa de alguns dias de histórico do nível (não para uma pilha que só indica fraca / normal)',
+    drain: '−{n} % por dia',
+    replace_on: 'por volta de {date}',
+    next_replacement: 'Próxima substituição',
+    export_csv: 'Exportar para CSV',
   },
   pl: {
     title: 'Baterie',
@@ -586,6 +685,17 @@ const BM_I18N = {
     to_check: 'Do sprawdzenia: {n}',
     to_replace: 'Do wymiany',
     nothing_to_replace: 'Nic do wymiany',
+    by_forecast: 'Według daty wymiany',
+    fc_now: 'Do wymiany teraz',
+    fc_month: 'W ciągu 30 dni',
+    fc_quarter: 'W ciągu 3 miesięcy',
+    fc_later: 'Później',
+    fc_none: 'Brak prognozy',
+    fc_none_hint: 'Prognoza wymaga kilku dni historii poziomu (nie dla baterii, która zgłasza tylko niski / normalny)',
+    drain: '−{n} % dziennie',
+    replace_on: 'około {date}',
+    next_replacement: 'Następna wymiana',
+    export_csv: 'Eksportuj do CSV',
   },
   ro: {
     title: 'Baterii',
@@ -644,6 +754,17 @@ const BM_I18N = {
     to_check: 'De verificat: {n}',
     to_replace: 'De înlocuit',
     nothing_to_replace: 'Nimic de înlocuit',
+    by_forecast: 'După data înlocuirii',
+    fc_now: 'De înlocuit acum',
+    fc_month: 'În 30 de zile',
+    fc_quarter: 'În 3 luni',
+    fc_later: 'Mai târziu',
+    fc_none: 'Încă nicio previziune',
+    fc_none_hint: 'O previziune are nevoie de câteva zile de istoric al nivelului (nu pentru o baterie care raportează doar slabă / normală)',
+    drain: '−{n} % pe zi',
+    replace_on: 'în jur de {date}',
+    next_replacement: 'Următoarea înlocuire',
+    export_csv: 'Exportă CSV',
   },
   da: {
     title: 'Batterier',
@@ -702,6 +823,17 @@ const BM_I18N = {
     to_check: '{n} skal tjekkes',
     to_replace: 'Skal udskiftes',
     nothing_to_replace: 'Intet at udskifte',
+    by_forecast: 'Efter udskiftningsdato',
+    fc_now: 'Udskift nu',
+    fc_month: 'Inden for 30 dage',
+    fc_quarter: 'Inden for 3 måneder',
+    fc_later: 'Senere',
+    fc_none: 'Ingen prognose endnu',
+    fc_none_hint: 'En prognose kræver nogle dages historik for niveauet (ikke for et batteri, der kun melder lavt / normalt)',
+    drain: '−{n} % om dagen',
+    replace_on: 'omkring {date}',
+    next_replacement: 'Næste udskiftning',
+    export_csv: 'Eksportér CSV',
   },
   sv: {
     title: 'Batterier',
@@ -760,6 +892,17 @@ const BM_I18N = {
     to_check: '{n} att kontrollera',
     to_replace: 'Att byta',
     nothing_to_replace: 'Inget att byta',
+    by_forecast: 'Efter bytesdatum',
+    fc_now: 'Byt nu',
+    fc_month: 'Inom 30 dagar',
+    fc_quarter: 'Inom 3 månader',
+    fc_later: 'Senare',
+    fc_none: 'Ingen prognos än',
+    fc_none_hint: 'En prognos kräver några dagars nivåhistorik (inte för ett batteri som bara rapporterar lågt / normalt)',
+    drain: '−{n} % per dag',
+    replace_on: 'runt {date}',
+    next_replacement: 'Nästa byte',
+    export_csv: 'Exportera CSV',
   },
   bg: {
     title: 'Батерии',
@@ -818,6 +961,17 @@ const BM_I18N = {
     to_check: '{n} за проверка',
     to_replace: 'За смяна',
     nothing_to_replace: 'Няма нищо за смяна',
+    by_forecast: 'По дата на смяна',
+    fc_now: 'За смяна сега',
+    fc_month: 'До 30 дни',
+    fc_quarter: 'До 3 месеца',
+    fc_later: 'По-късно',
+    fc_none: 'Все още няма прогноза',
+    fc_none_hint: 'Прогнозата изисква няколко дни история на нивото (не за батерия, която отчита само ниско / нормално)',
+    drain: '−{n} % на ден',
+    replace_on: 'около {date}',
+    next_replacement: 'Следваща смяна',
+    export_csv: 'Експорт в CSV',
   },
   ru: {
     title: 'Батареи',
@@ -876,6 +1030,17 @@ const BM_I18N = {
     to_check: 'Проверить: {n}',
     to_replace: 'Заменить',
     nothing_to_replace: 'Нечего заменять',
+    by_forecast: 'По дате замены',
+    fc_now: 'Заменить сейчас',
+    fc_month: 'В течение 30 дней',
+    fc_quarter: 'В течение 3 месяцев',
+    fc_later: 'Позже',
+    fc_none: 'Прогноза пока нет',
+    fc_none_hint: 'Для прогноза нужно несколько дней истории уровня (не для батареи, которая сообщает только «низкий» / «норма»)',
+    drain: '−{n} % в день',
+    replace_on: 'около {date}',
+    next_replacement: 'Следующая замена',
+    export_csv: 'Экспорт в CSV',
   },
   uk: {
     title: 'Батареї',
@@ -934,6 +1099,17 @@ const BM_I18N = {
     to_check: 'Перевірити: {n}',
     to_replace: 'Замінити',
     nothing_to_replace: 'Нічого замінювати',
+    by_forecast: 'За датою заміни',
+    fc_now: 'Замінити зараз',
+    fc_month: 'Протягом 30 днів',
+    fc_quarter: 'Протягом 3 місяців',
+    fc_later: 'Пізніше',
+    fc_none: 'Прогнозу ще немає',
+    fc_none_hint: 'Для прогнозу потрібно кілька днів історії рівня (не для батареї, що повідомляє лише «низький» / «норма»)',
+    drain: '−{n} % на день',
+    replace_on: 'близько {date}',
+    next_replacement: 'Наступна заміна',
+    export_csv: 'Експорт у CSV',
   },
   hu: {
     title: 'Elemek',
@@ -992,6 +1168,17 @@ const BM_I18N = {
     to_check: '{n} ellenőrizendő',
     to_replace: 'Cserélendő',
     nothing_to_replace: 'Nincs mit cserélni',
+    by_forecast: 'Csere dátuma szerint',
+    fc_now: 'Most cserélendő',
+    fc_month: '30 napon belül',
+    fc_quarter: '3 hónapon belül',
+    fc_later: 'Később',
+    fc_none: 'Még nincs előrejelzés',
+    fc_none_hint: 'Az előrejelzéshez néhány napnyi szintelőzmény kell (nem olyan elemhez, amely csak alacsony / normál állapotot jelez)',
+    drain: '−{n} % naponta',
+    replace_on: '{date} körül',
+    next_replacement: 'Következő csere',
+    export_csv: 'Exportálás CSV-be',
   },
   sk: {
     title: 'Batérie',
@@ -1050,6 +1237,17 @@ const BM_I18N = {
     to_check: 'Na kontrolu: {n}',
     to_replace: 'Na výmenu',
     nothing_to_replace: 'Nič na výmenu',
+    by_forecast: 'Podľa dátumu výmeny',
+    fc_now: 'Vymeniť teraz',
+    fc_month: 'Do 30 dní',
+    fc_quarter: 'Do 3 mesiacov',
+    fc_later: 'Neskôr',
+    fc_none: 'Zatiaľ bez predpovede',
+    fc_none_hint: 'Predpoveď potrebuje niekoľko dní histórie úrovne (nie pre batériu, ktorá hlási len slabá / normálna)',
+    drain: '−{n} % za deň',
+    replace_on: 'okolo {date}',
+    next_replacement: 'Ďalšia výmena',
+    export_csv: 'Exportovať do CSV',
   },
   cs: {
     title: 'Baterie',
@@ -1108,6 +1306,17 @@ const BM_I18N = {
     to_check: 'Ke kontrole: {n}',
     to_replace: 'K výměně',
     nothing_to_replace: 'Nic k výměně',
+    by_forecast: 'Podle data výměny',
+    fc_now: 'Vyměnit teď',
+    fc_month: 'Do 30 dnů',
+    fc_quarter: 'Do 3 měsíců',
+    fc_later: 'Později',
+    fc_none: 'Zatím bez předpovědi',
+    fc_none_hint: 'Předpověď potřebuje několik dní historie úrovně (ne pro baterii, která hlásí jen slabá / normální)',
+    drain: '−{n} % za den',
+    replace_on: 'kolem {date}',
+    next_replacement: 'Další výměna',
+    export_csv: 'Exportovat do CSV',
   },
   sl: {
     title: 'Baterije',
@@ -1166,6 +1375,17 @@ const BM_I18N = {
     to_check: 'Za preverjanje: {n}',
     to_replace: 'Za zamenjavo',
     nothing_to_replace: 'Nič za zamenjavo',
+    by_forecast: 'Po datumu zamenjave',
+    fc_now: 'Zamenjaj zdaj',
+    fc_month: 'V 30 dneh',
+    fc_quarter: 'V 3 mesecih',
+    fc_later: 'Pozneje',
+    fc_none: 'Še ni napovedi',
+    fc_none_hint: 'Napoved potrebuje nekaj dni zgodovine ravni (ne za baterijo, ki sporoča le nizka / normalna)',
+    drain: '−{n} % na dan',
+    replace_on: 'okoli {date}',
+    next_replacement: 'Naslednja zamenjava',
+    export_csv: 'Izvozi v CSV',
   },
   lv: {
     title: 'Baterijas',
@@ -1224,6 +1444,17 @@ const BM_I18N = {
     to_check: 'Jāpārbauda: {n}',
     to_replace: 'Jānomaina',
     nothing_to_replace: 'Nav ko nomainīt',
+    by_forecast: 'Pēc nomaiņas datuma',
+    fc_now: 'Jānomaina tagad',
+    fc_month: '30 dienu laikā',
+    fc_quarter: '3 mēnešu laikā',
+    fc_later: 'Vēlāk',
+    fc_none: 'Vēl nav prognozes',
+    fc_none_hint: 'Prognozei vajag dažu dienu līmeņa vēsturi (ne baterijai, kas ziņo tikai zems / normāls)',
+    drain: '−{n} % dienā',
+    replace_on: 'ap {date}',
+    next_replacement: 'Nākamā nomaiņa',
+    export_csv: 'Eksportēt CSV',
   },
   el: {
     title: 'Μπαταρίες',
@@ -1282,6 +1513,17 @@ const BM_I18N = {
     to_check: '{n} για έλεγχο',
     to_replace: 'Για αντικατάσταση',
     nothing_to_replace: 'Τίποτα για αντικατάσταση',
+    by_forecast: 'Κατά ημερομηνία αντικατάστασης',
+    fc_now: 'Για αντικατάσταση τώρα',
+    fc_month: 'Εντός 30 ημερών',
+    fc_quarter: 'Εντός 3 μηνών',
+    fc_later: 'Αργότερα',
+    fc_none: 'Δεν υπάρχει ακόμη πρόβλεψη',
+    fc_none_hint: 'Η πρόβλεψη χρειάζεται λίγες ημέρες ιστορικού στάθμης (όχι για μπαταρία που αναφέρει μόνο χαμηλή / κανονική)',
+    drain: '−{n} % την ημέρα',
+    replace_on: 'γύρω στις {date}',
+    next_replacement: 'Επόμενη αντικατάσταση',
+    export_csv: 'Εξαγωγή σε CSV',
   },
 };
 
@@ -1676,7 +1918,7 @@ class BatteryMonitorCard extends HTMLElement {
   }
 
   // One battery: `context` (its room, or its type) then how long it has needed attention, under its name.
-  _row(b, context) {
+  _row(b, context, withForecast = true) {
     // A low battery is a warning; an unavailable one (often a dead one, shown with its own icon) or one due for
     // replacement is an alert.
     const kind = `${b.unavailable || b.due ? 'alert' : b.low ? 'warn' : 'ok'}${b.unavailable ? ' na' : ''}${b.due ? ' due' : ''}`;
@@ -1684,7 +1926,7 @@ class BatteryMonitorCard extends HTMLElement {
     const since = b.below_since ? this._since(b.below_since, b.unavailable ? 'since_unavailable' : 'since') : null;
     // Replacement forecast from the measured drain: shown once the threshold is less than two months away.
     const forecast =
-      !b.alert && Number.isInteger(b.days_left) && b.days_left <= BM_FORECAST_DAYS
+      withForecast && !b.alert && Number.isInteger(b.days_left) && b.days_left <= BM_FORECAST_DAYS
         ? this._t('forecast', { d: this._t('days', { n: b.days_left }) })
         : null;
     const sub = [context, since || forecast].filter(Boolean).join(' · ');
@@ -1789,13 +2031,16 @@ class BatteryMonitorCard extends HTMLElement {
 
   _onPopupClick(ev) {
     const path = ev.composedPath();
-    const el = path.find((n) => n.classList && (n.dataset?.id || n.dataset?.view || n.classList.contains('close') || n.classList.contains('notify')));
+    const el = path.find(
+      (n) => n.classList && (n.dataset?.id || n.dataset?.view || n.classList.contains('close') || n.classList.contains('notify') || n.classList.contains('csv')),
+    );
     if (!el) {
       if (!path.some((n) => n.classList?.contains?.('sheet'))) this._closePopup();
       return;
     }
     if (el.classList.contains('close')) this._closePopup();
     else if (el.classList.contains('notify')) this._notify();
+    else if (el.classList.contains('csv')) this._exportCsv();
     else if (el.dataset.view) {
       this._view = el.dataset.view;
       this._renderPopup();
@@ -1806,8 +2051,9 @@ class BatteryMonitorCard extends HTMLElement {
     }
   }
 
-  // The batteries in groups: [{ key, name, icon, hint, items: [{ b, context }] }], by room or by type.
+  // The batteries in groups: [{ key, name, icon, hint, items: [{ b, context }] }], by room, by type or by replacement date.
   _groups(view) {
+    if (view === 'forecast') return this._forecastGroups();
     const map = new Map();
     for (const b of this._state.all) {
       const t = bmTypeOf(this._hass, this._config, b);
@@ -1832,6 +2078,106 @@ class BatteryMonitorCard extends HTMLElement {
     }));
     // Rooms by name, types by how many batteries use them; the room-less and the unknown last.
     return groups.sort((a, b) => !a.key - !b.key || (view === 'type' ? b.items.length - a.items.length : 0) || a.name.localeCompare(b.name));
+  }
+
+  // By replacement date: the ones to replace now, then by how soon the measured drain takes them to the threshold
+  // (the soonest first), the ones without a forecast yet last. Each row tells its room, its drain and the date.
+  _forecastGroups() {
+    const bands = [
+      ['now', 'mdi:battery-alert-variant-outline', (b) => b.low || b.unavailable],
+      ['month', 'mdi:calendar-alert', (b) => Number.isInteger(b.days_left) && b.days_left <= 30],
+      ['quarter', 'mdi:calendar-clock', (b) => Number.isInteger(b.days_left) && b.days_left <= 92],
+      ['later', 'mdi:calendar-check', (b) => Number.isInteger(b.days_left)],
+      ['none', 'mdi:help-circle-outline', () => true],
+    ];
+    const items = new Map(bands.map(([key]) => [key, []]));
+    const order = (a, b) =>
+      (a.days_left ?? Number.POSITIVE_INFINITY) - (b.days_left ?? Number.POSITIVE_INFINITY) || (a.level ?? 101) - (b.level ?? 101) || a.name.localeCompare(b.name);
+    for (const b of [...this._state.all].sort(order)) {
+      const key = bands.find(([, , test]) => test(b))[0];
+      const drain = Number(b.drain_per_day) > 0 ? this._t('drain', { n: this._num(b.drain_per_day, b.drain_per_day < 1 ? 2 : 1) }) : '';
+      // A battery to replace now: the row itself tells since when.
+      const when =
+        key === 'now' || key === 'none'
+          ? ''
+            : [this._t('forecast', { d: this._t('days', { n: b.days_left }) }), b.replace_by ? this._t('replace_on', { date: this._date(b.replace_by) }) : '']
+                .filter(Boolean)
+                .join(' ');
+      items.get(key).push({ b, context: [b.area, when, drain].filter(Boolean).join(' · ') });
+    }
+    return bands
+      .filter(([key]) => items.get(key).length)
+      .map(([key, icon]) => ({
+        key,
+        icon,
+        items: items.get(key),
+        name: this._t(`fc_${key}`),
+        hint: key === 'none' ? this._t('fc_none_hint') : '',
+        cells: null,
+      }));
+  }
+
+  _num(n, digits) {
+    try {
+      return new Intl.NumberFormat(bmLang(this._hass, this._config), { maximumFractionDigits: digits }).format(n);
+    } catch {
+      return String(Math.round(n * 10 ** digits) / 10 ** digits);
+    }
+  }
+
+  _date(iso) {
+    try {
+      // The year only for a date beyond the next eleven months, which would read as this year's otherwise.
+      const d = new Date(iso);
+      const far = d - Date.now() > 330 * 864e5;
+      return new Intl.DateTimeFormat(bmLang(this._hass, this._config), { day: 'numeric', month: 'short', ...(far ? { year: 'numeric' } : {}) }).format(d);
+    } catch {
+      return String(iso).slice(0, 10);
+    }
+  }
+
+  // The first battery the drain takes to the threshold (not one already needing attention): "Hub · 22 Dec".
+  _nextReplacement() {
+    const next = this._state.all
+      .filter((b) => !b.low && !b.unavailable && Number.isInteger(b.days_left))
+      .sort((a, b) => a.days_left - b.days_left)[0];
+    if (!next) return '';
+    const when = next.replace_by ? this._date(next.replace_by) : this._t('forecast', { d: this._t('days', { n: next.days_left }) });
+    return `<div class="next"><span class="rlabel"><ha-icon icon="mdi:calendar-clock"></ha-icon>${bmEsc(this._t('next_replacement'))}</span><button class="nextb" data-id="${bmEsc(next.entity_id)}"><b>${bmEsc(next.name)}</b> · ${bmEsc(when)}</button></div>`;
+  }
+
+  // Every battery as a CSV file, downloaded by the browser: name, room, type, level, status, drain and forecast.
+  _csv() {
+    const cell = (v) => {
+      const text = String(v ?? '');
+      return /[",;\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    const head = ['name', 'area', 'type', 'level', 'status', 'drain_per_day', 'days_left', 'replace_by', 'below_since', 'entity_id'];
+    const rows = this._state.all.map((b) => [
+      b.name,
+      b.area || '',
+      this._typeLabel(bmTypeOf(this._hass, this._config, b)),
+      b.level ?? '',
+      b.unavailable ? 'unavailable' : b.low ? 'low' : 'ok',
+      b.drain_per_day ?? '',
+      b.days_left ?? '',
+      b.replace_by ? String(b.replace_by).slice(0, 10) : '',
+      b.below_since || '',
+      b.entity_id,
+    ]);
+    return [head, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
+  }
+
+  _exportCsv() {
+    const blob = new Blob([`\ufeff${this._csv()}\r\n`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `batteries-${new Date().toISOString().slice(0, 10)}.csv`;
+    (this._popup?.shadowRoot || document.body).appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   _groupCount(g) {
@@ -1874,13 +2220,13 @@ class BatteryMonitorCard extends HTMLElement {
             ${alerts ? `<span class="gchip">${bmEsc(this._t('to_check', { n: alerts }))}</span>` : ''}
             <span class="gcount">${bmEsc(this._groupCount(g))}</span></div>
           ${g.hint ? `<div class="ghint">${bmEsc(g.hint)}</div>` : ''}
-          <div class="glist">${g.items.map(({ b, context }) => this._row(b, context)).join('')}</div>
+          <div class="glist">${g.items.map(({ b, context }) => this._row(b, context, view !== 'forecast')).join('')}</div>
         </section>`;
       })
       .join('');
     const buy = this._toReplace();
     const tab = (v) =>
-      `<button class="tab${view === v ? ' on' : ''}" data-view="${v}" aria-pressed="${view === v}">${bmEsc(this._t(v === 'room' ? 'by_room' : 'by_type'))}</button>`;
+      `<button class="tab${view === v ? ' on' : ''}" data-view="${v}" aria-pressed="${view === v}">${bmEsc(this._t({ room: 'by_room', type: 'by_type', forecast: 'by_forecast' }[v]))}</button>`;
     const title = bmEsc(c.title || this._t('title'));
     // A refresh while the user is reading (a battery change, the hour ticking) keeps their scroll position;
     // switching tabs starts back at the top.
@@ -1898,8 +2244,10 @@ class BatteryMonitorCard extends HTMLElement {
             <button class="close" title="${bmEsc(this._t('popup_close'))}" aria-label="${bmEsc(this._t('popup_close'))}"><ha-icon icon="mdi:close"></ha-icon></button>
           </div>
           <div class="bar-top">
-            <div class="tabs" role="group">${tab('room')}${tab('type')}</div>
+            <div class="tabs" role="group">${tab('room')}${tab('type')}${tab('forecast')}</div>
             <div class="replace"><span class="rlabel"><ha-icon icon="mdi:cart-outline"></ha-icon>${bmEsc(this._t('to_replace'))}</span>${buy || `<span class="none">${bmEsc(this._t('nothing_to_replace'))}</span>`}</div>
+            ${this._nextReplacement()}
+            <button class="csv" title="${bmEsc(this._t('export_csv'))}"><ha-icon icon="mdi:file-delimited-outline"></ha-icon><span>${bmEsc(this._t('export_csv'))}</span></button>
           </div>
           <div class="groups">${groups}</div>
         </ha-card>
@@ -2060,6 +2408,16 @@ class BatteryMonitorCard extends HTMLElement {
       .buy.unknown { background: color-mix(in srgb, var(--bm-na) 18%, transparent); }
       .buy.unknown b { color: var(--secondary-text-color); }
       .none { color: var(--bm-ok-text); font-weight: 500; }
+      .next { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--secondary-text-color); }
+      .nextb { all: unset; cursor: pointer; padding: 2px 9px; border-radius: 999px; color: var(--primary-text-color);
+               background: color-mix(in srgb, var(--primary-color) 12%, transparent); }
+      .nextb b { font-weight: 500; }
+      .nextb:hover { background: color-mix(in srgb, var(--primary-color) 20%, transparent); }
+      .csv { all: unset; cursor: pointer; margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9px;
+             font-size: 13px; font-weight: 500; color: var(--bm-primary-text); border: 1px solid color-mix(in srgb, var(--primary-color) 45%, transparent); }
+      .csv:hover { background: color-mix(in srgb, var(--primary-color) 10%, transparent); }
+      .csv ha-icon { --mdc-icon-size: 16px; }
+      .nextb:focus-visible, .csv:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
 
       .groups { display: flex; flex-direction: column; gap: 18px; }
       .group { display: flex; flex-direction: column; gap: 6px; }

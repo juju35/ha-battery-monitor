@@ -34,7 +34,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Persistent notification**, replaced each time and cleared when no battery is low any more, and the **notify actions** of your choice (mobile app…)
 - **Ignored batteries and integrations**: phones and tablets of the mobile app are left out by default
 - **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; only the batteries needing attention are tinted: orange while low, red when unavailable or once notified (blinking once notified)
-- **Full screen view** from the card: every battery grouped **by room** or **by battery type** (CR2032, AA…), with what to buy for the ones to replace; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
+- **Full screen view** from the card: every battery grouped **by room**, **by battery type** (CR2032, AA…) or **by replacement date** (forecast from the measured drain), with what to buy for the ones to replace, the next replacement and a CSV export; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
 - **Replacement forecast**: the drain of each level battery is measured once a day on its recorded history (last 30 days, since the last replacement); the card shows *≈ 12 d left* when the threshold is less than two months away, and the **Next replacement** sensor gives the date the first battery reaches it
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** and **Next replacement** sensors, **Notify now** button, `battery_monitor.notify` and `battery_monitor.export` (CSV) actions
 - UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian, Greek and Serbian (Cyrillic and Latin)
@@ -149,7 +149,7 @@ Tap a battery to open its details.
 
 #### Full screen
 
-The **full screen** button (top right) shows every battery over the whole screen, grouped **by room** or **by battery type**, with **To replace**: how many batteries of each type to buy for the ones low or unavailable. It closes with its button, Escape, a click outside, or the back button on a phone. From the keyboard, the focus goes to its close button, Tab stays inside it, and the focus returns to the full screen button once it is closed. On a phone the groups follow one another; wider, they sit side by side in balanced columns.
+The **full screen** button (top right) shows every battery over the whole screen, grouped **by room**, **by battery type** or **by replacement date**, with **To replace**: how many batteries of each type to buy for the ones low or unavailable, and **Next replacement**: the first battery the measured drain takes to the threshold, with the date. **By replacement date** sorts the batteries into *To replace now*, *Within 30 days*, *Within 3 months*, *Later* and *No forecast yet*, each with its days left, date and drain per day. **Export CSV** downloads every battery (room, type, level, status, drain, days left, replacement date) to the browser. It closes with its button, Escape, a click outside, or the back button on a phone. From the keyboard, the focus goes to its close button, Tab stays inside it, and the focus returns to the full screen button once it is closed. On a phone the groups follow one another; wider, they sit side by side in balanced columns.
 
 The battery type comes from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) when it is installed (the `battery_type` and `battery_quantity` of the battery, or its device's *Battery type* sensor). For the others, set it once per **device model**: the card editor's **Battery types by model** section lists the models (with their manufacturer and how many devices) whose type is not detected; pick a type (CR2032, CR2450, AA, AAA, 2× AA, 9V, built-in rechargeable…) or type your own. A battery without a model, or one that differs from its model, gets its own type in **Battery types by battery**, which wins over its model. `2× AA` (or `2x AA`, `AA x2`) counts two batteries; the batteries without a type are grouped under **Unknown type**. The order: the battery's own type, then its model's, then Battery Notes.
 
@@ -175,6 +175,10 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low.png" alt="low" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-dark.png" alt="card dark" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/card-low-dark.png" alt="low dark" width="400"> |
+
+| Full screen, by replacement date | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-forecast.png" alt="full screen by replacement date" width="700"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/popup-forecast-dark.png" alt="full screen by replacement date dark" width="700"> |
 
 | Full screen, by room | Full screen, by battery type |
 |---|---|

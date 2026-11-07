@@ -1137,3 +1137,31 @@ test('hide_when_ok: hidden when every battery is fine, shown again in edit mode 
   assert.equal(card.style.display, '');
   assert.equal(events.length, 6);
 });
+
+test('full screen by replacement date: now, within 30 days, later, no forecast; next replacement and CSV', () => {
+  const batteries = [
+    { entity_id: 'sensor.a_battery', name: 'Hub', area: 'Office', level: 45, low: false, days_left: 12, drain_per_day: 0.25, replace_by: '2026-11-19T10:00:00+01:00', icon: 'mdi:battery-50' },
+    { entity_id: 'sensor.b_battery', name: 'Clock', area: 'Kitchen', level: 95, low: false, days_left: 300, drain_per_day: 0.05, replace_by: '2027-09-03T00:00:00+02:00', icon: 'mdi:battery' },
+    { entity_id: 'sensor.c_battery', name: 'Door', area: 'Entrance', level: 12, low: true, alert: true, days_left: 0, icon: 'mdi:battery-10', below_since: new Date(Date.now() - 3 * 864e5).toISOString() },
+    { entity_id: 'sensor.d_battery', name: 'Leak, "basement"', level: null, low: false, icon: 'mdi:battery' },
+  ];
+  const card = makeCard({});
+  card.hass = hassWith(registry(), { [SENSOR]: { state: '1', attributes: { batteries } } });
+  card._openPopup();
+  card._onPopupClick({ composedPath: () => [{ classList: { contains: () => false }, dataset: { view: 'forecast' } }] });
+  const pop = body.children[0].shadowRoot.innerHTML;
+  assert.match(pop, /class="tab on" data-view="forecast"/);
+  const at = (s) => pop.indexOf(s);
+  assert.ok(at('To replace now') < at('Within 30 days') && at('Within 30 days') < at('>Later<') && at('>Later<') < at('No forecast yet'));
+  assert.match(pop, /Hub<\/span>\s*<span class="sub">Office · ≈ 12 d left around Nov 19 · −0\.25 % a day<\/span>/);
+  assert.match(pop, /Door<\/span>\s*<span class="sub">Entrance · low for 3 d<\/span>/);
+  // The next replacement is the first battery the drain takes to the threshold, not one already low.
+  assert.match(pop, /Next replacement<\/span><button class="nextb" data-id="sensor.a_battery"><b>Hub<\/b> · Nov 19<\/button>/);
+  assert.match(pop, /class="csv"/);
+  const csv = card._csv().split('\r\n');
+  assert.equal(csv[0], 'name,area,type,level,status,drain_per_day,days_left,replace_by,below_since,entity_id');
+  assert.equal(csv.length, 5);
+  assert.match(csv.find((l) => l.startsWith('Hub')), /^Hub,Office,,45,ok,0\.25,12,2026-11-19,,sensor\.a_battery$/);
+  assert.match(csv.find((l) => l.includes('basement')), /^"Leak, ""basement""",/);
+  card._closePopup();
+});

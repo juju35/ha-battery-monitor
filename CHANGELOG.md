@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.0 - 2026-11-07
+
+### What's new
+- Full screen: a **By replacement date** tab sorts the batteries into *To replace now*, *Within 30 days*, *Within 3 months*, *Later* and *No forecast yet*, each with its days left, date and drain per day. **Next replacement** next to *To replace* names the first battery the drain takes to the threshold, with the date (a click opens it). **Export CSV** downloads every battery to the browser.
+
 ## 1.11.1 - 2026-11-07
 
 ### Fixes
