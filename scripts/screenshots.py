@@ -12,6 +12,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from datetime import date, timedelta
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -66,6 +67,11 @@ ICONS = {
     "fullscreen": "M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M10,17V19H5V14H7V17H10Z",
     "close": "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z",
     "door-open": "M12,3C10.89,3 10,3.89 10,5H3V19H2V21H22V19H21V5C21,3.89 20.11,3 19,3H12M12,5H19V19H12V5M5,11H7V13H5V11Z",
+    "calendar-alert": "M6,1V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3H18V1H16V3H8V1H6M5,8H19V19H5V8M11,9V14H13V9H11M11,16V18H13V16H11Z",
+    "calendar-clock": "M15,13H16.5V15.82L18.94,17.23L18.19,18.53L15,16.69V13M19,8H5V19H9.67C9.24,18.09 9,17.07 9,16A7,7 0 0,1 16,9C17.07,9 18.09,9.24 19,9.67V8M5,21C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H6V1H8V3H16V1H18V3H19A2,2 0 0,1 21,5V11.1C22.24,12.36 23,14.09 23,16A7,7 0 0,1 16,23C14.09,23 12.36,22.24 11.1,21H5M16,11.15A4.85,4.85 0 0,0 11.15,16C11.15,18.68 13.32,20.85 16,20.85A4.85,4.85 0 0,0 20.85,16C20.85,13.32 18.68,11.15 16,11.15Z",
+    "calendar-check": "M19,19H5V8H19M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M16.53,11.06L15.47,10L10.59,14.88L8.47,12.76L7.41,13.82L10.59,17L16.53,11.06Z",
+    "help-circle-outline": "M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z",
+    "file-delimited-outline": "M14,2H6C4.89,2 4,2.89 4,4V20C4,21.11 4.89,22 6,22H18C19.11,22 20,21.11 20,20V8L14,2M18,20H6V4H13V9H18V20M10,19L12,15H9V10H15V15L13,19H10Z",
     "cart-outline": "M17,18A2,2 0 0,1 19,20A2,2 0 0,1 17,22C15.89,22 15,21.1 15,20C15,18.89 15.89,18 17,18M1,2H4.27L5.21,4H20A1,1 0 0,1 21,5C21,5.17 20.95,5.34 20.88,5.5L17.3,11.97C16.96,12.58 16.3,13 15.55,13H8.1L7.2,14.63L7.17,14.75A0.25,0.25 0 0,0 7.42,15H19V17H7C5.89,17 5,16.1 5,15C5,14.65 5.09,14.32 5.24,14.04L6.6,11.59L3,4H1V2M7,18A2,2 0 0,1 9,20A2,2 0 0,1 7,22C5.89,22 5,21.1 5,20C5,18.89 5.89,18 7,18M16,11L18.78,6H6.14L8.5,11H16Z",
     "bell-ring-outline": "M10,21H14A2,2 0 0,1 12,23A2,2 0 0,1 10,21M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M17,11A5,5 0 0,0 12,6A5,5 0 0,0 7,11V18H17V11M19.75,3.19L18.33,4.61C20.04,6.3 21,8.6 21,11H23C23,8.07 21.84,5.25 19.75,3.19M1,11H3C3,8.6 3.96,6.3 5.67,4.61L4.25,3.19C2.16,5.25 1,8.07 1,11Z",
 }
@@ -125,6 +131,9 @@ BATTERIES = [
 NOTES_TYPES = {0: ("CR2032", 1), 1: ("CR2450", 1), 5: ("CR2032", 1), 6: ("CR2450", 1), 8: ("CR2032", 1), 9: ("AA", 2)}
 TYPE_SENSORS = {7: ("AA", 4)}
 CARD_TYPES = {2: "9V", 4: "2× AAA"}
+# Measured drain in % a day (replacement forecast), by battery; the thermostat has no forecast yet.
+DRAIN = {4: 0.6, 5: 0.45, 6: 0.3, 7: 0.5, 8: 0.12}
+TODAY = date(2026, 11, 7)
 
 
 def mock_hass():
@@ -144,6 +153,13 @@ def mock_hass():
         }
         for i, (name, area, level, icon, low, due, unavailable, since) in enumerate(BATTERIES)
     ]
+    for i, drain in DRAIN.items():
+        days = int((batteries[i]["level"] - 20) / drain)
+        batteries[i].update(
+            drain_per_day=drain,
+            days_left=days,
+            replace_by=f"{(TODAY + timedelta(days=days)).isoformat()}T00:00:00+01:00",
+        )
     sensor = "sensor.battery_monitor_low_batteries"
     button = "button.battery_monitor_notify_now"
     states = {
@@ -194,6 +210,8 @@ POPUP_SHOTS = [
     {"file": "popup-dark", "theme": "dark", "view": "room", "viewport": (1600, 1000)},
     {"file": "popup-type", "theme": "light", "view": "type", "viewport": (1600, 1000)},
     {"file": "popup-type-dark", "theme": "dark", "view": "type", "viewport": (1600, 1000)},
+    {"file": "popup-forecast", "theme": "light", "view": "forecast", "viewport": (1600, 1000)},
+    {"file": "popup-forecast-dark", "theme": "dark", "view": "forecast", "viewport": (1600, 1000)},
     {"file": "popup-phone", "theme": "light", "view": "room", "viewport": (390, 844)},
     {"file": "popup-phone-type", "theme": "light", "view": "type", "viewport": (390, 844)},
     {"file": "popup-phone-dark", "theme": "dark", "view": "room", "viewport": (390, 844)},
