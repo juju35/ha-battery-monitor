@@ -135,10 +135,10 @@
       "message": "Šibke baterije: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: šibka"
+      "message": "• {name}{area}: šibka{type}"
     },
     "none_title": {
       "message": "Nobene baterije za preverjanje"
@@ -147,7 +147,7 @@
       "message": "Vse baterije so nad {threshold} % in na voljo."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: ni na voljo"
+      "message": "• {name}{area}: ni na voljo{type}"
     },
     "check_one": {
       "message": "1 baterija za preverjanje"

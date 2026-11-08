@@ -135,10 +135,10 @@
       "message": "Slabe baterije: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: slaba"
+      "message": "• {name}{area}: slaba{type}"
     },
     "none_title": {
       "message": "Nema baterija za proveru"
@@ -147,7 +147,7 @@
       "message": "Sve baterije su iznad {threshold} % i dostupne."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: nedostupna"
+      "message": "• {name}{area}: nedostupna{type}"
     },
     "check_one": {
       "message": "1 baterija za proveru"

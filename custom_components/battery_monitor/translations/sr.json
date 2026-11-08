@@ -135,10 +135,10 @@
       "message": "Слабе батерије: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: слаба"
+      "message": "• {name}{area}: слаба{type}"
     },
     "none_title": {
       "message": "Нема батерија за проверу"
@@ -147,7 +147,7 @@
       "message": "Све батерије су изнад {threshold} % и доступне."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: недоступна"
+      "message": "• {name}{area}: недоступна{type}"
     },
     "check_one": {
       "message": "1 батерија за проверу"

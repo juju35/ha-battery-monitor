@@ -135,10 +135,10 @@
       "message": "Slabé batérie: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: slabá"
+      "message": "• {name}{area}: slabá{type}"
     },
     "none_title": {
       "message": "Žiadna batéria na kontrolu"
@@ -147,7 +147,7 @@
       "message": "Všetky batérie sú nad {threshold} % a dostupné."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: nedostupná"
+      "message": "• {name}{area}: nedostupná{type}"
     },
     "check_one": {
       "message": "1 batéria na kontrolu"

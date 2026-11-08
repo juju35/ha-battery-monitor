@@ -135,10 +135,10 @@
       "message": "{count} gyenge elem"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: gyenge"
+      "message": "• {name}{area}: gyenge{type}"
     },
     "none_title": {
       "message": "Nincs ellenőrizendő elem"
@@ -147,7 +147,7 @@
       "message": "Minden elem {threshold} % felett van és elérhető."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: nem elérhető"
+      "message": "• {name}{area}: nem elérhető{type}"
     },
     "check_one": {
       "message": "1 ellenőrizendő elem"

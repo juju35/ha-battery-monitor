@@ -135,10 +135,10 @@
       "message": "Baterii scăzute: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: scăzută"
+      "message": "• {name}{area}: scăzută{type}"
     },
     "none_title": {
       "message": "Nicio baterie de verificat"
@@ -147,7 +147,7 @@
       "message": "Toate bateriile sunt peste {threshold} % și disponibile."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: indisponibilă"
+      "message": "• {name}{area}: indisponibilă{type}"
     },
     "check_one": {
       "message": "1 baterie de verificat"

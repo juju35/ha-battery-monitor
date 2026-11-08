@@ -135,10 +135,10 @@
       "message": "Izlādētas baterijas: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: izlādēta"
+      "message": "• {name}{area}: izlādēta{type}"
     },
     "none_title": {
       "message": "Nav bateriju, ko pārbaudīt"
@@ -147,7 +147,7 @@
       "message": "Visas baterijas ir virs {threshold} % un pieejamas."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: nav pieejama"
+      "message": "• {name}{area}: nav pieejama{type}"
     },
     "check_one": {
       "message": "1 pārbaudāma baterija"
