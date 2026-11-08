@@ -5,7 +5,7 @@
  * type or by replacement date, what to replace, the next replacement; its CSV export lives in Actions), Settings (threshold, duration,
  * notification times, notify actions, ignored integrations and batteries, through the battery_monitor/settings
  * and battery_monitor/update_settings WebSocket commands) and Actions (notify now, battery_monitor/notify; CSV
- * export, battery_monitor/export). The page follows the config entry (config_entries/subscribe), so options
+ * export, battery_monitor/export) — in the order Batteries, Actions, Settings. The page follows the config entry (config_entries/subscribe), so options
  * changed from Configure show up here. The tab is in the address (/battery-monitor/settings), as Smart Comfort does.
  *
  * https://github.com/juju35/ha-battery-monitor
@@ -1272,7 +1272,7 @@ var BatteryMonitorPanelI18n = {
 // Option limits, filled in from the settings command (the Python constants are the reference)
 var BM_PANEL_LIMITS = { threshold: [1, 99], duration: [0, 720] };
 var BM_PANEL_LISTS = ['notify_services', 'ignored_integrations', 'ignored_entities'];
-var BM_PANEL_TABS = ['batteries', 'settings', 'actions'];
+var BM_PANEL_TABS = ['batteries', 'actions', 'settings'];
 
 function bmPanelT(lang, key, vars) {
   var table = BatteryMonitorPanelI18n[lang] || BatteryMonitorPanelI18n.en;

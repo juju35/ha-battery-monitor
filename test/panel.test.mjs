@@ -224,7 +224,9 @@ test('tabs: the address picks the tab, a selection updates the address and hides
   // The route from Home Assistant: /battery-monitor/actions
   panel.route = { path: '/actions' };
   assert.equal(panel._tab, 'actions');
-  assert.deepEqual(plain(BM_PANEL_TABS.map((t) => panels[`tab-${t}`].hidden)), [true, true, false]);
+  // Batteries, Actions, Settings: Settings last
+  assert.deepEqual(plain(BM_PANEL_TABS), ['batteries', 'actions', 'settings']);
+  assert.deepEqual(plain(BM_PANEL_TABS.map((t) => panels[`tab-${t}`].hidden)), [true, false, true]);
   // An unknown path: Batteries
   panel.route = { path: '/nope' };
   assert.equal(panel._tab, 'batteries');
@@ -232,10 +234,10 @@ test('tabs: the address picks the tab, a selection updates the address and hides
   panel._goTab('settings', true);
   assert.equal(panel._tab, 'settings');
   assert.deepEqual(plain(urls), ['/battery-monitor/settings']);
-  assert.deepEqual(plain(buttons.map((b) => b.attrs['aria-selected'])), ['false', 'true', 'false']);
-  assert.deepEqual(plain(buttons.map((b) => b.classes.has('active'))), [false, true, false]);
-  assert.deepEqual(plain(buttons.map((b) => b.tabIndex)), [-1, 0, -1]);
-  assert.ok(buttons[1].focused);
+  assert.deepEqual(plain(buttons.map((b) => b.attrs['aria-selected'])), ['false', 'false', 'true']);
+  assert.deepEqual(plain(buttons.map((b) => b.classes.has('active'))), [false, false, true]);
+  assert.deepEqual(plain(buttons.map((b) => b.tabIndex)), [-1, -1, 0]);
+  assert.ok(buttons[2].focused);
   panel._goTab('batteries');
   assert.equal(urls.at(-1), '/battery-monitor');
   // An unknown tab is ignored

@@ -277,7 +277,7 @@ PANEL_SETTINGS = {
         for i, (name, area, *_rest) in enumerate(BATTERIES)
     ],
 }
-# The three tabs of the panel, light and dark.
+# The three tabs of the panel (Batteries, Actions, Settings), light and dark.
 PANEL_SHOTS = [
     {"file": "panel", "theme": "light", "tab": "batteries"},
     {"file": "panel-dark", "theme": "dark", "tab": "batteries"},

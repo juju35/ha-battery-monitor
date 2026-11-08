@@ -3,7 +3,7 @@
 ## 1.16.0 - 2026-11-08
 
 ### What's new
-- **Sidebar panel in tabs**: **Batteries**, **Settings** and **Actions** under the toolbar, instead of two columns, laid out like Smart Comfort's; each tab has its own address (`/battery-monitor/settings`…), so a reload or a link comes back to it, and the arrow keys move between tabs.
+- **Sidebar panel in tabs**: **Batteries**, **Actions** and **Settings** under the toolbar, instead of two columns, laid out like Smart Comfort's; each tab has its own address (`/battery-monitor/settings`…), so a reload or a link comes back to it, and the arrow keys move between tabs.
 - The **Batteries** tab shows everything the full screen view offers — by room, by battery type, by replacement date, what to replace, the next replacement, the notify button — without the CSV export, which has its own place in **Actions**.
 - Card option `expanded` (default `false`): the full screen view laid out in the card itself, the way the panel shows it; `csv_button` (default `true`) hides the **Export CSV** button of the full screen view and of the expanded card.
 

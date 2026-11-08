@@ -129,11 +129,11 @@ response_variable: result  # {"path": "/config/exports/batteries.csv", "batterie
 
 ### Sidebar panel
 
-The integration adds a **Battery Monitor** entry to the sidebar, shown to administrators only (`/battery-monitor`), with three tabs, each with its own address (`/battery-monitor`, `/battery-monitor/settings`, `/battery-monitor/actions`), so a reload or a link comes back to the same tab:
+The integration adds a **Battery Monitor** entry to the sidebar, shown to administrators only (`/battery-monitor`), with three tabs, each with its own address (`/battery-monitor`, `/battery-monitor/actions`, `/battery-monitor/settings`), so a reload or a link comes back to the same tab:
 
 - **Batteries**: the bundled card expanded, with everything the full screen view offers — every battery **by room**, **by battery type** or **by replacement date**, what to replace, the next replacement, the notify button; tap a battery for its details. The CSV export is in the Actions tab instead;
-- **Settings**: threshold, duration, morning and evening times, notify actions, ignored integrations and ignored batteries — the same options and limits as **Configure**, with the choices picked from lists (the notify actions available, the integrations that have a battery, every battery found, its room and integration next to it), and **Save**;
 - **Actions**: **Notify now** (every battery needing attention, like the button) and **Export CSV**, with an optional file name (`battery_monitor.csv` in the configuration folder by default, the same rules as the `battery_monitor.export` action), plus the state of the integration, its last notification and a link to its device. The cog in the toolbar opens **Devices & services**.
+- **Settings**: threshold, duration, morning and evening times, notify actions, ignored integrations and ignored batteries — the same options and limits as **Configure**, with the choices picked from lists (the notify actions available, the integrations that have a battery, every battery found, its room and integration next to it), and **Save**;
 
 Saving reloads the integration once; a form field you have not edited follows a change made elsewhere (Configure, another administrator). Behind the panel are four admin-only WebSocket commands: `battery_monitor/settings`, `battery_monitor/update_settings`, `battery_monitor/notify` and `battery_monitor/export`. To hide the entry, long-press the sidebar title and hide **Battery Monitor**, like any other panel.
 
@@ -243,10 +243,10 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 
 **Sidebar panel**, its three tabs (light and dark themes):
 
-| Batteries | Settings | Actions |
+| Batteries | Actions | Settings |
 |---|---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel.png" alt="sidebar panel, Batteries tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-settings.png" alt="sidebar panel, Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-actions.png" alt="sidebar panel, Actions tab" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-dark.png" alt="sidebar panel, Batteries tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-settings-dark.png" alt="sidebar panel, Settings tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-actions-dark.png" alt="sidebar panel, Actions tab, dark theme" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel.png" alt="sidebar panel, Batteries tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-actions.png" alt="sidebar panel, Actions tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-settings.png" alt="sidebar panel, Settings tab" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-dark.png" alt="sidebar panel, Batteries tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-actions-dark.png" alt="sidebar panel, Actions tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-settings-dark.png" alt="sidebar panel, Settings tab, dark theme" width="400"> |
 
 | Full screen, by replacement date | Dark |
 |---|---|
