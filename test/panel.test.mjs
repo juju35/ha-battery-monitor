@@ -204,34 +204,44 @@ test('the Batteries tab mounts the card expanded, without its CSV export', () =>
   assert.equal(panel._card, created);
 });
 
-test('tabs: the stored one is shown, a selection is remembered and hides the other panels', () => {
+test('tabs: the address picks the tab, a selection updates the address and hides the other panels', () => {
   const panels = Object.fromEntries(BM_PANEL_TABS.map((t) => [`tab-${t}`, { hidden: false }]));
-  const buttons = BM_PANEL_TABS.map((t) => ({ dataset: { tab: t }, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; }, focus() { this.focused = true; } }));
+  const buttons = BM_PANEL_TABS.map((t) => ({
+    dataset: { tab: t },
+    attrs: {},
+    classes: new Set(),
+    classList: { toggle(c, on) { on ? this.add(c) : this.delete(c); }, add(c) { buttons.find((b) => b.classList === this).classes.add(c); }, delete(c) { buttons.find((b) => b.classList === this).classes.delete(c); } },
+    setAttribute(k, v) { this.attrs[k] = v; },
+    focus() { this.focused = true; },
+  }));
   const root = { getElementById: (id) => panels[id] || null, querySelector: () => null, querySelectorAll: (sel) => (sel === '.tab' ? buttons : []) };
-  const store = {};
-  context.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v) };
-  store.battery_monitor_panel_tab = 'actions';
+  const urls = [];
+  context.history = { state: null, replaceState: (_s, _t, url) => urls.push(url) };
   const panel = Object.create(BatteryMonitorPanel.prototype);
   panel.shadowRoot = root;
-  assert.equal(panel._storedTab(), 'actions');
-  store.battery_monitor_panel_tab = 'nope';
-  assert.equal(panel._storedTab(), 'batteries');
   panel._tab = 'batteries';
-  panel._selectTab('settings', true);
-  assert.equal(store.battery_monitor_panel_tab, 'settings');
-  assert.deepEqual(plain(BM_PANEL_TABS.map((t) => panels[`tab-${t}`].hidden)), [true, false, true]);
+  panel._panel = { url_path: 'battery-monitor' };
+  // The route from Home Assistant: /battery-monitor/actions
+  panel.route = { path: '/actions' };
+  assert.equal(panel._tab, 'actions');
+  assert.deepEqual(plain(BM_PANEL_TABS.map((t) => panels[`tab-${t}`].hidden)), [true, true, false]);
+  // An unknown path: Batteries
+  panel.route = { path: '/nope' };
+  assert.equal(panel._tab, 'batteries');
+  // A click: the address follows, Batteries is the base address
+  panel._goTab('settings', true);
+  assert.equal(panel._tab, 'settings');
+  assert.deepEqual(plain(urls), ['/battery-monitor/settings']);
   assert.deepEqual(plain(buttons.map((b) => b.attrs['aria-selected'])), ['false', 'true', 'false']);
+  assert.deepEqual(plain(buttons.map((b) => b.classes.has('active'))), [false, true, false]);
   assert.deepEqual(plain(buttons.map((b) => b.tabIndex)), [-1, 0, -1]);
   assert.ok(buttons[1].focused);
+  panel._goTab('batteries');
+  assert.equal(urls.at(-1), '/battery-monitor');
   // An unknown tab is ignored
-  panel._selectTab('nope');
-  assert.equal(panel._tab, 'settings');
-  // Storage unavailable: Batteries, and selecting still works
-  context.localStorage = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } };
-  assert.equal(panel._storedTab(), 'batteries');
-  panel._selectTab('actions');
-  assert.equal(panel._tab, 'actions');
-  delete context.localStorage;
+  panel._goTab('nope');
+  assert.equal(panel._tab, 'batteries');
+  delete context.history;
 });
 
 test('the settings form and the actions escape what they show and reflect the entry state', () => {

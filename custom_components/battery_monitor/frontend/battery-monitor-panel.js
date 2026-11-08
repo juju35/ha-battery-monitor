@@ -6,7 +6,7 @@
  * notification times, notify actions, ignored integrations and batteries, through the battery_monitor/settings
  * and battery_monitor/update_settings WebSocket commands) and Actions (notify now, battery_monitor/notify; CSV
  * export, battery_monitor/export). The page follows the config entry (config_entries/subscribe), so options
- * changed from Configure show up here. The tab shown is remembered in the browser.
+ * changed from Configure show up here. The tab is in the address (/battery-monitor/settings), as Smart Comfort does.
  *
  * https://github.com/juju35/ha-battery-monitor
  */
@@ -1273,7 +1273,6 @@ var BatteryMonitorPanelI18n = {
 var BM_PANEL_LIMITS = { threshold: [1, 99], duration: [0, 720] };
 var BM_PANEL_LISTS = ['notify_services', 'ignored_integrations', 'ignored_entities'];
 var BM_PANEL_TABS = ['batteries', 'settings', 'actions'];
-var BM_PANEL_TAB_KEY = 'battery_monitor_panel_tab';
 
 function bmPanelT(lang, key, vars) {
   var table = BatteryMonitorPanelI18n[lang] || BatteryMonitorPanelI18n.en;
@@ -1310,21 +1309,18 @@ class BatteryMonitorPanel extends HTMLElement {
             --tone-good: var(--success-color, #43a047); --tone-warn: var(--warning-color, #ffa600); --tone-bad: var(--error-color, #db4437); }
     .toolbar { height:var(--header-height, 56px); display:flex; align-items:center; gap:8px; padding:0 12px; box-sizing:border-box;
                background:var(--app-header-background-color, var(--primary-color)); color:var(--app-header-text-color, #fff);
-               border-bottom:var(--app-header-border-bottom, none); font-size:20px; }
+               border-bottom:var(--app-header-border-bottom, none); font-size:20px; position:sticky; top:0; z-index:2; }
     .toolbar .grow { flex:1; }
     .toolbar a { color:inherit; display:flex; padding:8px; border-radius:50%; --mdc-icon-size:22px; }
     .toolbar a:hover { background:rgba(255,255,255,.12); }
-    /* Tabs, in the header colours like Home Assistant's own settings pages */
-    .tabs { display:flex; justify-content:center; gap:4px; padding:0 8px; box-sizing:border-box; overflow-x:auto;
-            background:var(--app-header-background-color, var(--primary-color)); color:var(--app-header-text-color, #fff);
-            border-bottom:var(--app-header-border-bottom, none); }
-    .tab { flex:none; display:inline-flex; align-items:center; gap:8px; border:0; background:none; cursor:pointer; font:inherit; font-size:14px;
-           font-weight:500; text-transform:uppercase; letter-spacing:.04em; color:inherit; opacity:.75; padding:12px 16px; position:relative;
-           --mdc-icon-size:20px; }
-    .tab:hover, .tab:focus-visible { opacity:1; outline:none; background:rgba(255,255,255,.08); }
-    .tab[aria-selected="true"] { opacity:1; }
-    .tab[aria-selected="true"]::after { content:""; position:absolute; left:12px; right:12px; bottom:0; height:2px; border-radius:2px 2px 0 0; background:currentColor; }
-    main { max-width:900px; margin:0 auto; padding:16px; box-sizing:border-box; }
+    /* Tabs under the toolbar, as in Smart Comfort: text, the active one underlined, sticky with the toolbar */
+    .tabs { display:flex; gap:4px; padding:0 12px; overflow-x:auto; background:var(--app-header-background-color, var(--primary-color));
+            position:sticky; top:var(--header-height, 56px); z-index:2; }
+    .tab { background:none; border:none; border-bottom:2px solid transparent; color:var(--app-header-text-color, #fff); opacity:.75;
+           padding:12px 14px; font:inherit; font-size:14px; cursor:pointer; white-space:nowrap; }
+    .tab:hover, .tab:focus-visible { opacity:1; outline:none; }
+    .tab.active { opacity:1; border-bottom-color:var(--app-header-text-color, #fff); }
+    main { max-width:1040px; margin:0 auto; padding:16px; box-sizing:border-box; }
     section[hidden] { display:none; }
     .column { display:flex; flex-direction:column; gap:12px; min-width:0; }
     .note { padding:16px; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
@@ -1389,30 +1385,35 @@ class BatteryMonitorPanel extends HTMLElement {
     this._status = {};
     this._busy = null;
     this._exportPath = '';
-    this._tab = this._storedTab();
+    this._tab = 'batteries';
   }
 
-  // The tab shown last time, kept in the browser (localStorage may be unavailable: then Batteries)
-  _storedTab() {
-    try {
-      var tab = localStorage.getItem(BM_PANEL_TAB_KEY);
-      return BM_PANEL_TABS.includes(tab) ? tab : 'batteries';
-    } catch (_err) {
-      return 'batteries';
-    }
+  // /battery-monitor/<tab> opens that tab (Home Assistant sets the route; the base address is Batteries)
+  set route(route) {
+    var path = (route?.path || '').split('/').filter(Boolean)[0];
+    var tab = BM_PANEL_TABS.includes(path) ? path : 'batteries';
+    if (tab !== this._tab) this._showTab(tab);
   }
 
-  _selectTab(tab, focus) {
+  // Shows a tab; `focus` moves the keyboard to its button (arrow keys). The address follows, so a reload or a link
+  // comes back to the same tab.
+  _goTab(tab, focus) {
     if (!BM_PANEL_TABS.includes(tab)) return;
-    this._tab = tab;
+    this._showTab(tab, focus);
+    var base = (this._panel?.url_path || 'battery-monitor').replace(/^\//, '');
     try {
-      localStorage.setItem(BM_PANEL_TAB_KEY, tab);
+      history.replaceState(history.state, '', `/${base}${tab === 'batteries' ? '' : `/${tab}`}`);
     } catch (_err) {
-      // private mode or storage blocked: the tab is not remembered
+      // no history (a test, a sandboxed page): the tab still shows
     }
+  }
+
+  _showTab(tab, focus) {
+    this._tab = tab;
     var root = this.shadowRoot;
     root.querySelectorAll?.('.tab').forEach((button) => {
       var selected = button.dataset.tab === tab;
+      button.classList.toggle('active', selected);
       button.setAttribute('aria-selected', String(selected));
       button.tabIndex = selected ? 0 : -1;
       if (selected && focus) button.focus({ preventScroll: true });
@@ -1522,26 +1523,24 @@ class BatteryMonitorPanel extends HTMLElement {
     this._menu.hass = this._hass;
     this._menu.narrow = this._narrow;
     root.querySelectorAll('.tab').forEach((button) => {
-      button.addEventListener('click', () => this._selectTab(button.dataset.tab));
+      button.addEventListener('click', () => this._goTab(button.dataset.tab));
       // Left and right arrows move between the tabs, as in a native tab bar
       button.addEventListener('keydown', (ev) => {
         var step = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
         if (!step) return;
         ev.preventDefault();
         var i = BM_PANEL_TABS.indexOf(this._tab);
-        this._selectTab(BM_PANEL_TABS[(i + step + BM_PANEL_TABS.length) % BM_PANEL_TABS.length], true);
+        this._goTab(BM_PANEL_TABS[(i + step + BM_PANEL_TABS.length) % BM_PANEL_TABS.length], true);
       });
     });
-    this._selectTab(this._tab);
+    this._showTab(this._tab);
     if (this._card) root.getElementById('card').appendChild(this._card);
     this._renderSettings();
   }
 
   _tabHtml(tab) {
-    var icons = { batteries: 'mdi:battery-heart-variant', settings: 'mdi:tune', actions: 'mdi:gesture-tap-button' };
     var selected = tab === this._tab;
-    return `<button class="tab" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">
-      <ha-icon icon="${icons[tab]}"></ha-icon>${bmPanelEsc(this._t(tab))}</button>`;
+    return `<button class="tab${selected ? ' active' : ''}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">${bmPanelEsc(this._t(tab))}</button>`;
   }
 
   _mountCard() {
