@@ -1,4 +1,4 @@
-"""Render the Battery Monitor card with mock batteries and save the README screenshots.
+"""Render the Battery Monitor card and sidebar panel with mock batteries and save the README screenshots.
 
 Usage: python scripts/screenshots.py  (needs `pip install playwright` and `playwright install chromium`)
 CHROMIUM_PATH=/path/to/chrome to use another browser. The clock is frozen so the "low for" durations stay the same.
@@ -19,8 +19,10 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 CARD_JS = (ROOT / "custom_components/battery_monitor/frontend/battery-monitor-card.js").read_text()
+PANEL_JS = (ROOT / "custom_components/battery_monitor/frontend/battery-monitor-panel.js").read_text()
 NOW = "2026-10-24T09:00:00+02:00"
 WIDTH = 460
+PANEL_WIDTH = 1100
 
 THEMES = {
     "light": {
@@ -76,6 +78,12 @@ ICONS = {
     "file-delimited-outline": "M14,2H6C4.89,2 4,2.89 4,4V20C4,21.11 4.89,22 6,22H18C19.11,22 20,21.11 20,20V8L14,2M18,20H6V4H13V9H18V20M10,19L12,15H9V10H15V15L13,19H10Z",
     "cart-outline": "M17,18A2,2 0 0,1 19,20A2,2 0 0,1 17,22C15.89,22 15,21.1 15,20C15,18.89 15.89,18 17,18M1,2H4.27L5.21,4H20A1,1 0 0,1 21,5C21,5.17 20.95,5.34 20.88,5.5L17.3,11.97C16.96,12.58 16.3,13 15.55,13H8.1L7.2,14.63L7.17,14.75A0.25,0.25 0 0,0 7.42,15H19V17H7C5.89,17 5,16.1 5,15C5,14.65 5.09,14.32 5.24,14.04L6.6,11.59L3,4H1V2M7,18A2,2 0 0,1 9,20A2,2 0 0,1 7,22C5.89,22 5,21.1 5,20C5,18.89 5.89,18 7,18M16,11L18.78,6H6.14L8.5,11H16Z",
     "bell-ring-outline": "M10,21H14A2,2 0 0,1 12,23A2,2 0 0,1 10,21M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M17,11A5,5 0 0,0 12,6A5,5 0 0,0 7,11V18H17V11M19.75,3.19L18.33,4.61C20.04,6.3 21,8.6 21,11H23C23,8.07 21.84,5.25 19.75,3.19M1,11H3C3,8.6 3.96,6.3 5.67,4.61L4.25,3.19C2.16,5.25 1,8.07 1,11Z",
+    "menu": "M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z",
+    "clock-outline": "M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z",
+    "cog": "M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z",
+    "content-save": "M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z",
+    "devices": "M3,6H21V4H3C1.9,4 1,4.9 1,6V18C1,19.1 1.9,20 3,20H7V18H3V6M13,12H9V13.78C8.39,14.33 8,15.11 8,16C8,16.89 8.39,17.67 9,18.22V20H13V18.22C13.61,17.67 14,16.88 14,16C14,15.12 13.61,14.33 13,13.78V12M11,17.5C10.17,17.5 9.5,16.83 9.5,16C9.5,15.17 10.17,14.5 11,14.5C11.83,14.5 12.5,15.17 12.5,16C12.5,16.83 11.83,17.5 11,17.5M22,8H16C15.5,8 15,8.5 15,9V19C15,19.5 15.5,20 16,20H22C22.5,20 23,19.5 23,19V9C23,8.5 22.5,8 22,8M21,18H17V10H21V18Z",
+    "battery-heart-variant": "M16.67,4H15V2H9V4H7.33A1.33,1.33 0 0,0 6,5.33V20.67C6,21.4 6.6,22 7.33,22H16.67A1.33,1.33 0 0,0 18,20.67V5.33C18,4.6 17.4,4 16.67,4M12,18.5L11.3,17.86C8.73,15.54 7,13.96 7,12.05C7,10.5 8.22,9.3 9.77,9.3C10.65,9.3 11.5,9.71 12,10.36C12.5,9.71 13.35,9.3 14.23,9.3C15.78,9.3 17,10.5 17,12.05C17,13.96 15.27,15.54 12.7,17.86L12,18.5Z",
 }
 
 # Minimal stand-ins for Home Assistant's <ha-card> and <ha-icon>.
@@ -90,6 +98,12 @@ customElements.define("ha-card", class extends HTMLElement {
     this.attachShadow({ mode: "open" }).innerHTML =
       "<style>:host{display:block;background:var(--card-background-color);border-radius:12px;" +
       "border:1px solid var(--divider-color);color:var(--primary-text-color);overflow:hidden}</style><slot></slot>";
+  }
+});
+customElements.define("ha-menu-button", class extends HTMLElement {
+  connectedCallback() {
+    this.style.cssText = "display:flex;padding:8px;--mdc-icon-size:24px";
+    this.innerHTML = '<ha-icon icon="mdi:menu"></ha-icon>';
   }
 });
 customElements.define("ha-icon", class extends HTMLElement {
@@ -224,13 +238,75 @@ POPUP_SHOTS = [
 ]
 
 
-def page_html(theme):
+def page_html(theme, width=WIDTH, padding=16):
     variables = "".join(f"{k}:{v};" for k, v in {**THEMES[theme], **COMMON}.items())
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 :root {{ {variables} }}
-body {{ margin: 0; padding: 16px; background: var(--primary-background-color);
-       font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif; width: {WIDTH}px; }}
+body {{ margin: 0; padding: {padding}px; background: var(--primary-background-color);
+       font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif; width: {width}px; }}
 </style></head><body><div id="root"></div></body></html>"""
+
+
+# What the panel's battery_monitor/settings command answers: the stored options and the choices of the form.
+PANEL_SETTINGS = {
+    "entry": {
+        "entry_id": "battery_monitor",
+        "state": "loaded",
+        "device_id": "battery_monitor",
+        "last_notification": "2026-10-23T19:00:00+02:00",
+        "last_notified": 3,
+    },
+    "options": {
+        "threshold": 20,
+        "duration": 24,
+        "morning_time": "09:00:00",
+        "evening_time": "19:00:00",
+        "notify_services": ["notify.mobile_app_phone"],
+        "ignored_entities": ["sensor.battery_9"],
+        "ignored_integrations": ["mobile_app"],
+    },
+    "limits": {"threshold": [1, 99], "duration": [0, 720]},
+    "notify_options": ["notify.mobile_app_phone", "notify.mobile_app_tablet", "notify.telegram"],
+    "integration_options": [
+        {"value": "mobile_app", "label": "Mobile App"},
+        {"value": "zha", "label": "Zigbee Home Automation"},
+        {"value": "zwave_js", "label": "Z-Wave"},
+    ],
+    "entity_options": [
+        {"value": f"sensor.battery_{i}", "label": name, "area": area, "integration": "zha" if i % 2 else "zwave_js"}
+        for i, (name, area, *_rest) in enumerate(BATTERIES)
+    ],
+}
+PANEL_SHOTS = [{"file": "panel", "theme": "light"}, {"file": "panel-dark", "theme": "dark"}]
+
+# Mounts the sidebar panel: the card inside it reads the mock states, the form the mock settings.
+MOUNT_PANEL = """([hass, settings]) => {
+    const el = document.createElement("battery-monitor-panel");
+    el.panel = { config: {} };
+    el.narrow = false;
+    el.hass = {
+        ...hass,
+        user: { is_admin: true },
+        callService: async () => {},
+        callWS: async (msg) => (msg.type === "battery_monitor/settings" ? settings : { ok: true }),
+        connection: { subscribeMessage: async () => () => {} },
+    };
+    document.getElementById("root").appendChild(el);
+}"""
+
+
+def open_panel(browser, shot):
+    """The sidebar panel, full width, on a new page."""
+    page = browser.new_page(device_scale_factor=2, viewport={"width": PANEL_WIDTH, "height": 1400})
+    page.on("pageerror", lambda err, name=shot["file"]: print(f"{name}: page error: {err}"))
+    page.clock.set_fixed_time(NOW)
+    page.set_content(page_html(shot["theme"], PANEL_WIDTH, 0))
+    page.add_script_tag(content=HA_ELEMENTS)
+    page.add_script_tag(content=CARD_JS)
+    page.add_script_tag(content=PANEL_JS)
+    page.evaluate(MOUNT_PANEL, [mock_hass(), PANEL_SETTINGS])
+    page.wait_for_timeout(500)
+    return page, ROOT / "screenshots" / f"{shot['file']}.png"
 
 
 # Mounts the card on a new page (the card's top-level declarations would clash in a reused page); `view` opens its
@@ -387,6 +463,12 @@ def main():
             width, height = shot["viewport"]
             page, path = open_card(browser, shot, CARD_CONFIG, (width + 32, height + 32), shot["view"])
             capture(page, path, animations="disabled")
+            page.close()
+        for shot in PANEL_SHOTS:
+            page, path = open_panel(browser, shot)
+            box = page.locator("#root").bounding_box()
+            clip = {"x": 0, "y": 0, "width": PANEL_WIDTH, "height": int(box["height"] + 0.999)}
+            capture(page, path, clip=clip, animations="disabled")
             page.close()
         animate(browser, {"file": "due", "theme": "light"}, {}, (1000, 1600))
         animate(browser, {"file": "due-dark", "theme": "dark"}, {}, (1000, 1600))

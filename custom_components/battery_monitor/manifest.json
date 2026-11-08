@@ -4,12 +4,12 @@
   "after_dependencies": ["recorder"],
   "codeowners": ["@juju35"],
   "config_flow": true,
-  "dependencies": ["frontend", "http", "lovelace", "persistent_notification"],
+  "dependencies": ["frontend", "http", "lovelace", "panel_custom", "persistent_notification"],
   "documentation": "https://github.com/juju35/ha-battery-monitor",
   "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/juju35/ha-battery-monitor/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "1.14.0"
+  "version": "1.15.0"
 }

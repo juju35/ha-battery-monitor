@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "battery_monitor"
-VERSION: Final = "1.14.0"
+VERSION: Final = "1.15.0"
 
 CONF_THRESHOLD: Final = "threshold"
 CONF_DURATION: Final = "duration"
@@ -51,4 +51,11 @@ EVENT_REPLACED: Final = f"{DOMAIN}_replaced"
 STORAGE_KEY: Final = f"{DOMAIN}.below_since"
 STORAGE_VERSION: Final = 1
 
+# Option limits, shared by the options flow and the sidebar panel.
+MIN_THRESHOLD: Final = 1
+MAX_THRESHOLD: Final = 99
+MIN_DURATION: Final = 0
+
 CARD_URL: Final = f"/{DOMAIN}/battery-monitor-card.js"
+PANEL_URL: Final = f"/{DOMAIN}/battery-monitor-panel.js"
+PANEL_PATH: Final = "battery-monitor"

@@ -1,7 +1,7 @@
 name: Release
 
 # Publishes a GitHub release whenever main carries a version that has no tag yet:
-# bump the version in manifest.json, const.py and the card, add its CHANGELOG.md section, push, and the release follows
+# bump the version in manifest.json, const.py, the card and the panel, add its CHANGELOG.md section, push, and the release follows
 # once Lint, Validate and HACS Validation pass on that commit.
 on:
   push:
@@ -46,6 +46,7 @@ jobs:
           VERSION="$(jq -r .version custom_components/battery_monitor/manifest.json)"
           grep -q "VERSION: Final = \"$VERSION\"" custom_components/battery_monitor/const.py
           grep -q "BATTERY_MONITOR_CARD_VERSION = '$VERSION'" custom_components/battery_monitor/frontend/battery-monitor-card.js
+          grep -q "BATTERY_MONITOR_PANEL_VERSION = '$VERSION'" custom_components/battery_monitor/frontend/battery-monitor-panel.js
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
