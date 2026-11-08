@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.13.1 - 2026-11-07
+
+### Fixes
+- The first replacement forecast now waits for Home Assistant to be started: at a restart, the batteries of integrations that load later (ZHA, Z-Wave…) were left out of the forecast for a whole day.
+- The card keeps the keyboard focus on the same battery or button when a battery changes, instead of losing it each time the card is redrawn.
+
 ## 1.13.0 - 2026-11-07
 
 ### What's new

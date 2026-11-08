@@ -993,6 +993,26 @@ test('full screen: a refresh keeps the focus on the same tab or battery', () => 
   card._closePopup();
 });
 
+test('card: a battery update keeps the keyboard focus on the same battery or button', () => {
+  const card = focusableCard({ notify_button: true });
+  const hass = typedHass();
+  card.hass = hass;
+  card.shadowRoot.querySelector('[data-id="sensor.remote_battery"]').focus();
+  // A battery changes: the whole card is written again.
+  const batteries = hass.states[SENSOR].attributes.batteries.map((b) => (b.entity_id === 'sensor.door_battery' ? { ...b, level: 3 } : b));
+  card.hass = { ...hass, states: { ...hass.states, [SENSOR]: { state: '3', attributes: { batteries } } } };
+  assert.match(card.shadowRoot.innerHTML, /Door — 3 %/);
+  assert.equal(card.shadowRoot.activeElement?.key, '[data-id="sensor.remote_battery"]', 'a refresh lost the focus');
+  assert.equal(card.shadowRoot.activeElement.focusOptions?.preventScroll, true);
+  card.shadowRoot.querySelector('.full').focus();
+  card.hass = { ...hass, states: { ...hass.states, [SENSOR]: { state: '4', attributes: { batteries: batteries.slice(1) } } } };
+  assert.equal(card.shadowRoot.activeElement?.key, '.full', 'a refresh lost the focus of the full screen button');
+  // The focused battery goes away: nothing to focus, no error.
+  card.shadowRoot.querySelector('[data-id="sensor.remote_battery"]')?.focus();
+  card.hass = { ...hass, states: { ...hass.states, [SENSOR]: { state: '5', attributes: { batteries: batteries.slice(0, 1) } } } };
+  assert.notEqual(card.shadowRoot.activeElement?.key, '[data-id="sensor.remote_battery"]');
+});
+
 test('full screen: Tab and Shift+Tab stay inside it, not over the dashboard behind', () => {
   const card = focusableCard();
   card.hass = typedHass();

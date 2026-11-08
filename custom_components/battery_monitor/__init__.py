@@ -18,6 +18,7 @@ from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall, Ser
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError, Unauthorized, UnknownUser
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_change, async_track_time_interval
+from homeassistant.helpers.start import async_at_started
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
@@ -212,11 +213,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntr
     def refresh(now: datetime) -> None:
         monitor.async_refresh()
         # The drains are measured on the history once a day: a forecast of the replacement dates.
-        if monitor.forecast_due(now):
+        if hass.state is CoreState.running and monitor.forecast_due(now):
             entry.async_create_background_task(hass, monitor.async_forecast(), f"{DOMAIN}_forecast")
 
+    @callback
+    def first_forecast(_hass: HomeAssistant) -> None:
+        entry.async_create_background_task(hass, monitor.async_forecast(), f"{DOMAIN}_forecast")
+
     entry.async_on_unload(async_track_time_interval(hass, refresh, timedelta(minutes=REFRESH_MINUTES)))
-    entry.async_create_background_task(hass, monitor.async_forecast(), f"{DOMAIN}_forecast")
+    # At start-up, the batteries of integrations loading after this one (ZHA, Z-Wave…) are not there yet:
+    # the first forecast waits for Home Assistant to be started, rather than skipping them for a day.
+    entry.async_on_unload(async_at_started(hass, first_forecast))
 
     async def scheduled(_now: datetime) -> None:
         await monitor.async_notify()

@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.13.0';
+var BATTERY_MONITOR_CARD_VERSION = '1.13.1';
 
 const BM_I18N = {
   en: {
@@ -1846,6 +1846,8 @@ class BatteryMonitorCard extends HTMLElement {
       .map((b) => this._row(b, [b.area, this._typeLabel(bmTypeOf(this._hass, c, b))].filter(Boolean).join(' · ')))
       .join('');
 
+    // Writing the markup again replaces the focused control (a battery, a header button): it is found again after.
+    const focused = bmFocusKey(this.shadowRoot.activeElement);
     this.shadowRoot.innerHTML = `
       <style>${BatteryMonitorCard.styles}</style>
       <ha-card class="lvl-${level}${compact ? ' mini' : ''}">
@@ -1866,6 +1868,8 @@ class BatteryMonitorCard extends HTMLElement {
     this.shadowRoot.querySelector('.full')?.addEventListener('click', () => this._openPopup());
     this.shadowRoot.querySelector('.zoom')?.addEventListener('click', (ev) => this._onZoom(ev));
     for (const el of this.shadowRoot.querySelectorAll('.row')) el.addEventListener('click', () => this._moreInfo(el.dataset.id));
+    // Without preventScroll the browser scrolls the dashboard to the card on every battery update.
+    if (focused) this.shadowRoot.querySelector(focused)?.focus?.({ preventScroll: true });
   }
 
   // Overridden by the mini card: compact (only the batteries needing attention), and its detail button.
