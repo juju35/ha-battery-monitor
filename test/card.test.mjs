@@ -524,6 +524,32 @@ test('full screen: by room and by type, what to replace; reopens after closing',
   card._closePopup();
 });
 
+test('expanded: the full screen content in the card itself, without the layer, the close button or the export', () => {
+  const card = makeCard({ expanded: true, csv_button: false, battery_types: { 'sensor.remote_battery': '2× AAA' } });
+  card.hass = typedHass();
+  const markup = html(card);
+  assert.equal(body.children.length, 0, 'no layer');
+  assert.match(markup, /<ha-card class="popup expanded lvl-/);
+  assert.doesNotMatch(markup, /class="close"|class="full"|class="csv"|class="backdrop"|class="list"/);
+  // The same content as the full screen: view tabs, what to replace, groups by room.
+  assert.match(markup, /class="tab on" data-view="room"/);
+  assert.match(markup, /<b>2×<\/b> AAA<\/span>/);
+  assert.ok(markup.indexOf('>Entrance<') < markup.indexOf('>Living room<'));
+  // The expanded styles come with the full styles; the layer styles (backdrop, :host reset) stay out.
+  assert.match(markup, /ha-card\.expanded \.head/);
+  assert.doesNotMatch(markup, /all: initial|\.backdrop \{/);
+  // Switching the view re-renders the card by type.
+  card._view = 'type';
+  card._sig = null;
+  card._render();
+  assert.match(html(card), /class="tab on" data-view="type"/);
+  assert.match(html(card), /class="gname">AA<\/span>/);
+  // The CSV export comes back by default.
+  const withCsv = makeCard({ expanded: true });
+  withCsv.hass = typedHass();
+  assert.match(html(withCsv), /class="csv"/);
+});
+
 test('the full screen button can be turned off', () => {
   const card = makeCard({ popup: false });
   card.hass = typedHass();
@@ -781,7 +807,7 @@ const THEMES = {
   dark: { card: '#1c1c1c', secondary: '#282828', text: '#e1e1e1' },
 };
 const STATUS = { ok: '#43a047', warn: '#ffa600', alert: '#db4437', primary: '#03a9f4' };
-const allStyles = () => BatteryMonitorCard.styles + BatteryMonitorCard.popupStyles;
+const allStyles = () => BatteryMonitorCard.styles + BatteryMonitorCard.fullStyles + BatteryMonitorCard.popupStyles + BatteryMonitorCard.expandedStyles;
 // The declarations of a rule, by its exact selector.
 const rule = (selector) => {
   const css = allStyles();

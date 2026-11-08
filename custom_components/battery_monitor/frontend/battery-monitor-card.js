@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_CARD_VERSION = '1.15.0';
+var BATTERY_MONITOR_CARD_VERSION = '1.16.0';
 
 const BM_I18N = {
   en: {
@@ -1593,7 +1593,9 @@ const bmEsc = (s) =>
 
 // Days left under which a battery's replacement forecast is shown in the list.
 const BM_FORECAST_DAYS = 60;
-const BM_DEFAULTS = { columns: 1, only_low: false, hide_when_ok: false, notify_button: true, popup: true };
+// `expanded`: the full screen view laid out in the card itself (by room / by type / by replacement date, what to replace,
+// next replacement), as the sidebar panel shows it; `csv_button` hides its CSV export.
+const BM_DEFAULTS = { columns: 1, only_low: false, hide_when_ok: false, notify_button: true, popup: true, expanded: false, csv_button: true };
 
 // ── Battery types ────────────────────────────────────────────────────────────
 // The type comes from the card's `battery_types` (set in the editor), else from Battery Notes: the `battery_type` /
@@ -1830,6 +1832,10 @@ class BatteryMonitorCard extends HTMLElement {
     const hidden = c.hide_when_ok && st && !attention && !this._editMode && !this._preview;
     this._setHidden(hidden);
     if (hidden) return;
+    if (c.expanded && st) {
+      this._renderExpanded();
+      return;
+    }
 
     const level = this._level();
     const counts = [
@@ -2260,9 +2266,9 @@ class BatteryMonitorCard extends HTMLElement {
       .join('');
   }
 
-  _renderPopup() {
-    const host = this._popup;
-    if (!host || !this._state) return;
+  // The full screen content: header (badge, title, notify button, status), the view tabs, what to replace, the next
+  // replacement, the CSV export, then the battery groups. `close`: the close button of the full screen layer.
+  _fullHtml({ close, csv }) {
     const c = this._config;
     const s = this._state;
     const level = this._level();
@@ -2288,7 +2294,28 @@ class BatteryMonitorCard extends HTMLElement {
     const buy = this._toReplace();
     const tab = (v) =>
       `<button class="tab${view === v ? ' on' : ''}" data-view="${v}" aria-pressed="${view === v}">${bmEsc(this._t({ room: 'by_room', type: 'by_type', forecast: 'by_forecast' }[v]))}</button>`;
-    const title = bmEsc(c.title || this._t('title'));
+    return `
+        <ha-card class="popup${close ? '' : ' expanded'} lvl-${level}">
+          <div class="head">
+            <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
+            ${this._headMain(c.title || this._t('title'), status)}
+            ${close ? `<button class="close" title="${bmEsc(this._t('popup_close'))}" aria-label="${bmEsc(this._t('popup_close'))}"><ha-icon icon="mdi:close"></ha-icon></button>` : ''}
+          </div>
+          <div class="bar-top">
+            <div class="tabs" role="group">${tab('room')}${tab('type')}${tab('forecast')}</div>
+            <div class="replace"><span class="rlabel"><ha-icon icon="mdi:cart-outline"></ha-icon>${bmEsc(this._t('to_replace'))}</span>${buy || `<span class="none">${bmEsc(this._t('nothing_to_replace'))}</span>`}</div>
+            ${this._nextReplacement()}
+            ${csv ? `<button class="csv" title="${bmEsc(this._t('export_csv'))}"><ha-icon icon="mdi:file-delimited-outline"></ha-icon><span>${bmEsc(this._t('export_csv'))}</span></button>` : ''}
+          </div>
+          <div class="groups">${groups}</div>
+        </ha-card>`;
+  }
+
+  _renderPopup() {
+    const host = this._popup;
+    if (!host || !this._state) return;
+    const view = this._view;
+    const title = bmEsc(this._config.title || this._t('title'));
     // A refresh while the user is reading (a battery change, the hour ticking) keeps their scroll position;
     // switching tabs starts back at the top.
     const scrolled = (view === this._renderedView && host.shadowRoot.querySelector('.sheet')?.scrollTop) || 0;
@@ -2296,28 +2323,37 @@ class BatteryMonitorCard extends HTMLElement {
     // The focused control (a tab, a battery, a button) is found again in the new markup.
     const focused = bmFocusKey(host.shadowRoot.activeElement);
     host.shadowRoot.innerHTML = `
-      <style>${BatteryMonitorCard.styles}${BatteryMonitorCard.popupStyles}</style>
+      <style>${BatteryMonitorCard.styles}${BatteryMonitorCard.fullStyles}${BatteryMonitorCard.popupStyles}</style>
       <div class="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="${title}">
-        <ha-card class="popup lvl-${level}">
-          <div class="head">
-            <div class="badge"><ha-icon icon="${level === 'ok' ? 'mdi:battery-check-outline' : 'mdi:battery-alert-variant-outline'}"></ha-icon></div>
-            ${this._headMain(c.title || this._t('title'), status)}
-            <button class="close" title="${bmEsc(this._t('popup_close'))}" aria-label="${bmEsc(this._t('popup_close'))}"><ha-icon icon="mdi:close"></ha-icon></button>
-          </div>
-          <div class="bar-top">
-            <div class="tabs" role="group">${tab('room')}${tab('type')}${tab('forecast')}</div>
-            <div class="replace"><span class="rlabel"><ha-icon icon="mdi:cart-outline"></ha-icon>${bmEsc(this._t('to_replace'))}</span>${buy || `<span class="none">${bmEsc(this._t('nothing_to_replace'))}</span>`}</div>
-            ${this._nextReplacement()}
-            <button class="csv" title="${bmEsc(this._t('export_csv'))}"><ha-icon icon="mdi:file-delimited-outline"></ha-icon><span>${bmEsc(this._t('export_csv'))}</span></button>
-          </div>
-          <div class="groups">${groups}</div>
-        </ha-card>
+        ${this._fullHtml({ close: true, csv: this._config.csv_button !== false })}
       </div></div>`;
     if (scrolled) {
       const sheet = host.shadowRoot.querySelector('.sheet');
       if (sheet) sheet.scrollTop = scrolled;
     }
     if (focused) host.shadowRoot.querySelector(focused)?.focus?.({ preventScroll: true });
+  }
+
+  // `expanded: true`: the full screen content in the card itself, no layer, no close button; a click on a row opens
+  // its more-info, the view tabs switch the grouping.
+  _renderExpanded() {
+    this._view ||= 'room';
+    const root = this.shadowRoot;
+    const focused = bmFocusKey(root.activeElement);
+    root.innerHTML = `
+      <style>${BatteryMonitorCard.styles}${BatteryMonitorCard.fullStyles}${BatteryMonitorCard.expandedStyles}</style>
+      ${this._fullHtml({ close: false, csv: this._config.csv_button !== false })}`;
+    root.querySelector('.notify')?.addEventListener('click', () => this._notify());
+    root.querySelector('.csv')?.addEventListener('click', () => this._exportCsv());
+    for (const el of root.querySelectorAll('[data-view]')) {
+      el.addEventListener('click', () => {
+        this._view = el.dataset.view;
+        this._sig = null;
+        this._render();
+      });
+    }
+    for (const el of root.querySelectorAll('[data-id]')) el.addEventListener('click', () => this._moreInfo(el.dataset.id));
+    if (focused) root.querySelector(focused)?.focus?.({ preventScroll: true });
   }
 
   static get styles() {
@@ -2444,6 +2480,7 @@ class BatteryMonitorCard extends HTMLElement {
   }
 
   // The full screen layer: opaque over translucent themes, one column on a phone, groups in balanced columns wider.
+  // The full screen layer: the backdrop, the scrolling sheet, the sticky header and its close button.
   static get popupStyles() {
     return `
       :host { all: initial; display: block; font-family: var(--paper-font-body1_-_font-family, var(--ha-font-family-body, Roboto, sans-serif));
@@ -2458,12 +2495,36 @@ class BatteryMonitorCard extends HTMLElement {
                       padding: 0 max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
       .popup .head { position: sticky; top: 0; z-index: 2; padding: max(10px, env(safe-area-inset-top)) 0 10px;
                      background: linear-gradient(var(--card-background-color, #fff), var(--card-background-color, #fff)), var(--primary-background-color, #fafafa); }
-      .popup .title { font-size: 18px; }
       .close { all: unset; cursor: pointer; flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
                background: var(--secondary-background-color, rgba(128,128,128,.12)); color: var(--primary-text-color); }
       .close:hover { background: color-mix(in srgb, var(--primary-text-color) 14%, transparent); }
-      .close:focus-visible, .tab:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+      .close:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+      @media (min-width: 760px) {
+        ha-card.popup { padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
+      }
+      @keyframes bm-fade { from { opacity: 0 } to { opacity: 1 } }
+      @keyframes bm-sheet { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: none } }
+      @media (prefers-reduced-motion: reduce) { .backdrop, .sheet { animation: none !important; } }
+    `;
+  }
 
+  // The expanded card: the same content as the full screen, in an ordinary card.
+  static get expandedStyles() {
+    return `
+      ha-card.expanded .head { padding-bottom: 6px; }
+      ha-card.expanded .bar-top { margin: 0 0 14px; }
+      @media (min-width: 760px) {
+        ha-card.expanded .groups { columns: 2 300px; }
+      }
+    `;
+  }
+
+  // The full screen content, in the layer and in the expanded card: view tabs, what to replace, next replacement,
+  // CSV export, battery groups.
+  static get fullStyles() {
+    return `
+      .popup .title { font-size: 18px; }
+      .tab:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .bar-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; margin: 6px 0 16px; }
       .tabs { display: inline-flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--secondary-background-color, rgba(128,128,128,.1)); }
       .tab { all: unset; cursor: pointer; padding: 6px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--secondary-text-color); }
@@ -2500,15 +2561,11 @@ class BatteryMonitorCard extends HTMLElement {
       .ghint { font-size: 11px; color: var(--secondary-text-color); margin-top: -2px; }
       .glist { display: grid; gap: 6px; }
       @media (min-width: 760px) {
-        ha-card.popup { padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
         .groups { display: block; columns: 2 320px; column-gap: 28px; }
         .group { break-inside: avoid; margin-bottom: 20px; }
       }
       @media (min-width: 1200px) { .groups { columns: 3 320px; } }
       @media (min-width: 1600px) { .groups { columns: 4 320px; } }
-      @keyframes bm-fade { from { opacity: 0 } to { opacity: 1 } }
-      @keyframes bm-sheet { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: none } }
-      @media (prefers-reduced-motion: reduce) { .backdrop, .sheet { animation: none !important; } }
     `;
   }
 }
