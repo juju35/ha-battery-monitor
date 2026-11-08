@@ -144,12 +144,21 @@ def _entity_options(hass: HomeAssistant, entities: er.EntityRegistry, batteries:
     return sorted(options, key=lambda o: (o["label"].casefold(), o["value"]))
 
 
+def _service_device(hass: HomeAssistant, entry: ConfigEntry) -> dr.DeviceEntry | None:
+    """The integration's service device (2026.8+: `async_get_device_by_identifier`, the old call is deprecated)."""
+    registry = dr.async_get(hass)
+    identifier = (DOMAIN, entry.entry_id)
+    if hasattr(type(registry), "async_get_device_by_identifier"):
+        return registry.async_get_device_by_identifier(identifier, entry.entry_id)
+    return registry.async_get_device(identifiers={identifier})
+
+
 async def _settings(hass: HomeAssistant, entry: ConfigEntry | None) -> dict[str, Any]:
     options = _options(entry) if entry else dict(OPTION_DEFAULTS)
     entities = er.async_get(hass)
     batteries = _battery_entries(hass, entities)
     domains = {entry.platform for _, entry in batteries if entry} | set(options[CONF_IGNORED_INTEGRATIONS])
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, entry.entry_id)}) if entry else None
+    device = _service_device(hass, entry) if entry else None
     monitor = entry.runtime_data if entry and loaded_entry(hass) is entry else None
     last = monitor.last_notification if monitor else None
     return {

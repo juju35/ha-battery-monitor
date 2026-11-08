@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from homeassistant.components.frontend import DATA_PANELS
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_mock_service
 
 from custom_components.battery_monitor.const import (
@@ -56,10 +56,10 @@ async def test_settings(hass: HomeAssistant, hass_ws_client) -> None:
     msg = await _ws(hass, hass_ws_client, {"type": "battery_monitor/settings"})
     assert msg["success"]
     result = msg["result"]
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, entry.entry_id)})
     assert result["entry"]["entry_id"] == entry.entry_id
     assert result["entry"]["state"] == "loaded"
-    assert result["entry"]["device_id"] == device.id
+    # The service device: the one of the integration's own sensor
+    assert result["entry"]["device_id"] == er.async_get(hass).async_get(LOW).device_id
     assert result["entry"]["last_notification"] is None
     assert result["options"] == {**OPTIONS, CONF_NOTIFY: ["notify.gone"]}
     assert result["limits"] == {"threshold": [1, 99], "duration": [0, 720]}
