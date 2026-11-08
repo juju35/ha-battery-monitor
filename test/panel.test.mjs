@@ -23,10 +23,10 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList };`,
+  `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList };`,
   context,
 );
-const { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList } =
+const { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList } =
   context.panel;
 
 const LANGUAGES = [
@@ -190,6 +190,60 @@ test('list choices: notify actions without their prefix, integrations by name, b
   assert.match(html, /data-remove="notify.gone"/);
   assert.match(html, /<option value="notify.tv">tv<\/option>/);
   assert.doesNotMatch(html, /<option value="notify.phone">/);
+});
+
+test('the Batteries tab mounts the card expanded, without its CSV export', () => {
+  const panel = new BatteryMonitorPanel();
+  panel._hass = { language: 'en' };
+  let config;
+  const created = { setConfig: (c) => (config = c), set hass(_h) {} };
+  context.document = { createElement: () => created };
+  panel._mountCard();
+  context.document = undefined;
+  assert.deepEqual(plain(config), { expanded: true, csv_button: false });
+  assert.equal(panel._card, created);
+});
+
+test('tabs: the address picks the tab, a selection updates the address and hides the other panels', () => {
+  const panels = Object.fromEntries(BM_PANEL_TABS.map((t) => [`tab-${t}`, { hidden: false }]));
+  const buttons = BM_PANEL_TABS.map((t) => ({
+    dataset: { tab: t },
+    attrs: {},
+    classes: new Set(),
+    classList: { toggle(c, on) { on ? this.add(c) : this.delete(c); }, add(c) { buttons.find((b) => b.classList === this).classes.add(c); }, delete(c) { buttons.find((b) => b.classList === this).classes.delete(c); } },
+    setAttribute(k, v) { this.attrs[k] = v; },
+    focus() { this.focused = true; },
+  }));
+  const root = { getElementById: (id) => panels[id] || null, querySelector: () => null, querySelectorAll: (sel) => (sel === '.tab' ? buttons : []) };
+  const urls = [];
+  context.history = { state: null, replaceState: (_s, _t, url) => urls.push(url) };
+  const panel = Object.create(BatteryMonitorPanel.prototype);
+  panel.shadowRoot = root;
+  panel._tab = 'batteries';
+  panel._panel = { url_path: 'battery-monitor' };
+  // The route from Home Assistant: /battery-monitor/actions
+  panel.route = { path: '/actions' };
+  assert.equal(panel._tab, 'actions');
+  // Batteries, Actions, Settings: Settings last
+  assert.deepEqual(plain(BM_PANEL_TABS), ['batteries', 'actions', 'settings']);
+  assert.deepEqual(plain(BM_PANEL_TABS.map((t) => panels[`tab-${t}`].hidden)), [true, false, true]);
+  // An unknown path: Batteries
+  panel.route = { path: '/nope' };
+  assert.equal(panel._tab, 'batteries');
+  // A click: the address follows, Batteries is the base address
+  panel._goTab('settings', true);
+  assert.equal(panel._tab, 'settings');
+  assert.deepEqual(plain(urls), ['/battery-monitor/settings']);
+  assert.deepEqual(plain(buttons.map((b) => b.attrs['aria-selected'])), ['false', 'false', 'true']);
+  assert.deepEqual(plain(buttons.map((b) => b.classes.has('active'))), [false, false, true]);
+  assert.deepEqual(plain(buttons.map((b) => b.tabIndex)), [-1, -1, 0]);
+  assert.ok(buttons[2].focused);
+  panel._goTab('batteries');
+  assert.equal(urls.at(-1), '/battery-monitor');
+  // An unknown tab is ignored
+  panel._goTab('nope');
+  assert.equal(panel._tab, 'batteries');
+  delete context.history;
 });
 
 test('the settings form and the actions escape what they show and reflect the entry state', () => {

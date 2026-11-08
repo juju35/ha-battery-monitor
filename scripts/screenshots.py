@@ -1,4 +1,4 @@
-"""Render the Battery Monitor card and sidebar panel with mock batteries and save the README screenshots.
+"""Render the Battery Monitor card and sidebar panel (its three tabs) with mock batteries and save the README screenshots.
 
 Usage: python scripts/screenshots.py  (needs `pip install playwright` and `playwright install chromium`)
 CHROMIUM_PATH=/path/to/chrome to use another browser. The clock is frozen so the "low for" durations stay the same.
@@ -277,10 +277,18 @@ PANEL_SETTINGS = {
         for i, (name, area, *_rest) in enumerate(BATTERIES)
     ],
 }
-PANEL_SHOTS = [{"file": "panel", "theme": "light"}, {"file": "panel-dark", "theme": "dark"}]
+# The three tabs of the panel (Batteries, Actions, Settings), light and dark.
+PANEL_SHOTS = [
+    {"file": "panel", "theme": "light", "tab": "batteries"},
+    {"file": "panel-dark", "theme": "dark", "tab": "batteries"},
+    {"file": "panel-settings", "theme": "light", "tab": "settings"},
+    {"file": "panel-settings-dark", "theme": "dark", "tab": "settings"},
+    {"file": "panel-actions", "theme": "light", "tab": "actions"},
+    {"file": "panel-actions-dark", "theme": "dark", "tab": "actions"},
+]
 
 # Mounts the sidebar panel: the card inside it reads the mock states, the form the mock settings.
-MOUNT_PANEL = """([hass, settings]) => {
+MOUNT_PANEL = """([hass, settings, tab]) => {
     const el = document.createElement("battery-monitor-panel");
     el.panel = { config: {} };
     el.narrow = false;
@@ -292,6 +300,7 @@ MOUNT_PANEL = """([hass, settings]) => {
         connection: { subscribeMessage: async () => () => {} },
     };
     document.getElementById("root").appendChild(el);
+    el._goTab(tab);
 }"""
 
 
@@ -304,7 +313,7 @@ def open_panel(browser, shot):
     page.add_script_tag(content=HA_ELEMENTS)
     page.add_script_tag(content=CARD_JS)
     page.add_script_tag(content=PANEL_JS)
-    page.evaluate(MOUNT_PANEL, [mock_hass(), PANEL_SETTINGS])
+    page.evaluate(MOUNT_PANEL, [mock_hass(), PANEL_SETTINGS, shot["tab"]])
     page.wait_for_timeout(500)
     return page, ROOT / "screenshots" / f"{shot['file']}.png"
 
