@@ -38,7 +38,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Replacement forecast**: the drain of each level battery is measured once a day on its recorded history (last 30 days, since the last replacement), and kept across restarts (the history is read again only once the last measure is a day old); the card shows *≈ 12 d left* when the threshold is less than two months away, and the **Next replacement** sensor gives the date the first battery reaches it
 - **Events** for your automations: `battery_monitor_low` when a battery goes below the threshold, `battery_monitor_replaced` when a new battery is detected
 - **Mini card**: the status and only the batteries needing attention, with a button that shows the full card
-- **Sidebar panel** (administrators): the batteries, every setting and the actions on one page
+- **Sidebar panel** (administrators), in three tabs: the batteries as in the full screen view, every setting, the actions
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** and **Next replacement** sensors, **Notify now** button, `battery_monitor.notify` and `battery_monitor.export` (CSV) actions
 - UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian, Greek and Serbian (Cyrillic and Latin)
 
@@ -129,12 +129,11 @@ response_variable: result  # {"path": "/config/exports/batteries.csv", "batterie
 
 ### Sidebar panel
 
-The integration adds a **Battery Monitor** entry to the sidebar, shown to administrators only (`/battery-monitor`). It gathers on one page:
+The integration adds a **Battery Monitor** entry to the sidebar, shown to administrators only (`/battery-monitor`), with three tabs (the one you leave open is remembered by the browser):
 
-- the batteries, with the bundled card (full screen view, notify button);
-- a settings form: threshold, duration, morning and evening times, notify actions, ignored integrations and ignored batteries — the same options and limits as **Configure**, with the choices picked from lists (the notify actions available, the integrations that have a battery, every battery found, its room and integration next to it);
-- the actions: **Notify now** (every battery needing attention, like the button) and **Export CSV**, with an optional file name (`battery_monitor.csv` in the configuration folder by default, the same rules as the `battery_monitor.export` action);
-- the state of the integration and its last notification, with links to its device and to **Devices & services**.
+- **Batteries**: the bundled card expanded, with everything the full screen view offers — every battery **by room**, **by battery type** or **by replacement date**, what to replace, the next replacement, the notify button; tap a battery for its details. The CSV export is in the Actions tab instead;
+- **Settings**: threshold, duration, morning and evening times, notify actions, ignored integrations and ignored batteries — the same options and limits as **Configure**, with the choices picked from lists (the notify actions available, the integrations that have a battery, every battery found, its room and integration next to it), and **Save**;
+- **Actions**: **Notify now** (every battery needing attention, like the button) and **Export CSV**, with an optional file name (`battery_monitor.csv` in the configuration folder by default, the same rules as the `battery_monitor.export` action), plus the state of the integration, its last notification and a link to its device. The cog in the toolbar opens **Devices & services**.
 
 Saving reloads the integration once; a form field you have not edited follows a change made elsewhere (Configure, another administrator). Behind the panel are four admin-only WebSocket commands: `battery_monitor/settings`, `battery_monitor/update_settings`, `battery_monitor/notify` and `battery_monitor/export`. To hide the entry, long-press the sidebar title and hide **Battery Monitor**, like any other panel.
 
@@ -193,6 +192,8 @@ type: custom:battery-monitor-card
 | `hide_when_ok` | `false` | Hide the whole card when every battery is above the threshold and available (always shown while editing the dashboard) |
 | `notify_button` | `true` | Bell button in the header that sends the notification now: it turns while sending, then shows a check mark, or the reason in its tooltip when it fails; disabled while the button entity is unavailable |
 | `popup` | `true` | Full screen button in the header |
+| `expanded` | `false` | Lay the full screen view out in the card itself (by room, by type, by replacement date, what to replace, next replacement), as the sidebar panel does; no full screen button then |
+| `csv_button` | `true` | **Export CSV** button in the full screen view and the expanded card |
 | `battery_models` | — | The battery type of every device of a model Battery Notes doesn't know: `Hue dimmer switch: CR2450`, `Radiator Thermostat W600: 2× AA` |
 | `battery_types` | — | The type of one battery, by battery entity, for one without a model or that differs from its model: `sensor.remote_battery: 2× AAA` |
 | `language` | Auto | Force language: `en`, `fr`, `de`, `es`, `it`, `nl`, `pt` (European Portuguese), `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv`, `el`, `sr` (Serbian, Cyrillic) or `sr-Latn` (Serbian, Latin) |
@@ -240,11 +241,12 @@ When a battery is due for replacement, the card animates: its row icon blinks fo
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/mini.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/mini-dark.png" alt="mini card dark" width="400"> |
 
-**Sidebar panel** (light and dark themes):
+**Sidebar panel**, its three tabs (light and dark themes):
 
-<img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel.png" alt="Battery Monitor sidebar panel" width="700">
-
-<img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-dark.png" alt="Battery Monitor sidebar panel, dark theme" width="700">
+| Batteries | Settings | Actions |
+|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel.png" alt="sidebar panel, Batteries tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-settings.png" alt="sidebar panel, Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-actions.png" alt="sidebar panel, Actions tab" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-dark.png" alt="sidebar panel, Batteries tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-settings-dark.png" alt="sidebar panel, Settings tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/screenshots/panel-actions-dark.png" alt="sidebar panel, Actions tab, dark theme" width="400"> |
 
 | Full screen, by replacement date | Dark |
 |---|---|
@@ -274,7 +276,7 @@ Once a day (and at start), the drain of each level battery is measured on its re
 
 ```bash
 pip install -r requirements_test.txt && pytest
-python scripts/screenshots.py  # renders the card and the sidebar panel with mock batteries into screenshots/ (also makes due.gif and due-dark.gif, needs ffmpeg)
+python scripts/screenshots.py  # renders the card and the three tabs of the sidebar panel with mock batteries into screenshots/ (also makes due.gif and due-dark.gif, needs ffmpeg)
 ```
 
 ### Releasing

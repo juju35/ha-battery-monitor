@@ -23,10 +23,10 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList };`,
+  `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList };`,
   context,
 );
-const { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList } =
+const { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList } =
   context.panel;
 
 const LANGUAGES = [
@@ -190,6 +190,48 @@ test('list choices: notify actions without their prefix, integrations by name, b
   assert.match(html, /data-remove="notify.gone"/);
   assert.match(html, /<option value="notify.tv">tv<\/option>/);
   assert.doesNotMatch(html, /<option value="notify.phone">/);
+});
+
+test('the Batteries tab mounts the card expanded, without its CSV export', () => {
+  const panel = new BatteryMonitorPanel();
+  panel._hass = { language: 'en' };
+  let config;
+  const created = { setConfig: (c) => (config = c), set hass(_h) {} };
+  context.document = { createElement: () => created };
+  panel._mountCard();
+  context.document = undefined;
+  assert.deepEqual(plain(config), { expanded: true, csv_button: false });
+  assert.equal(panel._card, created);
+});
+
+test('tabs: the stored one is shown, a selection is remembered and hides the other panels', () => {
+  const panels = Object.fromEntries(BM_PANEL_TABS.map((t) => [`tab-${t}`, { hidden: false }]));
+  const buttons = BM_PANEL_TABS.map((t) => ({ dataset: { tab: t }, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; }, focus() { this.focused = true; } }));
+  const root = { getElementById: (id) => panels[id] || null, querySelector: () => null, querySelectorAll: (sel) => (sel === '.tab' ? buttons : []) };
+  const store = {};
+  context.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v) };
+  store.battery_monitor_panel_tab = 'actions';
+  const panel = Object.create(BatteryMonitorPanel.prototype);
+  panel.shadowRoot = root;
+  assert.equal(panel._storedTab(), 'actions');
+  store.battery_monitor_panel_tab = 'nope';
+  assert.equal(panel._storedTab(), 'batteries');
+  panel._tab = 'batteries';
+  panel._selectTab('settings', true);
+  assert.equal(store.battery_monitor_panel_tab, 'settings');
+  assert.deepEqual(plain(BM_PANEL_TABS.map((t) => panels[`tab-${t}`].hidden)), [true, false, true]);
+  assert.deepEqual(plain(buttons.map((b) => b.attrs['aria-selected'])), ['false', 'true', 'false']);
+  assert.deepEqual(plain(buttons.map((b) => b.tabIndex)), [-1, 0, -1]);
+  assert.ok(buttons[1].focused);
+  // An unknown tab is ignored
+  panel._selectTab('nope');
+  assert.equal(panel._tab, 'settings');
+  // Storage unavailable: Batteries, and selecting still works
+  context.localStorage = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } };
+  assert.equal(panel._storedTab(), 'batteries');
+  panel._selectTab('actions');
+  assert.equal(panel._tab, 'actions');
+  delete context.localStorage;
 });
 
 test('the settings form and the actions escape what they show and reflect the entry state', () => {

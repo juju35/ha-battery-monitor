@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.16.0 - 2026-11-08
+
+### What's new
+- **Sidebar panel in tabs**: **Batteries**, **Settings** and **Actions** under the toolbar, instead of two columns; the tab left open is remembered by the browser, and the arrow keys move between tabs.
+- The **Batteries** tab shows everything the full screen view offers — by room, by battery type, by replacement date, what to replace, the next replacement, the notify button — without the CSV export, which has its own place in **Actions**.
+- Card option `expanded` (default `false`): the full screen view laid out in the card itself, the way the panel shows it; `csv_button` (default `true`) hides the **Export CSV** button of the full screen view and of the expanded card.
+
 ## 1.15.0 - 2026-11-08
 
 ### What's new

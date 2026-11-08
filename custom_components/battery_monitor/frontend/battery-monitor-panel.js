@@ -1,15 +1,16 @@
 /*
  * Battery Monitor sidebar panel — the batteries, the settings and the actions on one page (administrators only).
  *
- * Left: the bundled battery-monitor-card. Right: the settings form (threshold, duration, notification
- * times, notify actions, ignored integrations and batteries), through the battery_monitor/settings and
- * battery_monitor/update_settings WebSocket commands, and the actions: notify now (battery_monitor/notify)
- * and CSV export (battery_monitor/export). The page follows the config entry (config_entries/subscribe),
- * so options changed from Configure show up here.
+ * Three tabs under the toolbar: Batteries (the bundled battery-monitor-card expanded: every battery by room, by
+ * type or by replacement date, what to replace, the next replacement; its CSV export lives in Actions), Settings (threshold, duration,
+ * notification times, notify actions, ignored integrations and batteries, through the battery_monitor/settings
+ * and battery_monitor/update_settings WebSocket commands) and Actions (notify now, battery_monitor/notify; CSV
+ * export, battery_monitor/export). The page follows the config entry (config_entries/subscribe), so options
+ * changed from Configure show up here. The tab shown is remembered in the browser.
  *
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_PANEL_VERSION = '1.15.0';
+var BATTERY_MONITOR_PANEL_VERSION = '1.16.0';
 
 var BatteryMonitorPanelI18n = {
   en: {
@@ -1271,6 +1272,8 @@ var BatteryMonitorPanelI18n = {
 // Option limits, filled in from the settings command (the Python constants are the reference)
 var BM_PANEL_LIMITS = { threshold: [1, 99], duration: [0, 720] };
 var BM_PANEL_LISTS = ['notify_services', 'ignored_integrations', 'ignored_entities'];
+var BM_PANEL_TABS = ['batteries', 'settings', 'actions'];
+var BM_PANEL_TAB_KEY = 'battery_monitor_panel_tab';
 
 function bmPanelT(lang, key, vars) {
   var table = BatteryMonitorPanelI18n[lang] || BatteryMonitorPanelI18n.en;
@@ -1311,9 +1314,18 @@ class BatteryMonitorPanel extends HTMLElement {
     .toolbar .grow { flex:1; }
     .toolbar a { color:inherit; display:flex; padding:8px; border-radius:50%; --mdc-icon-size:22px; }
     .toolbar a:hover { background:rgba(255,255,255,.12); }
-    main { max-width:1200px; margin:0 auto; padding:16px; box-sizing:border-box; display:grid; gap:16px; grid-template-columns:minmax(0, 1fr); }
-    @media (min-width: 960px) { main { grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); align-items:start; } }
-    h2 { margin:0 0 8px 4px; font-size:14px; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color:var(--secondary-text-color); }
+    /* Tabs, in the header colours like Home Assistant's own settings pages */
+    .tabs { display:flex; justify-content:center; gap:4px; padding:0 8px; box-sizing:border-box; overflow-x:auto;
+            background:var(--app-header-background-color, var(--primary-color)); color:var(--app-header-text-color, #fff);
+            border-bottom:var(--app-header-border-bottom, none); }
+    .tab { flex:none; display:inline-flex; align-items:center; gap:8px; border:0; background:none; cursor:pointer; font:inherit; font-size:14px;
+           font-weight:500; text-transform:uppercase; letter-spacing:.04em; color:inherit; opacity:.75; padding:12px 16px; position:relative;
+           --mdc-icon-size:20px; }
+    .tab:hover, .tab:focus-visible { opacity:1; outline:none; background:rgba(255,255,255,.08); }
+    .tab[aria-selected="true"] { opacity:1; }
+    .tab[aria-selected="true"]::after { content:""; position:absolute; left:12px; right:12px; bottom:0; height:2px; border-radius:2px 2px 0 0; background:currentColor; }
+    main { max-width:900px; margin:0 auto; padding:16px; box-sizing:border-box; }
+    section[hidden] { display:none; }
     .column { display:flex; flex-direction:column; gap:12px; min-width:0; }
     .note { padding:16px; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
     .block { padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
@@ -1377,6 +1389,38 @@ class BatteryMonitorPanel extends HTMLElement {
     this._status = {};
     this._busy = null;
     this._exportPath = '';
+    this._tab = this._storedTab();
+  }
+
+  // The tab shown last time, kept in the browser (localStorage may be unavailable: then Batteries)
+  _storedTab() {
+    try {
+      var tab = localStorage.getItem(BM_PANEL_TAB_KEY);
+      return BM_PANEL_TABS.includes(tab) ? tab : 'batteries';
+    } catch (_err) {
+      return 'batteries';
+    }
+  }
+
+  _selectTab(tab, focus) {
+    if (!BM_PANEL_TABS.includes(tab)) return;
+    this._tab = tab;
+    try {
+      localStorage.setItem(BM_PANEL_TAB_KEY, tab);
+    } catch (_err) {
+      // private mode or storage blocked: the tab is not remembered
+    }
+    var root = this.shadowRoot;
+    root.querySelectorAll?.('.tab').forEach((button) => {
+      var selected = button.dataset.tab === tab;
+      button.setAttribute('aria-selected', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+      if (selected && focus) button.focus({ preventScroll: true });
+    });
+    BM_PANEL_TABS.forEach((name) => {
+      var panel = root.getElementById(`tab-${name}`);
+      if (panel) panel.hidden = name !== tab;
+    });
   }
 
   set hass(hass) {
@@ -1468,22 +1512,44 @@ class BatteryMonitorPanel extends HTMLElement {
         <span class="grow">${esc(this._t('title'))}</span>
         <a href="/config/integrations/integration/battery_monitor" title="${esc(this._t('open_integration'))}"><ha-icon icon="mdi:cog"></ha-icon></a>
       </div>
+      <div class="tabs" role="tablist">${BM_PANEL_TABS.map((tab) => this._tabHtml(tab)).join('')}</div>
       <main>
-        <section class="column"><h2>${esc(this._t('batteries'))}</h2><div id="card"></div></section>
-        <section class="column" id="settings"></section>
+        <section class="column" id="tab-batteries" role="tabpanel" aria-labelledby="tabbtn-batteries"><div id="card"></div></section>
+        <section class="column" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"></section>
+        <section class="column" id="tab-actions" role="tabpanel" aria-labelledby="tabbtn-actions"></section>
       </main>`;
     this._menu = root.querySelector('ha-menu-button');
     this._menu.hass = this._hass;
     this._menu.narrow = this._narrow;
+    root.querySelectorAll('.tab').forEach((button) => {
+      button.addEventListener('click', () => this._selectTab(button.dataset.tab));
+      // Left and right arrows move between the tabs, as in a native tab bar
+      button.addEventListener('keydown', (ev) => {
+        var step = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+        if (!step) return;
+        ev.preventDefault();
+        var i = BM_PANEL_TABS.indexOf(this._tab);
+        this._selectTab(BM_PANEL_TABS[(i + step + BM_PANEL_TABS.length) % BM_PANEL_TABS.length], true);
+      });
+    });
+    this._selectTab(this._tab);
     if (this._card) root.getElementById('card').appendChild(this._card);
     this._renderSettings();
+  }
+
+  _tabHtml(tab) {
+    var icons = { batteries: 'mdi:battery-heart-variant', settings: 'mdi:tune', actions: 'mdi:gesture-tap-button' };
+    var selected = tab === this._tab;
+    return `<button class="tab" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">
+      <ha-icon icon="${icons[tab]}"></ha-icon>${bmPanelEsc(this._t(tab))}</button>`;
   }
 
   _mountCard() {
     if (!customElements.get('battery-monitor-card')) return;
     this._card = document.createElement('battery-monitor-card');
-    // No `language`: the card follows hass.language, so it switches language with the panel
-    this._card.setConfig({});
+    // The full screen content laid out in the card; its CSV export is in the Actions tab. No `language`: the card
+    // follows hass.language, so it switches language with the panel.
+    this._card.setConfig({ expanded: true, csv_button: false });
     this._card.hass = this._hass;
     this.shadowRoot.getElementById('card')?.appendChild(this._card);
   }
@@ -1659,24 +1725,30 @@ class BatteryMonitorPanel extends HTMLElement {
       </ha-card>`;
   }
 
+  // The Settings and Actions tabs, both from the settings command (the Batteries tab holds the card)
   _renderSettings() {
-    var box = this.shadowRoot.getElementById('settings');
-    if (!box) return;
+    var root = this.shadowRoot;
+    var settings = root.getElementById('tab-settings');
+    var actions = root.getElementById('tab-actions');
+    if (!settings || !actions) return;
     var esc = bmPanelEsc;
-    var title = `<h2>${esc(this._t('settings'))}</h2>`;
-    if (this._settings === null) {
-      box.innerHTML = `${title}<ha-card class="note">${esc(this._t('loading'))}</ha-card>`;
-      return;
-    }
-    if (!this._settings.entry) {
-      box.innerHTML = `${title}<ha-card class="note">${esc(this._t('none'))}
+    var note = null;
+    if (this._settings === null) note = `<ha-card class="note">${esc(this._t('loading'))}</ha-card>`;
+    else if (!this._settings.entry) {
+      note = `<ha-card class="note">${esc(this._t('none'))}
         <a class="act" href="/config/integrations/dashboard/add?domain=battery_monitor"><ha-icon icon="mdi:plus"></ha-icon>${esc(this._t('open_add'))}</a></ha-card>`;
+    }
+    if (note) {
+      settings.innerHTML = note;
+      actions.innerHTML = note;
       return;
     }
-    var focus = this._focusOf(box);
-    box.innerHTML = `${title}${this._settingsHtml()}<h2>${esc(this._t('actions'))}</h2>${this._actionsHtml()}`;
-    this._bind(box);
-    this._refocus(box, focus);
+    var focus = this._focusOf(root.querySelector('main'));
+    settings.innerHTML = this._settingsHtml();
+    actions.innerHTML = this._actionsHtml();
+    this._bind(settings);
+    this._bind(actions);
+    this._refocus(root.querySelector('main'), focus);
   }
 
   // The focused field or button (attribute, caret), so a re-render can give the focus back.
