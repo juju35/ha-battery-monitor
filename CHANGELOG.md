@@ -6,6 +6,9 @@
 - The battery type from Battery Notes (`2× AA`, `CR2032`) ends each line of the notifications, and is in the CSV export and the `batteries` attribute (`battery_type`).
 - The replacement forecast is kept across restarts: Home Assistant no longer reads 30 days of battery history at each start, only once the last measure is a day old.
 
+### Upgrade notes
+- The stored data (`.storage/battery_monitor.below_since`) has a new layout that 1.13.x cannot read: downgrading is not supported unless that file is deleted first (the low-battery times then restart from the history).
+
 ## 1.13.1 - 2026-11-07
 
 ### Fixes
