@@ -38,6 +38,9 @@ from .const import (
     DEFAULT_THRESHOLD,
     DOMAIN,
     MAX_DURATION,
+    MAX_THRESHOLD,
+    MIN_DURATION,
+    MIN_THRESHOLD,
 )
 
 
@@ -71,11 +74,17 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_THRESHOLD, default=current.get(CONF_THRESHOLD, DEFAULT_THRESHOLD)): NumberSelector(
-                NumberSelectorConfig(min=1, max=99, step=1, mode=NumberSelectorMode.SLIDER, unit_of_measurement="%")
+                NumberSelectorConfig(
+                    min=MIN_THRESHOLD,
+                    max=MAX_THRESHOLD,
+                    step=1,
+                    mode=NumberSelectorMode.SLIDER,
+                    unit_of_measurement="%",
+                )
             ),
             vol.Required(CONF_DURATION, default=current.get(CONF_DURATION, DEFAULT_DURATION)): NumberSelector(
                 NumberSelectorConfig(
-                    min=0, max=MAX_DURATION, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="h"
+                    min=MIN_DURATION, max=MAX_DURATION, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="h"
                 )
             ),
             vol.Required(CONF_MORNING, default=current.get(CONF_MORNING, DEFAULT_MORNING)): TimeSelector(),
@@ -95,12 +104,19 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
     )
 
 
-def _options(user_input: dict[str, Any]) -> dict[str, Any]:
+def _time(value: Any) -> str:
+    """`HH:MM:SS`, as the time selector stores it (the panel sends `HH:MM`)."""
+    text = str(value)
+    return f"{text}:00" if len(text) == 5 else text
+
+
+def normalize_options(user_input: dict[str, Any]) -> dict[str, Any]:
+    """The stored options: numbers as integers, times as `HH:MM:SS`, lists sorted and without duplicates."""
     return {
         CONF_THRESHOLD: int(user_input[CONF_THRESHOLD]),
         CONF_DURATION: int(user_input[CONF_DURATION]),
-        CONF_MORNING: str(user_input[CONF_MORNING]),
-        CONF_EVENING: str(user_input[CONF_EVENING]),
+        CONF_MORNING: _time(user_input[CONF_MORNING]),
+        CONF_EVENING: _time(user_input[CONF_EVENING]),
         CONF_NOTIFY: sorted(
             {f"notify.{n.strip().removeprefix('notify.')}" for n in user_input.get(CONF_NOTIFY, []) if n.strip()}
         ),
@@ -120,7 +136,7 @@ class BatteryMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
         if user_input is not None:
-            return self.async_create_entry(title="Battery Monitor", data={}, options=_options(user_input))
+            return self.async_create_entry(title="Battery Monitor", data={}, options=normalize_options(user_input))
         return self.async_show_form(step_id="user", data_schema=await _schema(self.hass, {}))
 
     @staticmethod
@@ -134,7 +150,7 @@ class BatteryMonitorOptionsFlow(OptionsFlow):
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(data=_options(user_input))
+            return self.async_create_entry(data=normalize_options(user_input))
         return self.async_show_form(
             step_id="init", data_schema=await _schema(self.hass, dict(self.config_entry.options))
         )

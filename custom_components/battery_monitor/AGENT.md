@@ -1,20 +1,23 @@
 # Battery Monitor — Agent Context
 
 ## Purpose
-Home Assistant custom integration that finds every battery, tracks how long each one has been below a threshold, and notifies twice a day the ones that have stayed low for a configurable duration. It bundles a Lovelace card listing the batteries (icon, name, room, level).
+Home Assistant custom integration that finds every battery, tracks how long each one has been below a threshold, and notifies twice a day the ones that have stayed low for a configurable duration. It bundles a Lovelace card listing the batteries (icon, name, room, level) and a sidebar panel (administrators) with the card, the settings and the actions.
 
 ## Architecture
 
 ```
 custom_components/battery_monitor/
-├── __init__.py      # Static path + dashboard resource for the card, actions notify and export (CSV), entry setup: state listener, 10-min refresh (+ daily forecast), two time triggers
+├── __init__.py      # Static paths (card, panel) + dashboard resource for the card, panel registration, actions notify and export, entry setup: state listener, 10-min refresh (+ daily forecast), two time triggers
+├── export.py        # loaded_entry(), async_export(): the CSV export shared by the export action and the panel (_refused, _write_csv)
+├── panel.py         # Sidebar panel (panel_custom, require_admin) + WebSocket commands battery_monitor/settings, update_settings, notify, export
 ├── monitor.py       # BatteryMonitor: discovery, low / due tracking (persisted in .storage), notifications, replacement forecast (drain_per_day)
-├── config_flow.py   # Single entry; options: threshold (%), duration (h), morning_time, evening_time, notify_services, ignored_entities, ignored_integrations
+├── config_flow.py   # Single entry; options: threshold (%), duration (h), morning_time, evening_time, notify_services, ignored_entities, ignored_integrations; normalize_options() shared with the panel
 ├── sensor.py        # low_batteries (count + batteries list for the card), last_notification (timestamp + notified), next_replacement (timestamp)
 ├── button.py        # notify_now
 ├── entity.py        # Shared service device, listener on BatteryMonitor
 ├── diagnostics.py   # Entry options (notify_services redacted) + monitor state and battery list
 ├── frontend/battery-monitor-card.js   # custom:battery-monitor-card (+ custom:battery-monitor-mini-card), reads sensor.*_low_batteries attributes
+├── frontend/battery-monitor-panel.js  # <battery-monitor-panel>: the card (left), the settings form and the actions (right), own i18n tables (same 22 languages)
 ├── const.py / icons.json / services.yaml / translations/{en,fr,de,es,it,nl,pt,pt-BR,pl,ro,da,sv,bg,ru,uk,hu,sk,cs,sl,lv,el,sr,sr-Latn}.json / brand/
 ```
 
@@ -34,11 +37,12 @@ custom_components/battery_monitor/
 - Mini card (`BatteryMonitorMiniCard extends BatteryMonitorCard`): `_compact()` lists only the alert batteries and hides the full screen button; the `.zoom` button (top right) toggles the full card; a capture-phase document click outside the card (and outside its full screen, not in a dialog) folds it back; `mini` host attribute set in `setConfig`; shares the main editor.
 - Battery type (backend, `Battery.battery_type`: notifications `{type}` placeholder ` · 2× AA`, CSV, `as_dict`): Battery Notes only — `battery_type` (+ `battery_quantity`) attributes of the battery, else the device's *Battery type* sensor (`_type_sensor`).
 - Battery type (card): `battery_types[entity_id]` from the card config, else `battery_models[model]` (the device's `model` in `hass.devices`), else Battery Notes — the battery state's `battery_type` / `battery_quantity` attributes, or a sensor of the same device with translation key `battery_type` (or an entity ID ending in `_battery_type`). `bmParseType` reads `2× AA`, `2x AA`, `AA x2`. The editor lists the models of the batteries without a detected type, then the batteries still without a type (plus the ones already set).
+- *Sidebar panel* (`panel.py`, `/battery_monitor/battery-monitor-panel.js`, `PANEL_PATH` = `battery-monitor`, `require_admin`): `battery_monitor/settings` returns the entry (state, device, last notification), the options with defaults filled in, the limits (`MIN_/MAX_THRESHOLD`, `MIN_DURATION`/`MAX_DURATION`, shared with the options flow) and the choices of the form (`notify_options`, `integration_options` by name, `entity_options`: every battery entity, ignored and hidden included, with room and integration). `update_settings` takes any subset of the options (times as `HH:MM` or `HH:MM:SS`), merges them into the stored ones, runs `normalize_options()` and updates the entry only when the result differs (the update listener reloads once). `notify` = the button; `export` = `async_export()`, errors returned as `{ok: false, error: <translation key>}`. The panel imports the card dynamically, subscribes to `config_entries/subscribe` (type `service`) to reload the settings, keeps the typed fields (`_drafts`) over the stored values, and restores the focus after a re-render (`_focusOf` / `_refocus`). Its time inputs hide the native picker icon behind a themed `mdi:clock-outline`.
 - Minimum Home Assistant 2024.12.0 (`OptionsFlow.config_entry`); CI also runs the tests on it (`pytest-min-ha`).
 
 ## Release
-Bump the version in `manifest.json`, `const.py` (`VERSION`) and the card (`BATTERY_MONITOR_CARD_VERSION`), add its CHANGELOG.md section; pushing to main publishes `vX.Y.Z` with `battery_monitor.zip` when that tag doesn't exist yet. Rerun notes with the "Update release notes" workflow (input `tag`).
+Bump the version in `manifest.json`, `const.py` (`VERSION`), the card (`BATTERY_MONITOR_CARD_VERSION`) and the panel (`BATTERY_MONITOR_PANEL_VERSION`), add its CHANGELOG.md section; pushing to main publishes `vX.Y.Z` with `battery_monitor.zip` when that tag doesn't exist yet. Rerun notes with the "Update release notes" workflow (input `tag`).
 
 ## Tests
-`pip install -r requirements_test.txt && pytest` — batteries are registry entities on mock devices (`tests/conftest.py`), notify actions are mocked, time is moved with `freezer`. Card: `node --test test/*.test.mjs` (the card file is evaluated in a `vm` context with stubs). Job `tests` runs on Python 3.14, i.e. the latest Home Assistant (2026.3+ needs Python 3.14; 3.13 would silently resolve to 2026.2) and prints its version as an annotation; job `pytest-min-ha` runs the suite on HA 2024.12.0. An autouse fixture (`tests/conftest.py`, `no_deprecated_calls`) fails any test during which Home Assistant reports a deprecated call naming `battery_monitor`, and CI turns those reports into annotations. `add_battery` reuses one mock config entry per platform (since 2026.8 a device belongs to a single config entry), and an entity given an area of its own also needs a name of its own (enforced since 2026.10).
-Screenshots: `python scripts/screenshots.py` (Playwright, mock batteries, English, 16 px frame on the theme background).
+`pip install -r requirements_test.txt && pytest` — batteries are registry entities on mock devices (`tests/conftest.py`), notify actions are mocked, time is moved with `freezer`. Card and panel: `node --test test/*.test.mjs` (each file is evaluated in a `vm` context with stubs; objects made in that realm are compared as plain JSON). Job `tests` runs on Python 3.14, i.e. the latest Home Assistant (2026.3+ needs Python 3.14; 3.13 would silently resolve to 2026.2) and prints its version as an annotation; job `pytest-min-ha` runs the suite on HA 2024.12.0. An autouse fixture (`tests/conftest.py`, `no_deprecated_calls`) fails any test during which Home Assistant reports a deprecated call naming `battery_monitor`, and CI turns those reports into annotations. `add_battery` reuses one mock config entry per platform (since 2026.8 a device belongs to a single config entry), and an entity given an area of its own also needs a name of its own (enforced since 2026.10).
+Screenshots: `python scripts/screenshots.py` (Playwright, mock batteries, English, 16 px frame on the theme background; the panel at 1100 px wide with mock `battery_monitor/settings` data, `panel.png` / `panel-dark.png`).

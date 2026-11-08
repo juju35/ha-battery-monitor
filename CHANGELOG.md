@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.15.0 - 2026-11-08
+
+### What's new
+- **Sidebar panel** `Battery Monitor` (administrators only, `/battery-monitor`): the batteries with the bundled card, a settings form (threshold, duration, notification times, notify actions, ignored integrations and ignored batteries, each picked from a list) with **Save**, and the actions **Notify now** and **Export CSV** (optional file name), with the integration state, its last notification and a link to its device. Translated in every language of the card.
+- New admin-only WebSocket commands `battery_monitor/settings`, `battery_monitor/update_settings`, `battery_monitor/notify` and `battery_monitor/export` behind the panel; `update_settings` applies the same limits and normalisation as the options flow and reloads the integration once, only when something changed.
+
+### Fixes
+- The option limits are shared constants used by both the options flow and the panel; the CSV export is shared by the `battery_monitor.export` action and the panel (`export.py`); the Release workflow also checks the panel version.
+
 ## 1.14.0 - 2026-11-08
 
 ### What's new
