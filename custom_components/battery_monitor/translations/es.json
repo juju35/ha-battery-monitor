@@ -135,10 +135,10 @@
       "message": "{count} baterías bajas"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: baja"
+      "message": "• {name}{area}: baja{type}"
     },
     "none_title": {
       "message": "Ninguna batería que revisar"
@@ -147,7 +147,7 @@
       "message": "Todas las baterías están por encima del {threshold} % y disponibles."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: no disponible"
+      "message": "• {name}{area}: no disponible{type}"
     },
     "check_one": {
       "message": "1 batería que revisar"

@@ -10,6 +10,7 @@ duration: the due batteries are the ones notified.
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -68,6 +69,8 @@ class Battery:
     drain_per_day: float | None = None
     days_left: int | None = None
     replace_by: datetime | None = None
+    # Battery Notes' type ("CR2032", "2× AA"), None when it is not installed or doesn't know the device.
+    battery_type: str | None = None
 
     @property
     def alert(self) -> bool:
@@ -102,6 +105,7 @@ class Battery:
             "drain_per_day": self.drain_per_day,
             "days_left": self.days_left,
             "replace_by": self.replace_by.isoformat() if self.replace_by else None,
+            "battery_type": self.battery_type,
         }
 
     def as_row(self) -> dict[str, Any]:
@@ -118,6 +122,7 @@ class Battery:
             "drain_per_day": "" if self.drain_per_day is None else self.drain_per_day,
             "days_left": "" if self.days_left is None else self.days_left,
             "replace_by": self.replace_by.date().isoformat() if self.replace_by else "",
+            "battery_type": self.battery_type or "",
         }
 
 
@@ -153,6 +158,34 @@ def _level(state: State) -> int | None:
         return round(float(state.state))
     except (TypeError, ValueError):
         return None
+
+
+# "2× AA", "2x AA", "AA x2": the quantity is already in the type.
+_HAS_QUANTITY = re.compile(r"^\d+\s*[x×]|[x×]\s*\d+$", re.IGNORECASE)
+
+
+def battery_type(value: Any, quantity: Any = None) -> str | None:
+    """A Battery Notes type ("CR2032", "AA" with a quantity of 2 → "2× AA"), None when there is none."""
+    text = str(value or "").strip()
+    if not text or text in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+        return None
+    try:
+        count = int(float(quantity))
+    except (TypeError, ValueError):
+        count = 1
+    return f"{count}× {text}" if count > 1 and not _HAS_QUANTITY.search(text) else text
+
+
+def _type_sensor(hass: HomeAssistant, entities: er.EntityRegistry, device_id: str | None) -> State | None:
+    """Battery Notes' *Battery type* sensor of a device (translation key, else an entity ID ending in _battery_type)."""
+    if not device_id:
+        return None
+    for entry in er.async_entries_for_device(entities, device_id):
+        if entry.domain == "sensor" and (
+            entry.translation_key == "battery_type" or entry.entity_id.endswith("_battery_type")
+        ):
+            return hass.states.get(entry.entity_id)
+    return None
 
 
 async def _async_history(hass: HomeAssistant, entity_ids: list[str], start: datetime) -> dict[str, list[State]]:
@@ -200,7 +233,7 @@ class BatteryMonitor:
         # Measured drain (% per day) per level battery, and when it was last measured.
         self._drain: dict[str, float] = {}
         self.forecast_at: datetime | None = None
-        self._store: Store[dict[str, str]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
+        self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         # Last available reading of each battery (level, low): the events fire on a change from it.
         self._last: dict[str, tuple[int | None, bool]] = {}
         self._listeners: list[CALLBACK_TYPE] = []
@@ -266,13 +299,23 @@ class BatteryMonitor:
             if (drain := drain_per_day(points)) is not None:
                 drains[entity_id] = drain
         self._drain = drains
+        # Kept in .storage: a restart within the day reuses the drains instead of reading 30 days of history again.
+        self._store.async_delay_save(self._data, 5)
         self.async_refresh()
 
     async def async_load(self) -> None:
         stored = await self._store.async_load() or {}
-        for entity_id, value in stored.items():
-            if (since := dt_util.parse_datetime(value)) is not None:
+        # Before 1.14 the store held only the times below the threshold, by entity ID (entity IDs have a dot,
+        # the keys of the current layout don't).
+        below = stored.get("below_since") if isinstance(stored.get("below_since"), dict) else stored
+        for entity_id, value in below.items():
+            if isinstance(value, str) and (since := dt_util.parse_datetime(value)) is not None:
                 self._below_since[entity_id] = since
+        forecast_at = stored.get("forecast_at")
+        if isinstance(forecast_at, str) and (at := dt_util.parse_datetime(forecast_at)) is not None:
+            self.forecast_at = at
+            drains = stored.get("drains")
+            self._drain = {k: float(v) for k, v in drains.items()} if isinstance(drains, dict) else {}
         known = set(self._below_since)
         self.async_refresh()
         # Batteries already low or unavailable when first seen (just installed, or newly found): look
@@ -394,7 +437,8 @@ class BatteryMonitor:
 
         batteries: list[Battery] = []
         for state, entry in chosen.values():
-            device = devices.async_get(entry.device_id) if entry and entry.device_id else None
+            battery_device_id = entry.device_id if entry else None
+            device = devices.async_get(battery_device_id) if battery_device_id else None
             unavailable = state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN)
             level = None if state.domain == "binary_sensor" or unavailable else _level(state)
             if state.domain == "binary_sensor":
@@ -408,6 +452,10 @@ class BatteryMonitor:
             else:
                 self._below_since.pop(state.entity_id, None)
             since = self._below_since.get(state.entity_id)
+            # Battery Notes: the battery's own type attributes, else its device's *Battery type* sensor.
+            kind = battery_type(state.attributes.get("battery_type"), state.attributes.get("battery_quantity"))
+            if kind is None and (type_state := _type_sensor(self.hass, entities, battery_device_id)) is not None:
+                kind = battery_type(type_state.state, type_state.attributes.get("battery_quantity"))
             area_id = (entry.area_id if entry else None) or (device.area_id if device else None)
             area = areas.async_get_area(area_id) if area_id else None
             name = (device.name_by_user or device.name) if device else None
@@ -422,6 +470,7 @@ class BatteryMonitor:
                 below_since=since,
                 due=since is not None and now - since >= self.duration,
                 drain_per_day=self._drain.get(state.entity_id),
+                battery_type=kind,
             )
             # Days before the level reaches the threshold at the measured drain (a stable level has no date).
             if battery.drain_per_day and level is not None and not battery.alert:
@@ -470,8 +519,12 @@ class BatteryMonitor:
             elif b.low and not low:
                 self.hass.bus.async_fire(EVENT_LOW, {**data, "level": b.level, "threshold": self.threshold})
 
-    def _data(self) -> dict[str, str]:
-        return {k: v.isoformat() for k, v in self._below_since.items()}
+    def _data(self) -> dict[str, Any]:
+        return {
+            "below_since": {k: v.isoformat() for k, v in self._below_since.items()},
+            "forecast_at": self.forecast_at.isoformat() if self.forecast_at else None,
+            "drains": dict(self._drain),
+        }
 
     async def async_save(self) -> None:
         """Write the times below the threshold now (on unload: a reload must not reset them)."""
@@ -504,7 +557,16 @@ class BatteryMonitor:
                 return "line_unavailable"
             return "line" if b.level is not None else "line_no_level"
 
-        lines = [text(key(b), name=b.name, level=b.level, area=f" ({b.area})" if b.area else "") for b in due]
+        lines = [
+            text(
+                key(b),
+                name=b.name,
+                level=b.level,
+                area=f" ({b.area})" if b.area else "",
+                type=f" · {b.battery_type}" if b.battery_type else "",
+            )
+            for b in due
+        ]
         # "low batteries" when all are low, "batteries to check" as soon as one is unavailable
         kind = "check" if any(b.unavailable for b in due) else "title"
         title = text(f"{kind}_one" if len(due) == 1 else f"{kind}_many", count=len(due))

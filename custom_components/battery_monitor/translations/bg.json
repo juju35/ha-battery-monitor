@@ -135,10 +135,10 @@
       "message": "{count} изтощени батерии"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: изтощена"
+      "message": "• {name}{area}: изтощена{type}"
     },
     "none_title": {
       "message": "Няма батерии за проверка"
@@ -147,7 +147,7 @@
       "message": "Всички батерии са над {threshold} % и са достъпни."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: недостъпна"
+      "message": "• {name}{area}: недостъпна{type}"
     },
     "check_one": {
       "message": "1 батерия за проверка"

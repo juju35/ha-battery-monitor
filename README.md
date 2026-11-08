@@ -35,7 +35,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Ignored batteries and integrations**: phones and tablets of the mobile app are left out by default
 - **Lovelace card bundled with the integration**, added automatically to the dashboard resources (nothing to add by hand): icon, name, room, battery type, level and how long the battery has been low; only the batteries needing attention are tinted: orange while low, red when unavailable or once notified (blinking once notified)
 - **Full screen view** from the card: every battery grouped **by room**, **by battery type** (CR2032, AA…) or **by replacement date** (forecast from the measured drain), with what to buy for the ones to replace, the next replacement and a CSV export; battery types read from [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) or set in the card editor
-- **Replacement forecast**: the drain of each level battery is measured once a day on its recorded history (last 30 days, since the last replacement); the card shows *≈ 12 d left* when the threshold is less than two months away, and the **Next replacement** sensor gives the date the first battery reaches it
+- **Replacement forecast**: the drain of each level battery is measured once a day on its recorded history (last 30 days, since the last replacement), and kept across restarts (the history is read again only once the last measure is a day old); the card shows *≈ 12 d left* when the threshold is less than two months away, and the **Next replacement** sensor gives the date the first battery reaches it
 - **Events** for your automations: `battery_monitor_low` when a battery goes below the threshold, `battery_monitor_replaced` when a new battery is detected
 - **Mini card**: the status and only the batteries needing attention, with a button that shows the full card
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** and **Next replacement** sensors, **Notify now** button, `battery_monitor.notify` and `battery_monitor.export` (CSV) actions
@@ -89,12 +89,12 @@ At each notification time, the batteries that have been below the threshold for 
 
 ```text
 3 low batteries
-• Front door (Entrance): 8 %
-• Kitchen leak sensor (Kitchen): 17 %
+• Front door (Entrance): 8 % · CR2032
+• Kitchen leak sensor (Kitchen): 17 % · 2× AAA
 • Smoke detector (Hallway): low
 ```
 
-As soon as one of them is unavailable, the title becomes *N batteries to check* and its line says *unavailable*.
+As soon as one of them is unavailable, the title becomes *N batteries to check* and its line says *unavailable*. The battery type ends the line when [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) knows it (the `battery_type` and `battery_quantity` of the battery, or its device's *Battery type* sensor).
 
 When no battery is due, nothing is sent and the persistent notification is cleared.
 
@@ -102,7 +102,7 @@ When no battery is due, nothing is sent and the persistent notification is clear
 
 | Entity | Description |
 |---|---|
-| `sensor.battery_monitor_low_batteries` | Number of batteries below the threshold. Attributes: `unavailable` (number of unavailable batteries), `due` (number needing attention for the duration), `threshold`, `duration` (h), `batteries` (every monitored battery: `entity_id`, `device_id`, `name`, `area`, `level`, `icon`, `low`, `alert` (low or unavailable), `due`, `unavailable`, `below_since`, `drain_per_day` (% per day measured on the history, `0` when stable, `null` when unknown), `days_left` (before the threshold, `null` when stable, unknown, or already low or unavailable), `replace_by` (that date)) |
+| `sensor.battery_monitor_low_batteries` | Number of batteries below the threshold. Attributes: `unavailable` (number of unavailable batteries), `due` (number needing attention for the duration), `threshold`, `duration` (h), `batteries` (every monitored battery: `entity_id`, `device_id`, `name`, `area`, `level`, `icon`, `low`, `alert` (low or unavailable), `due`, `unavailable`, `below_since`, `drain_per_day` (% per day measured on the history, `0` when stable, `null` when unknown), `days_left` (before the threshold, `null` when stable, unknown, or already low or unavailable), `replace_by` (that date), `battery_type` (from Battery Notes, `2× AA`, `null` when unknown)) |
 | `sensor.battery_monitor_last_notification` | Time of the last notification; attribute `notified` (number of batteries notified) |
 | `sensor.battery_monitor_next_replacement` | Date the first battery is forecast to reach the threshold; a battery already low or unavailable comes first (since when it has been). Attributes: `entity_id`, `name`, `level`, `days_left` (`0` for one already low), `forecast_at` (last measure of the drains) |
 | `button.battery_monitor_notify_now` | Sends every low battery right away, whatever the duration (or *No low battery*) |
@@ -117,7 +117,7 @@ action: battery_monitor.notify
 
 ### Action `battery_monitor.export`
 
-Writes every monitored battery to a CSV file (`entity_id`, `name`, `area`, `level`, `low`, `unavailable`, `due`, `below_since`, `drain_per_day`, `days_left`, `replace_by`), for a spreadsheet or a report. Administrators only. `path` is optional: `battery_monitor.csv` in the configuration folder by default; a relative path is inside the configuration folder, an absolute one must be in the configuration folder or in `allowlist_external_dirs`. The file name must end in `.csv`, and hidden folders such as `.storage` are refused. Returns the path and the number of batteries.
+Writes every monitored battery to a CSV file (`entity_id`, `name`, `area`, `level`, `low`, `unavailable`, `due`, `below_since`, `drain_per_day`, `days_left`, `replace_by`, `battery_type` (from Battery Notes)), for a spreadsheet or a report. Administrators only. `path` is optional: `battery_monitor.csv` in the configuration folder by default; a relative path is inside the configuration folder, an absolute one must be in the configuration folder or in `allowlist_external_dirs`. The file name must end in `.csv`, and hidden folders such as `.storage` are refused. Returns the path and the number of batteries.
 
 ```yaml
 action: battery_monitor.export

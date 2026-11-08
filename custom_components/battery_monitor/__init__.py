@@ -218,6 +218,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntr
 
     @callback
     def first_forecast(_hass: HomeAssistant) -> None:
+        # Drains measured less than a day ago (kept in .storage) are reused: no 30-day history query at each restart.
+        if not monitor.forecast_due():
+            return
         entry.async_create_background_task(hass, monitor.async_forecast(), f"{DOMAIN}_forecast")
 
     entry.async_on_unload(async_track_time_interval(hass, refresh, timedelta(minutes=REFRESH_MINUTES)))

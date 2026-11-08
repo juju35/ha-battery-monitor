@@ -135,10 +135,10 @@
       "message": "{count} lave batterier"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: lavt"
+      "message": "• {name}{area}: lavt{type}"
     },
     "none_title": {
       "message": "Ingen batterier at tjekke"
@@ -147,7 +147,7 @@
       "message": "Alle batterier er over {threshold} % og tilgængelige."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: utilgængeligt"
+      "message": "• {name}{area}: utilgængeligt{type}"
     },
     "check_one": {
       "message": "1 batteri skal tjekkes"

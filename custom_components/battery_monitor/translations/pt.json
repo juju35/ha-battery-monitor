@@ -135,10 +135,10 @@
       "message": "{count} baterias fracas"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: fraca"
+      "message": "• {name}{area}: fraca{type}"
     },
     "none_title": {
       "message": "Nenhuma bateria a verificar"
@@ -147,7 +147,7 @@
       "message": "Todas as baterias estão acima de {threshold} % e disponíveis."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: indisponível"
+      "message": "• {name}{area}: indisponível{type}"
     },
     "check_one": {
       "message": "1 bateria a verificar"

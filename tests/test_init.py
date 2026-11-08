@@ -806,3 +806,96 @@ async def test_export_refused(hass: HomeAssistant, tmp_path, path: str, key: str
     with open(config, encoding="utf-8") as file:
         assert file.read() == "homeassistant:\n"
     assert not os.path.exists(hass.config.path(".storage/batteries.csv"))
+
+
+async def test_forecast_kept_across_restart(
+    hass: HomeAssistant, hass_storage: dict, freezer: FrozenDateTimeFactory
+) -> None:
+    """The drains are stored: a restart within the day reuses them instead of reading 30 days of history again."""
+    from custom_components.battery_monitor.const import STORAGE_KEY
+
+    now = dt_util.utcnow()
+    day = timedelta(days=1)
+    door = add_battery(hass, "Door", "60")
+    history = {door: [State(door, str(100 - 2 * i), last_changed=now - day * (20 - i)) for i in range(21)]}
+    with patch("custom_components.battery_monitor.monitor._async_history", AsyncMock(return_value=history)) as mock:
+        entry = await _setup(hass)
+        assert mock.call_count == 1
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+        stored = hass_storage[STORAGE_KEY]["data"]
+        assert stored["drains"] == {door: 2.0}
+        assert dt_util.parse_datetime(stored["forecast_at"]) == now
+
+        # Set up again 12 hours later: the stored drains are used, the history is not read.
+        freezer.tick(timedelta(hours=12))
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        assert mock.call_count == 1
+        assert _batteries(hass)[0]["drain_per_day"] == 2.0
+
+        # Once a day has passed since the stored measure, the next refresh measures again.
+        freezer.tick(timedelta(hours=12, minutes=10))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+        assert mock.call_count == 2
+
+
+async def test_forecast_too_old_measured_at_start(hass: HomeAssistant, hass_storage: dict) -> None:
+    from custom_components.battery_monitor.const import STORAGE_KEY, STORAGE_VERSION
+
+    door = add_battery(hass, "Door", "60")
+    hass_storage[STORAGE_KEY] = {
+        "version": STORAGE_VERSION,
+        "data": {
+            "below_since": {},
+            "forecast_at": (dt_util.utcnow() - timedelta(hours=25)).isoformat(),
+            "drains": {door: 5.0},
+        },
+    }
+    with patch("custom_components.battery_monitor.monitor._async_history", AsyncMock(return_value={})) as mock:
+        await _setup(hass)
+        assert mock.call_count == 1
+    assert _batteries(hass)[0]["drain_per_day"] is None
+
+
+async def test_battery_type(hass: HomeAssistant, tmp_path) -> None:
+    """Battery Notes' type: the battery's attributes, else the device's Battery type sensor; in the list,
+    the notification and the CSV."""
+    import csv
+
+    from custom_components.battery_monitor.monitor import battery_type
+
+    assert battery_type("AA", 2) == "2× AA"
+    assert battery_type("CR2032", "1") == "CR2032"
+    assert battery_type("2x AAA", 2) == "2x AAA"
+    assert battery_type("AA x2", 2) == "AA x2"
+    assert battery_type("unknown") is None
+    assert battery_type(None) is None
+
+    door = add_battery(hass, "Door", "12")
+    hass.states.async_set(door, "12", {"device_class": "battery", "battery_type": "AA", "battery_quantity": 2})
+    remote = add_battery(hass, "Remote", "10")
+    device_id = er.async_get(hass).async_get(remote).device_id
+    type_sensor = er.async_get(hass).async_get_or_create(
+        "sensor", "battery_notes", "remote_type", device_id=device_id, suggested_object_id="remote_battery_type"
+    )
+    hass.states.async_set(type_sensor.entity_id, "CR2032")
+    add_battery(hass, "Lamp", "unavailable")
+    await _setup(hass)
+
+    types = {b["name"]: b["battery_type"] for b in _batteries(hass)}
+    assert types == {"Door": "2× AA", "Remote": "CR2032", "Lamp": None}
+
+    await hass.services.async_call("button", "press", {"entity_id": BUTTON}, blocking=True)
+    await hass.async_block_till_done()
+    message = _notification(hass)["message"]
+    assert "• Remote: 10 % · CR2032" in message
+    assert "• Door: 12 % · 2× AA" in message
+    assert "• Lamp: unavailable\n" in message + "\n"
+
+    hass.config.config_dir = str(tmp_path)
+    await hass.services.async_call(DOMAIN, "export", {}, blocking=True, return_response=True)
+    with open(hass.config.path("battery_monitor.csv"), encoding="utf-8", newline="") as file:
+        rows = {r["name"]: r["battery_type"] for r in csv.DictReader(file)}
+    assert rows == {"Door": "2× AA", "Remote": "CR2032", "Lamp": ""}

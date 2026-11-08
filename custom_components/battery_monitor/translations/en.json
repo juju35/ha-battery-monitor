@@ -135,10 +135,10 @@
       "message": "{count} low batteries"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: low"
+      "message": "• {name}{area}: low{type}"
     },
     "none_title": {
       "message": "No battery to check"
@@ -147,7 +147,7 @@
       "message": "Every battery is above {threshold} % and available."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: unavailable"
+      "message": "• {name}{area}: unavailable{type}"
     },
     "check_one": {
       "message": "1 battery to check"

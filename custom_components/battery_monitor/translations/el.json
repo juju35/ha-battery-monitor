@@ -135,10 +135,10 @@
       "message": "{count} χαμηλές μπαταρίες"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: χαμηλή"
+      "message": "• {name}{area}: χαμηλή{type}"
     },
     "none_title": {
       "message": "Καμία μπαταρία για έλεγχο"
@@ -147,7 +147,7 @@
       "message": "Όλες οι μπαταρίες είναι πάνω από {threshold} % και διαθέσιμες."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: μη διαθέσιμη"
+      "message": "• {name}{area}: μη διαθέσιμη{type}"
     },
     "check_one": {
       "message": "1 μπαταρία για έλεγχο"

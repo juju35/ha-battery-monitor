@@ -135,10 +135,10 @@
       "message": "{count} låga batterier"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: lågt"
+      "message": "• {name}{area}: lågt{type}"
     },
     "none_title": {
       "message": "Inga batterier att kontrollera"
@@ -147,7 +147,7 @@
       "message": "Alla batterier ligger över {threshold} % och är tillgängliga."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: otillgängligt"
+      "message": "• {name}{area}: otillgängligt{type}"
     },
     "check_one": {
       "message": "1 batteri att kontrollera"

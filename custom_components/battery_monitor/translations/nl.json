@@ -135,10 +135,10 @@
       "message": "{count} bijna lege batterijen"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: bijna leeg"
+      "message": "• {name}{area}: bijna leeg{type}"
     },
     "none_title": {
       "message": "Geen batterij te controleren"
@@ -147,7 +147,7 @@
       "message": "Alle batterijen zitten boven {threshold} % en zijn beschikbaar."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: niet beschikbaar"
+      "message": "• {name}{area}: niet beschikbaar{type}"
     },
     "check_one": {
       "message": "1 batterij te controleren"

@@ -135,10 +135,10 @@
       "message": "Разряженные батареи: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: разряжена"
+      "message": "• {name}{area}: разряжена{type}"
     },
     "none_title": {
       "message": "Нет батарей для проверки"
@@ -147,7 +147,7 @@
       "message": "Все батареи выше {threshold} % и доступны."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: недоступна"
+      "message": "• {name}{area}: недоступна{type}"
     },
     "check_one": {
       "message": "1 батарея для проверки"

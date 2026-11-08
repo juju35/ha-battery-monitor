@@ -135,10 +135,10 @@
       "message": "{count} batterie scariche"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: scarica"
+      "message": "• {name}{area}: scarica{type}"
     },
     "none_title": {
       "message": "Nessuna batteria da controllare"
@@ -147,7 +147,7 @@
       "message": "Tutte le batterie sono sopra il {threshold} % e disponibili."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: non disponibile"
+      "message": "• {name}{area}: non disponibile{type}"
     },
     "check_one": {
       "message": "1 batteria da controllare"

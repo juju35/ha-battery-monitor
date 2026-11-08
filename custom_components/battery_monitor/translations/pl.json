@@ -135,10 +135,10 @@
       "message": "Słabe baterie: {count}"
     },
     "line": {
-      "message": "• {name}{area}: {level} %"
+      "message": "• {name}{area}: {level} %{type}"
     },
     "line_no_level": {
-      "message": "• {name}{area}: słaba"
+      "message": "• {name}{area}: słaba{type}"
     },
     "none_title": {
       "message": "Brak baterii do sprawdzenia"
@@ -147,7 +147,7 @@
       "message": "Wszystkie baterie są powyżej {threshold} % i są dostępne."
     },
     "line_unavailable": {
-      "message": "• {name}{area}: niedostępna"
+      "message": "• {name}{area}: niedostępna{type}"
     },
     "check_one": {
       "message": "1 bateria do sprawdzenia"
