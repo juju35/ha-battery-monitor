@@ -10,7 +10,7 @@
  *
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_PANEL_VERSION = '1.18.2';
+var BATTERY_MONITOR_PANEL_VERSION = '1.18.3';
 
 var BatteryMonitorPanelI18n = {
   en: {
@@ -21,6 +21,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Not set up yet: add the integration to Home Assistant.',
     open_add: 'Add the integration',
     loading: 'Loading…',
+    load_failed: 'Could not load: {error}. Trying again on its own.',
+    retry: 'Retry',
     f_threshold: 'Low battery threshold',
     f_threshold_hint: 'A battery is low below this level, {min}–{max} %',
     f_duration: 'Duration before notifying',
@@ -78,6 +80,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Pas encore configuré : ajoutez l’intégration à Home Assistant.',
     open_add: 'Ajouter l’intégration',
     loading: 'Chargement…',
+    load_failed: 'Chargement impossible : {error}. Nouvel essai automatique.',
+    retry: 'Réessayer',
     f_threshold: 'Seuil de batterie faible',
     f_threshold_hint: 'Une batterie est faible sous ce niveau, {min}–{max} %',
     f_duration: 'Durée avant notification',
@@ -135,6 +139,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Noch nicht eingerichtet: Integration zu Home Assistant hinzufügen.',
     open_add: 'Integration hinzufügen',
     loading: 'Wird geladen…',
+    load_failed: 'Laden fehlgeschlagen: {error}. Wird automatisch erneut versucht.',
+    retry: 'Erneut versuchen',
     f_threshold: 'Schwelle für niedrige Batterie',
     f_threshold_hint: 'Unter diesem Stand ist eine Batterie niedrig, {min}–{max} %',
     f_duration: 'Dauer vor der Benachrichtigung',
@@ -192,6 +198,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Aún no configurado: añade la integración a Home Assistant.',
     open_add: 'Añadir la integración',
     loading: 'Cargando…',
+    load_failed: 'No se pudo cargar: {error}. Se reintenta automáticamente.',
+    retry: 'Reintentar',
     f_threshold: 'Umbral de batería baja',
     f_threshold_hint: 'Una batería está baja por debajo de este nivel, {min}–{max} %',
     f_duration: 'Duración antes de notificar',
@@ -249,6 +257,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Non ancora configurato: aggiungi l’integrazione a Home Assistant.',
     open_add: 'Aggiungi l’integrazione',
     loading: 'Caricamento…',
+    load_failed: 'Caricamento non riuscito: {error}. Nuovo tentativo automatico.',
+    retry: 'Riprova',
     f_threshold: 'Soglia di batteria scarica',
     f_threshold_hint: 'Una batteria è scarica sotto questo livello, {min}–{max} %',
     f_duration: 'Durata prima della notifica',
@@ -306,6 +316,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Nog niet ingesteld: voeg de integratie toe aan Home Assistant.',
     open_add: 'Integratie toevoegen',
     loading: 'Laden…',
+    load_failed: 'Laden mislukt: {error}. Wordt automatisch opnieuw geprobeerd.',
+    retry: 'Opnieuw proberen',
     f_threshold: 'Drempel voor lage batterij',
     f_threshold_hint: 'Onder dit niveau is een batterij laag, {min}–{max} %',
     f_duration: 'Duur vóór de melding',
@@ -363,6 +375,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Ainda não configurado: adicione a integração ao Home Assistant.',
     open_add: 'Adicionar a integração',
     loading: 'A carregar…',
+    load_failed: 'Não foi possível carregar: {error}. Nova tentativa automática.',
+    retry: 'Tentar novamente',
     f_threshold: 'Limiar de bateria fraca',
     f_threshold_hint: 'Uma bateria está fraca abaixo deste nível, {min}–{max} %',
     f_duration: 'Duração antes de notificar',
@@ -420,6 +434,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Jeszcze nie skonfigurowano: dodaj integrację do Home Assistant.',
     open_add: 'Dodaj integrację',
     loading: 'Ładowanie…',
+    load_failed: 'Nie udało się wczytać: {error}. Ponowna próba automatycznie.',
+    retry: 'Spróbuj ponownie',
     f_threshold: 'Próg niskiej baterii',
     f_threshold_hint: 'Poniżej tego poziomu bateria jest niska, {min}–{max} %',
     f_duration: 'Czas przed powiadomieniem',
@@ -477,6 +493,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Încă neconfigurat: adaugă integrarea în Home Assistant.',
     open_add: 'Adaugă integrarea',
     loading: 'Se încarcă…',
+    load_failed: 'Încărcarea a eșuat: {error}. Se reîncearcă automat.',
+    retry: 'Reîncearcă',
     f_threshold: 'Prag de baterie slabă',
     f_threshold_hint: 'O baterie este slabă sub acest nivel, {min}–{max} %',
     f_duration: 'Durată înainte de notificare',
@@ -534,6 +552,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Ikke sat op endnu: tilføj integrationen til Home Assistant.',
     open_add: 'Tilføj integrationen',
     loading: 'Indlæser…',
+    load_failed: 'Kunne ikke indlæse: {error}. Prøver igen automatisk.',
+    retry: 'Prøv igen',
     f_threshold: 'Grænse for lavt batteri',
     f_threshold_hint: 'Et batteri er lavt under dette niveau, {min}–{max} %',
     f_duration: 'Varighed før besked',
@@ -591,6 +611,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Inte konfigurerat ännu: lägg till integrationen i Home Assistant.',
     open_add: 'Lägg till integrationen',
     loading: 'Läser in…',
+    load_failed: 'Kunde inte läsa in: {error}. Försöker igen automatiskt.',
+    retry: 'Försök igen',
     f_threshold: 'Gräns för lågt batteri',
     f_threshold_hint: 'Ett batteri är lågt under denna nivå, {min}–{max} %',
     f_duration: 'Tid före avisering',
@@ -648,6 +670,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Все още не е настроено: добавете интеграцията в Home Assistant.',
     open_add: 'Добавяне на интеграцията',
     loading: 'Зареждане…',
+    load_failed: 'Неуспешно зареждане: {error}. Автоматичен нов опит.',
+    retry: 'Опитай отново',
     f_threshold: 'Праг за слаба батерия',
     f_threshold_hint: 'Под това ниво батерията е слаба, {min}–{max} %',
     f_duration: 'Време преди известяване',
@@ -705,6 +729,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Ещё не настроено: добавьте интеграцию в Home Assistant.',
     open_add: 'Добавить интеграцию',
     loading: 'Загрузка…',
+    load_failed: 'Не удалось загрузить: {error}. Повтор выполняется автоматически.',
+    retry: 'Повторить',
     f_threshold: 'Порог низкого заряда',
     f_threshold_hint: 'Ниже этого уровня батарея считается разряженной, {min}–{max} %',
     f_duration: 'Время до уведомления',
@@ -762,6 +788,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Ще не налаштовано: додайте інтеграцію до Home Assistant.',
     open_add: 'Додати інтеграцію',
     loading: 'Завантаження…',
+    load_failed: 'Не вдалося завантажити: {error}. Повтор виконується автоматично.',
+    retry: 'Повторити',
     f_threshold: 'Поріг низького заряду',
     f_threshold_hint: 'Нижче цього рівня батарея вважається розрядженою, {min}–{max} %',
     f_duration: 'Час до сповіщення',
@@ -819,6 +847,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Még nincs beállítva: adja hozzá az integrációt a Home Assistanthoz.',
     open_add: 'Integráció hozzáadása',
     loading: 'Betöltés…',
+    load_failed: 'A betöltés nem sikerült: {error}. Automatikus újrapróbálás.',
+    retry: 'Újra',
     f_threshold: 'Alacsony töltöttség küszöbe',
     f_threshold_hint: 'E szint alatt az akkumulátor alacsony, {min}–{max} %',
     f_duration: 'Időtartam az értesítés előtt',
@@ -876,6 +906,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Zatiaľ nenastavené: pridajte integráciu do Home Assistant.',
     open_add: 'Pridať integráciu',
     loading: 'Načítava sa…',
+    load_failed: 'Načítanie zlyhalo: {error}. Automaticky sa skúša znova.',
+    retry: 'Skúsiť znova',
     f_threshold: 'Prah slabej batérie',
     f_threshold_hint: 'Pod touto úrovňou je batéria slabá, {min}–{max} %',
     f_duration: 'Čas pred upozornením',
@@ -933,6 +965,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Zatím nenastaveno: přidejte integraci do Home Assistant.',
     open_add: 'Přidat integraci',
     loading: 'Načítání…',
+    load_failed: 'Načtení se nezdařilo: {error}. Automaticky se zkouší znovu.',
+    retry: 'Zkusit znovu',
     f_threshold: 'Práh slabé baterie',
     f_threshold_hint: 'Pod touto úrovní je baterie slabá, {min}–{max} %',
     f_duration: 'Doba před upozorněním',
@@ -990,6 +1024,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Še ni nastavljeno: dodajte integracijo v Home Assistant.',
     open_add: 'Dodaj integracijo',
     loading: 'Nalaganje…',
+    load_failed: 'Nalaganje ni uspelo: {error}. Samodejno se poskuša znova.',
+    retry: 'Poskusi znova',
     f_threshold: 'Prag šibke baterije',
     f_threshold_hint: 'Pod to ravnjo je baterija šibka, {min}–{max} %',
     f_duration: 'Trajanje pred obvestilom',
@@ -1047,6 +1083,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Vēl nav iestatīts: pievienojiet integrāciju Home Assistant.',
     open_add: 'Pievienot integrāciju',
     loading: 'Ielādē…',
+    load_failed: 'Neizdevās ielādēt: {error}. Automātiski mēģina vēlreiz.',
+    retry: 'Mēģināt vēlreiz',
     f_threshold: 'Zema baterijas līmeņa slieksnis',
     f_threshold_hint: 'Zem šī līmeņa baterija ir zema, {min}–{max} %',
     f_duration: 'Ilgums pirms paziņojuma',
@@ -1104,6 +1142,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Δεν έχει ρυθμιστεί ακόμη: προσθέστε την ενσωμάτωση στο Home Assistant.',
     open_add: 'Προσθήκη της ενσωμάτωσης',
     loading: 'Φόρτωση…',
+    load_failed: 'Αποτυχία φόρτωσης: {error}. Νέα αυτόματη προσπάθεια.',
+    retry: 'Δοκιμή ξανά',
     f_threshold: 'Όριο χαμηλής μπαταρίας',
     f_threshold_hint: 'Κάτω από αυτό το επίπεδο η μπαταρία είναι χαμηλή, {min}–{max} %',
     f_duration: 'Διάρκεια πριν την ειδοποίηση',
@@ -1161,6 +1201,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Још није подешено: додајте интеграцију у Home Assistant.',
     open_add: 'Додај интеграцију',
     loading: 'Учитавање…',
+    load_failed: 'Учитавање није успело: {error}. Аутоматски се покушава поново.',
+    retry: 'Покушај поново',
     f_threshold: 'Праг слабе батерије',
     f_threshold_hint: 'Испод овог нивоа батерија је слаба, {min}–{max} %',
     f_duration: 'Трајање пре обавештења',
@@ -1218,6 +1260,8 @@ var BatteryMonitorPanelI18n = {
     none: 'Još nije podešeno: dodajte integraciju u Home Assistant.',
     open_add: 'Dodaj integraciju',
     loading: 'Učitavanje…',
+    load_failed: 'Učitavanje nije uspelo: {error}. Automatski se pokušava ponovo.',
+    retry: 'Pokušaj ponovo',
     f_threshold: 'Prag slabe baterije',
     f_threshold_hint: 'Ispod ovog nivoa baterija je slaba, {min}–{max} %',
     f_duration: 'Trajanje pre obaveštenja',
@@ -1324,6 +1368,7 @@ class BatteryMonitorPanel extends HTMLElement {
     section[hidden] { display:none; }
     .column { display:flex; flex-direction:column; gap:12px; min-width:0; }
     .note { padding:16px; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
+    .note.error { color:var(--primary-text-color); border-left:3px solid var(--error-color, #db4437); }
     .block { padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
     .head { display:flex; align-items:center; gap:12px; }
     .avatar { width:40px; height:40px; flex:none; border-radius:50%; display:grid; place-items:center; --mdc-icon-size:22px;
@@ -1531,11 +1576,13 @@ class BatteryMonitorPanel extends HTMLElement {
     try {
       this._settings = await this._hass.callWS({ type: 'battery_monitor/settings' });
       Object.assign(BM_PANEL_LIMITS, this._settings.limits || {});
+      this._loadError = null;
       this._retry(false);
     } catch (err) {
       console.error('Battery Monitor panel: could not load the settings', err);
       this._retry(true);
-      this._settings = this._settings || { entry: null, options: {}, notify_options: [], integration_options: [], entity_options: [] };
+      // Never loaded: the error with a Retry button, not "Battery Monitor isn't set up". Loaded before: kept.
+      if (this._settings === null) this._loadError = String(err?.message || err).replace(/\.\s*$/, '');
     }
     this._renderSettings();
   }
@@ -1769,7 +1816,10 @@ class BatteryMonitorPanel extends HTMLElement {
     if (!settings || !actions) return;
     var esc = bmPanelEsc;
     var note = null;
-    if (this._settings === null) note = `<ha-card class="note">${esc(this._t('loading'))}</ha-card>`;
+    if (this._settings === null && this._loadError) {
+      note = `<ha-card class="note error" role="alert">${esc(this._t('load_failed', { error: this._loadError }))}
+        <button class="act" data-retry><ha-icon icon="mdi:refresh"></ha-icon>${esc(this._t('retry'))}</button></ha-card>`;
+    } else if (this._settings === null) note = `<ha-card class="note" aria-busy="true">${esc(this._t('loading'))}</ha-card>`;
     else if (!this._settings.entry) {
       note = `<ha-card class="note">${esc(this._t('none'))}
         <a class="act" href="/config/integrations/dashboard/add?domain=battery_monitor"><ha-icon icon="mdi:plus"></ha-icon>${esc(this._t('open_add'))}</a></ha-card>`;
@@ -1777,6 +1827,7 @@ class BatteryMonitorPanel extends HTMLElement {
     if (note) {
       settings.innerHTML = note;
       actions.innerHTML = note;
+      for (const b of root.querySelectorAll('[data-retry]')) b.addEventListener('click', () => this._reload());
       return;
     }
     var focus = this._focusOf(root.querySelector('main'));

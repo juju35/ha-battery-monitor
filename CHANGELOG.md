@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.18.3 - 2026-11-09
+
+### Improvements
+- Panel: while the settings load, *Loading…*; if they can't be loaded, the error with a **Retry** button (tried again on its own meanwhile) instead of the page for an integration that isn't set up.
+
 ## 1.18.2 - 2026-11-09
 
 ### Fixes
