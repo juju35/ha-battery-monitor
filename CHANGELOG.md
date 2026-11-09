@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.18.2 - 2026-11-09
+
+### Fixes
+- Panel sometimes empty when opened: a load that failed (Home Assistant still starting after a restart or an update, the connection coming back after the app resumed) left the battery list and settings empty until the page was reloaded. It is now tried again after 2 s, 5 s, 15 s, then every 30 s while the panel is shown, and again as soon as the connection is back.
+
 ## 1.18.1 - 2026-11-09
 
 ### Maintenance
