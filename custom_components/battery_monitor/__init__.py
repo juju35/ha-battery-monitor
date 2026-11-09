@@ -62,10 +62,14 @@ type BatteryMonitorConfigEntry = ConfigEntry[BatteryMonitor]
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Serve the card and the sidebar panel, load the card on every dashboard and register the actions."""
     base = Path(__file__).parent / "frontend"
+    # The release splits the card translations into <file>.i18n.<lang>.js files (scripts/split-frontend.mjs):
+    # served next to the card, which fetches the one it needs. A git checkout has none.
+    languages = await hass.async_add_executor_job(_language_files, base)
     await hass.http.async_register_static_paths(
         [
             StaticPathConfig(CARD_URL, str(base / "battery-monitor-card.js"), True),
             StaticPathConfig(PANEL_URL, str(base / "battery-monitor-panel.js"), True),
+            *(StaticPathConfig(f"{CARD_URL.rsplit('/', 1)[0]}/{name}", str(base / name), True) for name in languages),
         ]
     )
     await async_register_panel(hass)
@@ -220,3 +224,8 @@ async def async_remove_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEnt
 
 async def _async_reload(hass: HomeAssistant, entry: BatteryMonitorConfigEntry) -> None:
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+def _language_files(frontend: Path) -> list[str]:
+    """The translation files the release split out of the frontend files, if any."""
+    return sorted(p.name for p in frontend.glob("*.i18n.*.js"))

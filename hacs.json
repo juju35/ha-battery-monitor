@@ -2,5 +2,7 @@
   "name": "Battery Monitor",
   "content_in_root": false,
   "render_readme": true,
+  "zip_release": true,
+  "filename": "battery_monitor.zip",
   "homeassistant": "2024.12.0"
 }
