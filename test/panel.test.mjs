@@ -19,8 +19,12 @@ const context = {
   },
   customElements: { get: () => true, define() {} },
   CSS: { escape: (s) => String(s) },
-  console,
+  console: { ...console, error() {} },
+  // Timers recorded, not run: the retry test calls them itself
+  setTimeout: (fn, ms) => timers.push({ fn, ms }),
+  clearTimeout() {},
 };
+const timers = [];
 vm.createContext(context);
 vm.runInContext(
   `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList };`,
@@ -337,4 +341,38 @@ test('a settings command that fails keeps the page usable', async () => {
   assert.equal(panel._settings.entry, null);
   assert.deepEqual(plain(panel._settings.options), {});
   context.console = console;
+});
+
+test('a failed load is tried again after 2 s, 5 s, 15 s then every 30 s, and when the connection is back', async () => {
+  timers.length = 0;
+  const panel = Object.create(BatteryMonitorPanel.prototype);
+  panel._renderSettings = () => {};
+  let fail = true;
+  panel._hass = { callWS: async () => { if (fail) throw new Error('unknown_command'); return { options: {}, limits: {} }; } };
+  for (let i = 0; i < 5; i++) await panel._load();
+  assert.deepEqual(timers.map((t) => t.ms), [2000, 5000, 15000, 30000, 30000]);
+  assert.equal(panel._failed, true);
+  // A retry while the panel is gone does nothing; back on it, connectedCallback loads again
+  let loads = 0;
+  panel._load = async () => { loads++; };
+  panel.isConnected = false;
+  timers[0].fn();
+  assert.equal(loads, 0);
+  panel.isConnected = true;
+  timers[0].fn();
+  assert.equal(loads, 1);
+  delete panel._load;
+  fail = false;
+  await panel._load();
+  assert.equal(panel._failed, false);
+  assert.equal(panel._retries, 0);
+  // The connection back: one listener, removed when the panel goes
+  const listeners = new Map();
+  panel._hass.connection = { addEventListener: (t, f) => listeners.set(t, f), removeEventListener: (t, f) => listeners.get(t) === f && listeners.delete(t) };
+  panel._watchConnection(true);
+  panel._load = async () => { loads++; };
+  listeners.get('ready')();
+  assert.equal(loads, 2);
+  panel._watchConnection(false);
+  assert.equal(listeners.size, 0);
 });

@@ -10,7 +10,7 @@
  *
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_PANEL_VERSION = '1.18.1';
+var BATTERY_MONITOR_PANEL_VERSION = '1.18.2';
 
 var BatteryMonitorPanelI18n = {
   en: {
@@ -1445,15 +1445,49 @@ class BatteryMonitorPanel extends HTMLElement {
 
   connectedCallback() {
     if (this._hass && !this._unsub) this._subscribe();
+    this._watchConnection(true);
+    // Back on the panel after a failed load: try again now.
+    if (this._hass && this._failed) this._reload();
   }
 
   disconnectedCallback() {
+    this._watchConnection(false);
+    clearTimeout(this._retryTimer);
     if (this._unsub) {
       this._unsub.then((off) => off()).catch(() => {});
       this._unsub = null;
     }
   }
 
+
+  // The connection back (Home Assistant restarted, the app resumed): load again, the data may have changed meanwhile.
+  _watchConnection(on) {
+    var connection = this._hass?.connection;
+    if (!connection?.addEventListener) return;
+    this._onReady = this._onReady || (() => this._reload());
+    connection.removeEventListener('ready', this._onReady);
+    if (on) connection.addEventListener('ready', this._onReady);
+  }
+
+  // A load that failed (Home Assistant still starting, the connection dropped) is tried again after 2 s, 5 s, 15 s,
+  // then every 30 s while the panel is shown, instead of leaving it empty.
+  _retry(failed) {
+    clearTimeout(this._retryTimer);
+    this._failed = failed;
+    if (!failed) {
+      this._retries = 0;
+      return;
+    }
+    var delay = [2000, 5000, 15000, 30000][Math.min(this._retries || 0, 3)];
+    this._retries = (this._retries || 0) + 1;
+    this._retryTimer = setTimeout(() => {
+      if (this.isConnected) this._reload();
+    }, delay);
+  }
+
+  _reload() {
+    this._load();
+  }
   // Full code when it has a table (sr-Latn), else its base (de-AT → de), else English
   _lang() {
     var code = this._hass?.language || 'en';
@@ -1476,6 +1510,7 @@ class BatteryMonitorPanel extends HTMLElement {
     }
     this._mountCard();
     this._subscribe();
+    this._watchConnection(this.isConnected);
     this._load();
   }
 
@@ -1496,8 +1531,10 @@ class BatteryMonitorPanel extends HTMLElement {
     try {
       this._settings = await this._hass.callWS({ type: 'battery_monitor/settings' });
       Object.assign(BM_PANEL_LIMITS, this._settings.limits || {});
+      this._retry(false);
     } catch (err) {
       console.error('Battery Monitor panel: could not load the settings', err);
+      this._retry(true);
       this._settings = this._settings || { entry: null, options: {}, notify_options: [], integration_options: [], entity_options: [] };
     }
     this._renderSettings();
