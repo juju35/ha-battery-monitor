@@ -142,5 +142,5 @@ jobs:
       # Splits a copy of the frontend as the release does, and rebuilds every table to check it.
       - name: Check the translation split
         run: |
-          npm install --no-save --no-package-lock acorn@8
+          npm install --no-save --no-package-lock acorn@8.19.0
           node scripts/split-frontend.mjs --check
