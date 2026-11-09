@@ -54,6 +54,20 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Set up Node
+        if: steps.version.outputs.exists == 'false'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+
+      # Only English stays in the frontend files of the zip; each other language is its own file next to them,
+      # fetched when needed (scripts/split-frontend.mjs). The repository keeps every language in the sources.
+      - name: Split the translations
+        if: steps.version.outputs.exists == 'false'
+        run: |
+          npm install --no-save --no-package-lock acorn@8
+          node scripts/split-frontend.mjs
+
       - name: Build zip and notes
         if: steps.version.outputs.exists == 'false'
         run: |
