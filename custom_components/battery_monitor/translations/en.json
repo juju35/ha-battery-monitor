@@ -108,6 +108,20 @@
             "name": "Forecast measured"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Spare batteries",
+        "state_attributes": {
+          "stock": {
+            "name": "In stock"
+          },
+          "needed": {
+            "name": "Needed"
+          },
+          "short": {
+            "name": "Missing"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "File",
           "description": "Path of the CSV file; battery_monitor.csv in the configuration folder when empty."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Set spare batteries",
+      "description": "Sets how many spare batteries of a type you have; each replacement detected for that type takes its batteries out of the count.",
+      "fields": {
+        "battery_type": {
+          "name": "Battery type",
+          "description": "As Battery Notes names it, without the quantity: AA, CR2032…"
+        },
+        "count": {
+          "name": "Count",
+          "description": "Spare batteries of that type. Leave empty to stop counting it."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} is in a hidden folder (such as .storage): the export does not write there."
+    },
+    "spares_short": {
+      "message": "Spare batteries to buy: {spares}"
     }
   }
 }

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "battery_monitor"
-VERSION: Final = "1.17.0"
+VERSION: Final = "1.18.0"
 
 CONF_THRESHOLD: Final = "threshold"
 CONF_DURATION: Final = "duration"
@@ -43,7 +43,12 @@ DEFAULT_EXPORT_FILE: Final = f"{DOMAIN}.csv"
 
 SERVICE_NOTIFY: Final = "notify"
 SERVICE_EXPORT: Final = "export"
+SERVICE_SET_STOCK: Final = "set_stock"
+# Spare batteries needed: those already low or unavailable, and those forecast to reach the threshold within this.
+STOCK_HORIZON_DAYS: Final = 30
 ATTR_PATH: Final = "path"
+ATTR_BATTERY_TYPE: Final = "battery_type"
+ATTR_COUNT: Final = "count"
 NOTIFICATION_ID: Final = f"{DOMAIN}_low"
 # Bus events: a battery went below the threshold, a battery was replaced (its level rose by FORECAST_RESET_JUMP).
 EVENT_LOW: Final = f"{DOMAIN}_low"

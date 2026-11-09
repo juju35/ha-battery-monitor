@@ -108,6 +108,20 @@
             "name": "Previsione misurata"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Batterie di ricambio",
+        "state_attributes": {
+          "stock": {
+            "name": "In magazzino"
+          },
+          "needed": {
+            "name": "Necessarie"
+          },
+          "short": {
+            "name": "Mancanti"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "File",
           "description": "Percorso del file CSV; battery_monitor.csv nella cartella di configurazione se vuoto."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Imposta le batterie di ricambio",
+      "description": "Indica quante batterie di ricambio di un tipo hai; ogni sostituzione rilevata per quel tipo le scala dal conteggio.",
+      "fields": {
+        "battery_type": {
+          "name": "Tipo di batteria",
+          "description": "Come lo chiama Battery Notes, senza quantità: AA, CR2032…"
+        },
+        "count": {
+          "name": "Numero",
+          "description": "Batterie di ricambio di quel tipo. Lascia vuoto per non contarlo più."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} si trova in una cartella nascosta (come .storage): l'esportazione non scrive lì."
+    },
+    "spares_short": {
+      "message": "Batterie di ricambio da comprare: {spares}"
     }
   }
 }

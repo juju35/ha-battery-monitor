@@ -108,6 +108,20 @@
             "name": "Previsão medida"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Pilhas de reserva",
+        "state_attributes": {
+          "stock": {
+            "name": "Em stock"
+          },
+          "needed": {
+            "name": "Necessárias"
+          },
+          "short": {
+            "name": "Em falta"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Ficheiro",
           "description": "Caminho do ficheiro CSV; battery_monitor.csv na pasta de configuração se vazio."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Definir as pilhas de reserva",
+      "description": "Indica quantas pilhas de reserva de um tipo tem; cada substituição detetada desse tipo é descontada.",
+      "fields": {
+        "battery_type": {
+          "name": "Tipo de pilha",
+          "description": "Como o Battery Notes o designa, sem a quantidade: AA, CR2032…"
+        },
+        "count": {
+          "name": "Quantidade",
+          "description": "Pilhas de reserva desse tipo. Deixe vazio para deixar de o contar."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} está numa pasta oculta (como .storage): a exportação não escreve aí."
+    },
+    "spares_short": {
+      "message": "Pilhas de reserva a comprar: {spares}"
     }
   }
 }

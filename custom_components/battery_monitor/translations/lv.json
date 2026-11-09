@@ -108,6 +108,20 @@
             "name": "Prognoze izmērīta"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Rezerves baterijas",
+        "state_attributes": {
+          "stock": {
+            "name": "Krājumā"
+          },
+          "needed": {
+            "name": "Vajadzīgas"
+          },
+          "short": {
+            "name": "Trūkst"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Fails",
           "description": "CSV faila ceļš; battery_monitor.csv konfigurācijas mapē, ja tukšs."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Iestatīt rezerves baterijas",
+      "description": "Iestata, cik rezerves bateriju no veida jums ir; katra konstatētā šī veida nomaiņa tās atskaita.",
+      "fields": {
+        "battery_type": {
+          "name": "Baterijas veids",
+          "description": "Kā to nosauc Battery Notes, bez skaita: AA, CR2032…"
+        },
+        "count": {
+          "name": "Skaits",
+          "description": "Šī veida rezerves baterijas. Atstājiet tukšu, lai to vairs neskaitītu."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} atrodas slēptā mapē (piemēram, .storage): eksports tur neraksta."
+    },
+    "spares_short": {
+      "message": "Pērkamās rezerves baterijas: {spares}"
     }
   }
 }

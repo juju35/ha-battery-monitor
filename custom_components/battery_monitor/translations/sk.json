@@ -108,6 +108,20 @@
             "name": "Prognóza nameraná"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Náhradné batérie",
+        "state_attributes": {
+          "stock": {
+            "name": "Na sklade"
+          },
+          "needed": {
+            "name": "Potrebné"
+          },
+          "short": {
+            "name": "Chýba"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Súbor",
           "description": "Cesta k súboru CSV; battery_monitor.csv v konfiguračnom priečinku, ak je prázdne."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Nastaviť náhradné batérie",
+      "description": "Nastaví, koľko náhradných batérií daného typu máte; každá zistená výmena tohto typu ich odpočíta.",
+      "fields": {
+        "battery_type": {
+          "name": "Typ batérie",
+          "description": "Ako ho pomenúva Battery Notes, bez počtu: AA, CR2032…"
+        },
+        "count": {
+          "name": "Počet",
+          "description": "Náhradné batérie tohto typu. Nechajte prázdne, aby sa prestal počítať."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} je v skrytom priečinku (napríklad .storage): export tam nezapisuje."
+    },
+    "spares_short": {
+      "message": "Náhradné batérie na kúpu: {spares}"
     }
   }
 }

@@ -40,6 +40,7 @@ It comes with a **Lovelace card** listing every battery with its icon, name, roo
 - **Mini card**: the status and only the batteries needing attention, with a button that shows the full card
 - **Sidebar panel** (administrators), in three tabs: the batteries as in the full screen view, every setting, the actions
 - **Low batteries** sensor with every monitored battery in its attributes, **Last notification** and **Next replacement** sensors, **Notify now** button, `battery_monitor.notify` and `battery_monitor.export` (CSV) actions
+- **Spare batteries**: count the spares you keep by type (`battery_monitor.set_stock`); each replacement detected takes its batteries out, and the **Spare batteries** sensor and the notification say what to buy for the batteries low or due within 30 days
 - UI setup, no YAML; English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian, Greek and Serbian (Cyrillic and Latin)
 
 ## Prerequisites
@@ -105,6 +106,7 @@ When no battery is due, nothing is sent and the persistent notification is clear
 |---|---|
 | `sensor.battery_monitor_low_batteries` | Number of batteries below the threshold. Attributes: `unavailable` (number of unavailable batteries), `due` (number needing attention for the duration), `threshold`, `duration` (h), `batteries` (every monitored battery: `entity_id`, `device_id`, `name`, `area`, `level`, `icon`, `low`, `alert` (low or unavailable), `due`, `unavailable`, `below_since`, `drain_per_day` (% per day measured on the history, `0` when stable, `null` when unknown), `days_left` (before the threshold, `null` when stable, unknown, or already low or unavailable), `replace_by` (that date), `battery_type` (from Battery Notes, `2× AA`, `null` when unknown)) |
 | `sensor.battery_monitor_last_notification` | Time of the last notification; attribute `notified` (number of batteries notified) |
+| `sensor.battery_monitor_spare_batteries` | Number of battery types short of spares (`0`: enough). Attributes: `stock` (spares per type counted), `needed` (batteries of that type low, unavailable or forecast to reach the threshold within 30 days, with their quantity: a `2× AA` device needs 2), `short` (the types missing some, and how many). Only the types set with `battery_monitor.set_stock` |
 | `sensor.battery_monitor_next_replacement` | Date the first battery is forecast to reach the threshold; a battery already low or unavailable comes first (since when it has been). Attributes: `entity_id`, `name`, `level`, `days_left` (`0` for one already low), `forecast_at` (last measure of the drains) |
 | `button.battery_monitor_notify_now` | Sends every low battery right away, whatever the duration (or *No low battery*) |
 
@@ -114,6 +116,17 @@ Sends every battery below the threshold right away, whatever the duration, or a 
 
 ```yaml
 action: battery_monitor.notify
+```
+
+### Action `battery_monitor.set_stock`
+
+Sets how many spare batteries of a type you keep, by the type Battery Notes gives without the quantity (`AA`, `AAA`, `CR2032`…). Each replacement detected for a battery of that type (a rise of 15 points, the `battery_monitor_replaced` event) then takes its quantity out of the count, never below 0. Without `count`, the type is no longer counted. When spares are missing, the notification ends with *Spare batteries to buy: 1 AA, 2 CR2032*. Open to every user, like `battery_monitor.notify`.
+
+```yaml
+action: battery_monitor.set_stock
+data:
+  battery_type: AA
+  count: 8
 ```
 
 ### Action `battery_monitor.export`

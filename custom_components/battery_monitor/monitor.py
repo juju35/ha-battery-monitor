@@ -40,6 +40,7 @@ from .const import (
     FORECAST_RESET_JUMP,
     MAX_DURATION,
     NOTIFICATION_ID,
+    STOCK_HORIZON_DAYS,
     STORAGE_KEY,
     STORAGE_VERSION,
 )
@@ -176,6 +177,23 @@ def battery_type(value: Any, quantity: Any = None) -> str | None:
     return f"{count}× {text}" if count > 1 and not _HAS_QUANTITY.search(text) else text
 
 
+# "2× AA", "2x AA", "AA x2", "AA": the quantity and the type.
+_QUANTITY_FIRST = re.compile(r"^(\d+)\s*[x×]\s*(.+)$", re.IGNORECASE)
+_QUANTITY_LAST = re.compile(r"^(.+?)\s*[x×]\s*(\d+)$", re.IGNORECASE)
+
+
+def split_type(kind: str | None) -> tuple[int, str] | None:
+    """(quantity, type) of a battery type ("2× AA" → (2, "AA")), None without one."""
+    text = str(kind or "").strip()
+    if not text:
+        return None
+    if m := _QUANTITY_FIRST.match(text):
+        return int(m.group(1)), m.group(2).strip()
+    if m := _QUANTITY_LAST.match(text):
+        return int(m.group(2)), m.group(1).strip()
+    return 1, text
+
+
 def _type_sensor(hass: HomeAssistant, entities: er.EntityRegistry, device_id: str | None) -> State | None:
     """Battery Notes' *Battery type* sensor of a device (translation key, else an entity ID ending in _battery_type)."""
     if not device_id:
@@ -237,6 +255,8 @@ class BatteryMonitor:
         # Last available reading of each battery (level, low): the events fire on a change from it.
         self._last: dict[str, tuple[int | None, bool]] = {}
         self._listeners: list[CALLBACK_TYPE] = []
+        # Spare batteries in the drawer, by type ("AA": 4): only the types set with battery_monitor.set_stock.
+        self.stock: dict[str, int] = {}
 
     # ── Listeners ───────────────────────────────────────────────────────────
 
@@ -316,6 +336,9 @@ class BatteryMonitor:
             self.forecast_at = at
             drains = stored.get("drains")
             self._drain = {k: float(v) for k, v in drains.items()} if isinstance(drains, dict) else {}
+        stock = stored.get("stock")
+        if isinstance(stock, dict):
+            self.stock = {str(k): int(v) for k, v in stock.items() if isinstance(v, int) and v >= 0}
         known = set(self._below_since)
         self.async_refresh()
         # Batteries already low or unavailable when first seen (just installed, or newly found): look
@@ -516,6 +539,7 @@ class BatteryMonitor:
             # A rise of FORECAST_RESET_JUMP points or more is a new battery, as for the forecast.
             if level is not None and b.level is not None and b.level - level >= FORECAST_RESET_JUMP:
                 self.hass.bus.async_fire(EVENT_REPLACED, {**data, "level": b.level, "previous_level": level})
+                self._use_spares(b)
             elif b.low and not low:
                 self.hass.bus.async_fire(EVENT_LOW, {**data, "level": b.level, "threshold": self.threshold})
 
@@ -524,6 +548,44 @@ class BatteryMonitor:
             "below_since": {k: v.isoformat() for k, v in self._below_since.items()},
             "forecast_at": self.forecast_at.isoformat() if self.forecast_at else None,
             "drains": dict(self._drain),
+            "stock": dict(self.stock),
+        }
+
+    # ── Spare batteries ─────────────────────────────────────────────────────
+
+    def _use_spares(self, battery: Battery) -> None:
+        """A battery was replaced: take its batteries out of the stock of its type, if that type is counted."""
+        parsed = split_type(battery.battery_type)
+        if parsed is None or parsed[1] not in self.stock:
+            return
+        count, kind = parsed
+        self.stock[kind] = max(0, self.stock[kind] - count)
+        self._store.async_delay_save(self._data, 5)
+
+    @callback
+    def async_set_stock(self, kind: str, count: int | None) -> None:
+        """Set the spare batteries of a type; None stops counting it."""
+        kind = kind.strip()
+        if count is None:
+            self.stock.pop(kind, None)
+        else:
+            self.stock[kind] = count
+        self._store.async_delay_save(self._data, 5)
+        self._notify_listeners()
+
+    def spares(self) -> dict[str, dict[str, int]]:
+        """Per counted type: in stock, needed (low, unavailable or due within STOCK_HORIZON_DAYS) and short."""
+        horizon = STOCK_HORIZON_DAYS
+        needed = dict.fromkeys(self.stock, 0)
+        for b in self.batteries:
+            parsed = split_type(b.battery_type)
+            if parsed is None or parsed[1] not in needed:
+                continue
+            if b.alert or (b.days_left is not None and b.days_left <= horizon):
+                needed[parsed[1]] += parsed[0]
+        return {
+            kind: {"stock": stock, "needed": needed[kind], "short": max(0, needed[kind] - stock)}
+            for kind, stock in sorted(self.stock.items())
         }
 
     async def async_save(self) -> None:
@@ -570,6 +632,8 @@ class BatteryMonitor:
         # "low batteries" when all are low, "batteries to check" as soon as one is unavailable
         kind = "check" if any(b.unavailable for b in due) else "title"
         title = text(f"{kind}_one" if len(due) == 1 else f"{kind}_many", count=len(due))
+        if short := [f"{v['short']} {kind}" for kind, v in self.spares().items() if v["short"]]:
+            lines += ["", text("spares_short", spares=", ".join(short))]
         await self._async_send(title, "\n".join(lines))
         self._notify_listeners()
 

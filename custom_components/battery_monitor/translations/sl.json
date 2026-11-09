@@ -108,6 +108,20 @@
             "name": "Napoved izmerjena"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Rezervne baterije",
+        "state_attributes": {
+          "stock": {
+            "name": "Na zalogi"
+          },
+          "needed": {
+            "name": "Potrebne"
+          },
+          "short": {
+            "name": "Manjka"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Datoteka",
           "description": "Pot do datoteke CSV; battery_monitor.csv v mapi s konfiguracijo, če je prazno."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Nastavi rezervne baterije",
+      "description": "Nastavi, koliko rezervnih baterij določene vrste imate; vsaka zaznana zamenjava te vrste jih odšteje.",
+      "fields": {
+        "battery_type": {
+          "name": "Vrsta baterije",
+          "description": "Kot jo poimenuje Battery Notes, brez števila: AA, CR2032…"
+        },
+        "count": {
+          "name": "Število",
+          "description": "Rezervne baterije te vrste. Pustite prazno, da se je ne šteje več."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} je v skriti mapi (na primer .storage): izvoz tja ne zapisuje."
+    },
+    "spares_short": {
+      "message": "Rezervne baterije za nakup: {spares}"
     }
   }
 }
