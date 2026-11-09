@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.18.0 - 2026-11-09
+
+### Features
+- **Spare batteries**: `battery_monitor.set_stock` counts the spares you keep by type (`AA`, `CR2032`…); each replacement detected for a battery of that type takes its quantity out (a `2× AA` device, 2). The new **Spare batteries** sensor gives the stock, the batteries needed (low, unavailable or forecast to reach the threshold within 30 days) and those missing per type, and the notification ends with *Spare batteries to buy: …* when some are. Kept across restarts.
+
 ## 1.17.0 - 2026-11-09
 
 ### Performance

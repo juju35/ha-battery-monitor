@@ -8,10 +8,15 @@
         "default": "mdi:battery-alert-variant-outline",
         "state": { "0": "mdi:battery-check-outline" }
       },
-      "last_notification": { "default": "mdi:bell-check-outline" }
+      "last_notification": { "default": "mdi:bell-check-outline" },
+      "spare_batteries": {
+        "default": "mdi:cart-outline",
+        "state": { "0": "mdi:battery-plus-outline" }
+      }
     }
   },
   "services": {
-    "notify": { "service": "mdi:bell-ring-outline" }
+    "notify": { "service": "mdi:bell-ring-outline" },
+    "set_stock": { "service": "mdi:battery-plus-outline" }
   }
 }

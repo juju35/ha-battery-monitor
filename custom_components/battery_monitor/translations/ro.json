@@ -108,6 +108,20 @@
             "name": "Prognoză măsurată"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Baterii de rezervă",
+        "state_attributes": {
+          "stock": {
+            "name": "În stoc"
+          },
+          "needed": {
+            "name": "Necesare"
+          },
+          "short": {
+            "name": "Lipsă"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Fișier",
           "description": "Calea fișierului CSV; battery_monitor.csv în dosarul de configurare dacă este gol."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Setează bateriile de rezervă",
+      "description": "Indică câte baterii de rezervă de un tip ai; fiecare înlocuire detectată pentru acel tip le scade.",
+      "fields": {
+        "battery_type": {
+          "name": "Tip de baterie",
+          "description": "Cum îl numește Battery Notes, fără cantitate: AA, CR2032…"
+        },
+        "count": {
+          "name": "Număr",
+          "description": "Baterii de rezervă de acel tip. Lasă gol pentru a nu-l mai număra."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} se află într-un dosar ascuns (precum .storage): exportul nu scrie acolo."
+    },
+    "spares_short": {
+      "message": "Baterii de rezervă de cumpărat: {spares}"
     }
   }
 }

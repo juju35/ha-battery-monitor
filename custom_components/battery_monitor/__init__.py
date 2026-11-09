@@ -23,6 +23,8 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    ATTR_BATTERY_TYPE,
+    ATTR_COUNT,
     ATTR_PATH,
     CARD_URL,
     CONF_DURATION,
@@ -43,6 +45,7 @@ from .const import (
     REFRESH_MINUTES,
     SERVICE_EXPORT,
     SERVICE_NOTIFY,
+    SERVICE_SET_STOCK,
     STORAGE_KEY,
     STORAGE_VERSION,
     VERSION,
@@ -100,6 +103,24 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             if not user.is_admin:
                 raise Unauthorized(context=call.context)
         return await async_export(hass, call.data.get(ATTR_PATH))
+
+    async def set_stock(call: ServiceCall) -> None:
+        if (entry := loaded_entry(hass)) is None:
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
+        entry.runtime_data.async_set_stock(call.data[ATTR_BATTERY_TYPE], call.data.get(ATTR_COUNT))
+
+    # Counting the spare batteries is household bookkeeping, not configuration: open to every user, like notify.
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_STOCK,
+        set_stock,
+        schema=vol.Schema(
+            {
+                vol.Required(ATTR_BATTERY_TYPE): vol.All(cv.string, vol.Length(min=1, max=40)),
+                vol.Optional(ATTR_COUNT): vol.Any(None, vol.All(vol.Coerce(int), vol.Range(min=0, max=999))),
+            }
+        ),
+    )
 
     hass.services.async_register(
         DOMAIN,

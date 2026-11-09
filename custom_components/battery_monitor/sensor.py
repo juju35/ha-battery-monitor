@@ -25,6 +25,7 @@ async def async_setup_entry(
             LowBatteriesSensor(m, entry.entry_id, "low_batteries"),
             LastNotificationSensor(m, entry.entry_id, "last_notification"),
             NextReplacementSensor(m, entry.entry_id, "next_replacement"),
+            SparesSensor(m, entry.entry_id, "spare_batteries"),
         ]
     )
 
@@ -87,4 +88,25 @@ class NextReplacementSensor(BatteryMonitorEntity, SensorEntity):
             "level": battery.level if battery else None,
             "days_left": (0 if battery.alert else battery.days_left) if battery else None,
             "forecast_at": self.monitor.forecast_at.isoformat() if self.monitor.forecast_at else None,
+        }
+
+
+class SparesSensor(BatteryMonitorEntity, SensorEntity):
+    """Number of battery types short of spares; the stock, the batteries needed and those missing per type.
+
+    Needed: the batteries of that type already low or unavailable, or forecast to reach the threshold within
+    STOCK_HORIZON_DAYS. Only the types counted with battery_monitor.set_stock.
+    """
+
+    @property
+    def native_value(self) -> int:
+        return sum(1 for v in self.monitor.spares().values() if v["short"])
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        spares = self.monitor.spares()
+        return {
+            "stock": {kind: v["stock"] for kind, v in spares.items()},
+            "needed": {kind: v["needed"] for kind, v in spares.items()},
+            "short": {kind: v["short"] for kind, v in spares.items() if v["short"]},
         }

@@ -108,6 +108,20 @@
             "name": "Prognoza zmierzona"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Zapasowe baterie",
+        "state_attributes": {
+          "stock": {
+            "name": "Na stanie"
+          },
+          "needed": {
+            "name": "Potrzebne"
+          },
+          "short": {
+            "name": "Brakuje"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Plik",
           "description": "Ścieżka pliku CSV; battery_monitor.csv w folderze konfiguracji, gdy puste."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Ustaw zapasowe baterie",
+      "description": "Określa, ile zapasowych baterii danego typu masz; każda wykryta wymiana tego typu je odejmuje.",
+      "fields": {
+        "battery_type": {
+          "name": "Typ baterii",
+          "description": "Tak jak nazywa go Battery Notes, bez liczby: AA, CR2032…"
+        },
+        "count": {
+          "name": "Liczba",
+          "description": "Zapasowe baterie tego typu. Zostaw puste, aby przestać go liczyć."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} znajduje się w ukrytym folderze (np. .storage): eksport tam nie zapisuje."
+    },
+    "spares_short": {
+      "message": "Zapasowe baterie do kupienia: {spares}"
     }
   }
 }

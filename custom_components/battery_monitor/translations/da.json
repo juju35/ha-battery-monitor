@@ -108,6 +108,20 @@
             "name": "Prognose målt"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Reservebatterier",
+        "state_attributes": {
+          "stock": {
+            "name": "På lager"
+          },
+          "needed": {
+            "name": "Nødvendige"
+          },
+          "short": {
+            "name": "Mangler"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Fil",
           "description": "Sti til CSV-filen; battery_monitor.csv i konfigurationsmappen, hvis tom."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Angiv reservebatterier",
+      "description": "Angiver hvor mange reservebatterier af en type du har; hver registreret udskiftning af typen trækkes fra.",
+      "fields": {
+        "battery_type": {
+          "name": "Batteritype",
+          "description": "Som Battery Notes kalder den, uden antal: AA, CR2032…"
+        },
+        "count": {
+          "name": "Antal",
+          "description": "Reservebatterier af typen. Lad stå tomt for at stoppe optællingen."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} ligger i en skjult mappe (som .storage): eksporten skriver ikke der."
+    },
+    "spares_short": {
+      "message": "Reservebatterier at købe: {spares}"
     }
   }
 }

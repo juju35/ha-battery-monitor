@@ -108,6 +108,20 @@
             "name": "Previsión medida"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Pilas de repuesto",
+        "state_attributes": {
+          "stock": {
+            "name": "En existencia"
+          },
+          "needed": {
+            "name": "Necesarias"
+          },
+          "short": {
+            "name": "Faltan"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Archivo",
           "description": "Ruta del archivo CSV; battery_monitor.csv en la carpeta de configuración si está vacío."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Definir las pilas de repuesto",
+      "description": "Indica cuántas pilas de repuesto de un tipo tienes; cada sustitución detectada de ese tipo las descuenta.",
+      "fields": {
+        "battery_type": {
+          "name": "Tipo de pila",
+          "description": "Como lo nombra Battery Notes, sin la cantidad: AA, CR2032…"
+        },
+        "count": {
+          "name": "Cantidad",
+          "description": "Pilas de repuesto de ese tipo. Deja vacío para dejar de contarlo."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} está en una carpeta oculta (como .storage): la exportación no escribe allí."
+    },
+    "spares_short": {
+      "message": "Pilas de repuesto que comprar: {spares}"
     }
   }
 }

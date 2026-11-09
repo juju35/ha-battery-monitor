@@ -5,3 +5,17 @@ export:
       example: "/config/battery_monitor.csv"
       selector:
         text:
+set_stock:
+  fields:
+    battery_type:
+      required: true
+      example: "AA"
+      selector:
+        text:
+    count:
+      example: 4
+      selector:
+        number:
+          min: 0
+          max: 999
+          mode: box

@@ -108,6 +108,20 @@
             "name": "Prognose gemeten"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Reservebatterijen",
+        "state_attributes": {
+          "stock": {
+            "name": "Op voorraad"
+          },
+          "needed": {
+            "name": "Nodig"
+          },
+          "short": {
+            "name": "Ontbrekend"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Bestand",
           "description": "Pad van het CSV-bestand; battery_monitor.csv in de configuratiemap indien leeg."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Reservebatterijen instellen",
+      "description": "Stelt in hoeveel reservebatterijen van een type je hebt; elke gedetecteerde vervanging van dat type gaat eraf.",
+      "fields": {
+        "battery_type": {
+          "name": "Batterijtype",
+          "description": "Zoals Battery Notes het noemt, zonder aantal: AA, CR2032…"
+        },
+        "count": {
+          "name": "Aantal",
+          "description": "Reservebatterijen van dat type. Leeg laten om het niet meer te tellen."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} staat in een verborgen map (zoals .storage): de export schrijft daar niet."
+    },
+    "spares_short": {
+      "message": "Te kopen reservebatterijen: {spares}"
     }
   }
 }

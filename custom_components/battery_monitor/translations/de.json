@@ -108,6 +108,20 @@
             "name": "Prognose gemessen"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Ersatzbatterien",
+        "state_attributes": {
+          "stock": {
+            "name": "Vorrätig"
+          },
+          "needed": {
+            "name": "Benötigt"
+          },
+          "short": {
+            "name": "Fehlend"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Datei",
           "description": "Pfad der CSV-Datei; battery_monitor.csv im Konfigurationsordner, wenn leer."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Ersatzbatterien festlegen",
+      "description": "Legt fest, wie viele Ersatzbatterien eines Typs vorhanden sind; jeder erkannte Austausch dieses Typs zieht seine Batterien ab.",
+      "fields": {
+        "battery_type": {
+          "name": "Batterietyp",
+          "description": "Wie Battery Notes ihn nennt, ohne Anzahl: AA, CR2032…"
+        },
+        "count": {
+          "name": "Anzahl",
+          "description": "Ersatzbatterien dieses Typs. Leer lassen, um ihn nicht mehr zu zählen."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} liegt in einem versteckten Ordner (wie .storage): Der Export schreibt dort nicht."
+    },
+    "spares_short": {
+      "message": "Zu kaufende Ersatzbatterien: {spares}"
     }
   }
 }

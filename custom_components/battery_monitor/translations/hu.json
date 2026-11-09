@@ -108,6 +108,20 @@
             "name": "Előrejelzés mérve"
           }
         }
+      },
+      "spare_batteries": {
+        "name": "Tartalék elemek",
+        "state_attributes": {
+          "stock": {
+            "name": "Készleten"
+          },
+          "needed": {
+            "name": "Szükséges"
+          },
+          "short": {
+            "name": "Hiányzik"
+          }
+        }
       }
     }
   },
@@ -123,6 +137,20 @@
         "path": {
           "name": "Fájl",
           "description": "A CSV-fájl elérési útja; üresen battery_monitor.csv a konfigurációs mappában."
+        }
+      }
+    },
+    "set_stock": {
+      "name": "Tartalék elemek beállítása",
+      "description": "Beállítja, hány tartalék elemed van egy típusból; minden észlelt csere levonja őket.",
+      "fields": {
+        "battery_type": {
+          "name": "Elemtípus",
+          "description": "Ahogy a Battery Notes nevezi, darabszám nélkül: AA, CR2032…"
+        },
+        "count": {
+          "name": "Darab",
+          "description": "Ilyen típusú tartalék elemek. Hagyd üresen a számolás leállításához."
         }
       }
     }
@@ -166,6 +194,9 @@
     },
     "path_hidden": {
       "message": "{path} rejtett mappában van (például .storage): az exportálás oda nem ír."
+    },
+    "spares_short": {
+      "message": "Vásárolandó tartalék elemek: {spares}"
     }
   }
 }
