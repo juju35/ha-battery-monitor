@@ -338,8 +338,10 @@ test('a settings command that fails keeps the page usable', async () => {
     throw new Error('offline');
   };
   await panel._load();
-  assert.equal(panel._settings.entry, null);
-  assert.deepEqual(plain(panel._settings.options), {});
+  // No stand-in settings (they read as "Battery Monitor isn't set up"): the error, shown with a Retry button.
+  assert.equal(panel._settings, null);
+  assert.equal(panel._loadError, 'offline');
+  assert.equal(errors.length, 1);
   context.console = console;
 });
 
@@ -349,9 +351,13 @@ test('a failed load is tried again after 2 s, 5 s, 15 s then every 30 s, and whe
   panel._renderSettings = () => {};
   let fail = true;
   panel._hass = { callWS: async () => { if (fail) throw new Error('unknown_command'); return { options: {}, limits: {} }; } };
+  panel._settings = null;
   for (let i = 0; i < 5; i++) await panel._load();
   assert.deepEqual(timers.map((t) => t.ms), [2000, 5000, 15000, 30000, 30000]);
   assert.equal(panel._failed, true);
+  // Never loaded: no stand-in "not set up" settings, the error for the Retry note.
+  assert.equal(panel._settings, null);
+  assert.equal(panel._loadError, 'unknown_command');
   // A retry while the panel is gone does nothing; back on it, connectedCallback loads again
   let loads = 0;
   panel._load = async () => { loads++; };
@@ -366,6 +372,14 @@ test('a failed load is tried again after 2 s, 5 s, 15 s then every 30 s, and whe
   await panel._load();
   assert.equal(panel._failed, false);
   assert.equal(panel._retries, 0);
+  assert.equal(panel._loadError, null);
+  // Loaded once, a later failure keeps what was shown.
+  fail = true;
+  await panel._load();
+  assert.deepEqual(plain(panel._settings), { options: {}, limits: {} });
+  assert.equal(panel._loadError, null);
+  fail = false;
+  await panel._load();
   // The connection back: one listener, removed when the panel goes
   const listeners = new Map();
   panel._hass.connection = { addEventListener: (t, f) => listeners.set(t, f), removeEventListener: (t, f) => listeners.get(t) === f && listeners.delete(t) };
