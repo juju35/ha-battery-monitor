@@ -1,8 +1,9 @@
 /*
  * Battery Monitor sidebar panel — the batteries, the settings and the actions on one page (administrators only).
  *
- * Three tabs under the toolbar: Batteries (the bundled battery-monitor-card expanded: every battery by room, by
- * type or by replacement date, what to replace, the next replacement; its CSV export lives in Actions), Settings (threshold, duration,
+ * Three tabs under the toolbar: Batteries (drawn by the panel itself from the "Low batteries" sensor: a summary, every
+ * battery by room, by type or by replacement date, a search and a "to check only" filter; the CSV export lives in
+ * Actions), Settings (threshold, duration,
  * notification times, notify actions, ignored integrations and batteries, through the battery_monitor/settings
  * and battery_monitor/update_settings WebSocket commands) and Actions (notify now, battery_monitor/notify; CSV
  * export, battery_monitor/export) — in the order Batteries, Actions, Settings. The page follows the config entry (config_entries/subscribe), so options
@@ -10,7 +11,7 @@
  *
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_PANEL_VERSION = '1.18.4';
+var BATTERY_MONITOR_PANEL_VERSION = '1.19.0';
 
 var BatteryMonitorPanelI18n = {
   en: {
@@ -71,6 +72,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Setup failed',
     st_not_loaded: 'Stopped',
     st_other: 'Unavailable',
+    b_all_ok: 'All good',
+    b_no_batteries: 'No battery found',
+    b_low: 'Low',
+    b_unavailable: 'Unavailable',
+    b_low_since: 'low for {d}',
+    b_unavailable_since: 'unavailable for {d}',
+    b_days_left: '≈ {d} left',
+    b_by_room: 'By room',
+    b_by_type: 'By battery type',
+    b_by_due: 'By replacement date',
+    b_no_room: 'No room',
+    b_unknown_type: 'Unknown type',
+    b_to_check: '{n} to check',
+    b_due_now: 'To replace now',
+    b_due_month: 'Within 30 days',
+    b_due_quarter: 'Within 3 months',
+    b_due_later: 'Later',
+    b_due_none: 'No forecast yet',
+    b_replace_on: 'around {date}',
+    b_next: 'Next replacement',
+    b_count: '{n} batteries',
+    b_count_one: '1 battery',
+    b_low_n: '{n} low',
+    b_low_one: '{n} low',
+    b_unavailable_n: '{n} unavailable',
+    b_unavailable_one: '{n} unavailable',
+    b_only_alert: 'Hide the batteries that are fine',
+    b_drain: '−{n} % a day',
+    b_search: 'Search',
+    b_no_match: 'No battery matches',
+    b_sensor_missing: 'Battery Monitor’s sensor is not available',
   },
   fr: {
     title: 'Battery Monitor',
@@ -130,6 +162,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Échec du démarrage',
     st_not_loaded: 'Arrêtée',
     st_other: 'Indisponible',
+    b_all_ok: 'Tout est bon',
+    b_no_batteries: 'Aucune batterie trouvée',
+    b_low: 'Faible',
+    b_unavailable: 'Indisponible',
+    b_low_since: 'faible depuis {d}',
+    b_unavailable_since: 'indisponible depuis {d}',
+    b_days_left: '≈ {d} restants',
+    b_by_room: 'Par pièce',
+    b_by_type: 'Par type de pile',
+    b_by_due: 'Par date de remplacement',
+    b_no_room: 'Sans pièce',
+    b_unknown_type: 'Type inconnu',
+    b_to_check: '{n} à vérifier',
+    b_due_now: 'À remplacer maintenant',
+    b_due_month: 'Sous 30 jours',
+    b_due_quarter: 'Sous 3 mois',
+    b_due_later: 'Plus tard',
+    b_due_none: 'Pas encore de prévision',
+    b_replace_on: 'vers le {date}',
+    b_next: 'Prochain remplacement',
+    b_count: '{n} batteries',
+    b_count_one: '1 batterie',
+    b_low_n: '{n} faibles',
+    b_low_one: '{n} faible',
+    b_unavailable_n: '{n} indisponibles',
+    b_unavailable_one: '{n} indisponible',
+    b_only_alert: 'Masquer les batteries en bon état',
+    b_drain: '−{n} % par jour',
+    b_search: 'Rechercher',
+    b_no_match: 'Aucune batterie ne correspond',
+    b_sensor_missing: 'Le capteur de Battery Monitor n’est pas disponible',
   },
   de: {
     title: 'Battery Monitor',
@@ -189,6 +252,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Einrichtung fehlgeschlagen',
     st_not_loaded: 'Gestoppt',
     st_other: 'Nicht verfügbar',
+    b_all_ok: 'Alles in Ordnung',
+    b_no_batteries: 'Keine Batterie gefunden',
+    b_low: 'Schwach',
+    b_unavailable: 'Nicht verfügbar',
+    b_low_since: 'schwach seit {d}',
+    b_unavailable_since: 'nicht verfügbar seit {d}',
+    b_days_left: '≈ noch {d}',
+    b_by_room: 'Nach Raum',
+    b_by_type: 'Nach Batterietyp',
+    b_by_due: 'Nach Austauschdatum',
+    b_no_room: 'Kein Raum',
+    b_unknown_type: 'Unbekannter Typ',
+    b_to_check: '{n} zu prüfen',
+    b_due_now: 'Jetzt austauschen',
+    b_due_month: 'Innerhalb von 30 Tagen',
+    b_due_quarter: 'Innerhalb von 3 Monaten',
+    b_due_later: 'Später',
+    b_due_none: 'Noch keine Prognose',
+    b_replace_on: 'um den {date}',
+    b_next: 'Nächster Austausch',
+    b_count: '{n} Batterien',
+    b_count_one: '1 Batterie',
+    b_low_n: '{n} schwach',
+    b_low_one: '{n} schwach',
+    b_unavailable_n: '{n} nicht verfügbar',
+    b_unavailable_one: '{n} nicht verfügbar',
+    b_only_alert: 'Batterien in gutem Zustand ausblenden',
+    b_drain: '−{n} % pro Tag',
+    b_search: 'Suchen',
+    b_no_match: 'Keine Batterie passt',
+    b_sensor_missing: 'Der Sensor von Battery Monitor ist nicht verfügbar',
   },
   es: {
     title: 'Battery Monitor',
@@ -248,6 +342,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Error de configuración',
     st_not_loaded: 'Detenida',
     st_other: 'No disponible',
+    b_all_ok: 'Todo bien',
+    b_no_batteries: 'No se encontró ninguna batería',
+    b_low: 'Baja',
+    b_unavailable: 'No disponible',
+    b_low_since: 'baja desde hace {d}',
+    b_unavailable_since: 'no disponible desde hace {d}',
+    b_days_left: '≈ {d} restantes',
+    b_by_room: 'Por habitación',
+    b_by_type: 'Por tipo de pila',
+    b_by_due: 'Por fecha de cambio',
+    b_no_room: 'Sin habitación',
+    b_unknown_type: 'Tipo desconocido',
+    b_to_check: '{n} por revisar',
+    b_due_now: 'Cambiar ahora',
+    b_due_month: 'En 30 días',
+    b_due_quarter: 'En 3 meses',
+    b_due_later: 'Más tarde',
+    b_due_none: 'Aún sin previsión',
+    b_replace_on: 'hacia el {date}',
+    b_next: 'Próximo cambio',
+    b_count: '{n} baterías',
+    b_count_one: '1 batería',
+    b_low_n: '{n} bajas',
+    b_low_one: '{n} baja',
+    b_unavailable_n: '{n} no disponibles',
+    b_unavailable_one: '{n} no disponible',
+    b_only_alert: 'Ocultar las baterías en buen estado',
+    b_drain: '−{n} % al día',
+    b_search: 'Buscar',
+    b_no_match: 'Ninguna batería coincide',
+    b_sensor_missing: 'El sensor de Battery Monitor no está disponible',
   },
   it: {
     title: 'Battery Monitor',
@@ -307,6 +432,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Configurazione non riuscita',
     st_not_loaded: 'Ferma',
     st_other: 'Non disponibile',
+    b_all_ok: 'Tutto a posto',
+    b_no_batteries: 'Nessuna batteria trovata',
+    b_low: 'Scarica',
+    b_unavailable: 'Non disponibile',
+    b_low_since: 'scarica da {d}',
+    b_unavailable_since: 'non disponibile da {d}',
+    b_days_left: '≈ {d} rimanenti',
+    b_by_room: 'Per stanza',
+    b_by_type: 'Per tipo di batteria',
+    b_by_due: 'Per data di sostituzione',
+    b_no_room: 'Nessuna stanza',
+    b_unknown_type: 'Tipo sconosciuto',
+    b_to_check: '{n} da controllare',
+    b_due_now: 'Da sostituire ora',
+    b_due_month: 'Entro 30 giorni',
+    b_due_quarter: 'Entro 3 mesi',
+    b_due_later: 'Più avanti',
+    b_due_none: 'Ancora nessuna previsione',
+    b_replace_on: 'verso il {date}',
+    b_next: 'Prossima sostituzione',
+    b_count: '{n} batterie',
+    b_count_one: '1 batteria',
+    b_low_n: '{n} scariche',
+    b_low_one: '{n} scarica',
+    b_unavailable_n: '{n} non disponibili',
+    b_unavailable_one: '{n} non disponibile',
+    b_only_alert: 'Nascondi le batterie in buono stato',
+    b_drain: '−{n} % al giorno',
+    b_search: 'Cerca',
+    b_no_match: 'Nessuna batteria corrisponde',
+    b_sensor_missing: 'Il sensore di Battery Monitor non è disponibile',
   },
   nl: {
     title: 'Battery Monitor',
@@ -366,6 +522,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Instellen mislukt',
     st_not_loaded: 'Gestopt',
     st_other: 'Niet beschikbaar',
+    b_all_ok: 'Alles in orde',
+    b_no_batteries: 'Geen batterij gevonden',
+    b_low: 'Laag',
+    b_unavailable: 'Niet beschikbaar',
+    b_low_since: 'al {d} laag',
+    b_unavailable_since: 'al {d} niet beschikbaar',
+    b_days_left: '≈ nog {d}',
+    b_by_room: 'Per ruimte',
+    b_by_type: 'Per batterijtype',
+    b_by_due: 'Op vervangdatum',
+    b_no_room: 'Geen ruimte',
+    b_unknown_type: 'Onbekend type',
+    b_to_check: '{n} te controleren',
+    b_due_now: 'Nu vervangen',
+    b_due_month: 'Binnen 30 dagen',
+    b_due_quarter: 'Binnen 3 maanden',
+    b_due_later: 'Later',
+    b_due_none: 'Nog geen voorspelling',
+    b_replace_on: 'rond {date}',
+    b_next: 'Volgende vervanging',
+    b_count: '{n} batterijen',
+    b_count_one: '1 batterij',
+    b_low_n: '{n} laag',
+    b_low_one: '{n} laag',
+    b_unavailable_n: '{n} niet beschikbaar',
+    b_unavailable_one: '{n} niet beschikbaar',
+    b_only_alert: 'Batterijen verbergen die in orde zijn',
+    b_drain: '−{n} % per dag',
+    b_search: 'Zoeken',
+    b_no_match: 'Geen batterij komt overeen',
+    b_sensor_missing: 'De sensor van Battery Monitor is niet beschikbaar',
   },
   pt: {
     title: 'Battery Monitor',
@@ -425,6 +612,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Configuração falhou',
     st_not_loaded: 'Parada',
     st_other: 'Indisponível',
+    b_all_ok: 'Tudo bem',
+    b_no_batteries: 'Nenhuma bateria encontrada',
+    b_low: 'Fraca',
+    b_unavailable: 'Indisponível',
+    b_low_since: 'fraca há {d}',
+    b_unavailable_since: 'indisponível há {d}',
+    b_days_left: '≈ {d} restantes',
+    b_by_room: 'Por divisão',
+    b_by_type: 'Por tipo de pilha',
+    b_by_due: 'Por data de substituição',
+    b_no_room: 'Sem divisão',
+    b_unknown_type: 'Tipo desconhecido',
+    b_to_check: '{n} a verificar',
+    b_due_now: 'Substituir agora',
+    b_due_month: 'Dentro de 30 dias',
+    b_due_quarter: 'Dentro de 3 meses',
+    b_due_later: 'Mais tarde',
+    b_due_none: 'Ainda sem previsão',
+    b_replace_on: 'por volta de {date}',
+    b_next: 'Próxima substituição',
+    b_count: '{n} baterias',
+    b_count_one: '1 bateria',
+    b_low_n: '{n} fracas',
+    b_low_one: '{n} fraca',
+    b_unavailable_n: '{n} indisponíveis',
+    b_unavailable_one: '{n} indisponível',
+    b_only_alert: 'Ocultar as baterias em bom estado',
+    b_drain: '−{n} % por dia',
+    b_search: 'Pesquisar',
+    b_no_match: 'Nenhuma bateria corresponde',
+    b_sensor_missing: 'O sensor do Battery Monitor não está disponível',
   },
   pl: {
     title: 'Battery Monitor',
@@ -484,6 +702,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Konfiguracja nie powiodła się',
     st_not_loaded: 'Zatrzymana',
     st_other: 'Niedostępna',
+    b_all_ok: 'Wszystko w porządku',
+    b_no_batteries: 'Nie znaleziono żadnej baterii',
+    b_low: 'Słaba',
+    b_unavailable: 'Niedostępna',
+    b_low_since: 'słaba od {d}',
+    b_unavailable_since: 'niedostępna od {d}',
+    b_days_left: '≈ pozostało {d}',
+    b_by_room: 'Pomieszczenia',
+    b_by_type: 'Typy baterii',
+    b_by_due: 'Według daty wymiany',
+    b_no_room: 'Bez pomieszczenia',
+    b_unknown_type: 'Nieznany typ',
+    b_to_check: 'Do sprawdzenia: {n}',
+    b_due_now: 'Do wymiany teraz',
+    b_due_month: 'W ciągu 30 dni',
+    b_due_quarter: 'W ciągu 3 miesięcy',
+    b_due_later: 'Później',
+    b_due_none: 'Brak prognozy',
+    b_replace_on: 'około {date}',
+    b_next: 'Następna wymiana',
+    b_count: 'Baterie: {n}',
+    b_count_one: '1 bateria',
+    b_low_n: 'Słabe: {n}',
+    b_low_one: '{n} słaba',
+    b_unavailable_n: 'Niedostępne: {n}',
+    b_unavailable_one: '{n} niedostępna',
+    b_only_alert: 'Ukryj baterie w dobrym stanie',
+    b_drain: '−{n} % dziennie',
+    b_search: 'Szukaj',
+    b_no_match: 'Żadna bateria nie pasuje',
+    b_sensor_missing: 'Czujnik Battery Monitor jest niedostępny',
   },
   ro: {
     title: 'Battery Monitor',
@@ -543,6 +792,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Configurarea a eșuat',
     st_not_loaded: 'Oprită',
     st_other: 'Indisponibilă',
+    b_all_ok: 'Totul este în regulă',
+    b_no_batteries: 'Nicio baterie găsită',
+    b_low: 'Scăzută',
+    b_unavailable: 'Indisponibilă',
+    b_low_since: 'scăzută de {d}',
+    b_unavailable_since: 'indisponibilă de {d}',
+    b_days_left: '≈ {d} rămase',
+    b_by_room: 'Pe camere',
+    b_by_type: 'Pe tipuri',
+    b_by_due: 'După data înlocuirii',
+    b_no_room: 'Fără cameră',
+    b_unknown_type: 'Tip necunoscut',
+    b_to_check: 'De verificat: {n}',
+    b_due_now: 'De înlocuit acum',
+    b_due_month: 'În 30 de zile',
+    b_due_quarter: 'În 3 luni',
+    b_due_later: 'Mai târziu',
+    b_due_none: 'Încă nicio previziune',
+    b_replace_on: 'în jur de {date}',
+    b_next: 'Următoarea înlocuire',
+    b_count: 'Baterii: {n}',
+    b_count_one: '1 baterie',
+    b_low_n: 'Scăzute: {n}',
+    b_low_one: '{n} scăzută',
+    b_unavailable_n: 'Indisponibile: {n}',
+    b_unavailable_one: '{n} indisponibilă',
+    b_only_alert: 'Ascunde bateriile în stare bună',
+    b_drain: '−{n} % pe zi',
+    b_search: 'Căutare',
+    b_no_match: 'Nicio baterie nu se potrivește',
+    b_sensor_missing: 'Senzorul Battery Monitor nu este disponibil',
   },
   da: {
     title: 'Battery Monitor',
@@ -602,6 +882,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Opsætning mislykkedes',
     st_not_loaded: 'Stoppet',
     st_other: 'Utilgængelig',
+    b_all_ok: 'Alt er i orden',
+    b_no_batteries: 'Ingen batterier fundet',
+    b_low: 'Lavt',
+    b_unavailable: 'Utilgængeligt',
+    b_low_since: 'lavt i {d}',
+    b_unavailable_since: 'utilgængeligt i {d}',
+    b_days_left: '≈ {d} tilbage',
+    b_by_room: 'Efter rum',
+    b_by_type: 'Efter batteritype',
+    b_by_due: 'Efter udskiftningsdato',
+    b_no_room: 'Intet rum',
+    b_unknown_type: 'Ukendt type',
+    b_to_check: '{n} skal tjekkes',
+    b_due_now: 'Udskift nu',
+    b_due_month: 'Inden for 30 dage',
+    b_due_quarter: 'Inden for 3 måneder',
+    b_due_later: 'Senere',
+    b_due_none: 'Ingen prognose endnu',
+    b_replace_on: 'omkring {date}',
+    b_next: 'Næste udskiftning',
+    b_count: '{n} batterier',
+    b_count_one: '1 batteri',
+    b_low_n: '{n} lave',
+    b_low_one: '{n} lavt',
+    b_unavailable_n: '{n} utilgængelige',
+    b_unavailable_one: '{n} utilgængeligt',
+    b_only_alert: 'Skjul batterier, der er i orden',
+    b_drain: '−{n} % om dagen',
+    b_search: 'Søg',
+    b_no_match: 'Intet batteri matcher',
+    b_sensor_missing: 'Battery Monitors sensor er ikke tilgængelig',
   },
   sv: {
     title: 'Battery Monitor',
@@ -661,6 +972,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Konfigurationen misslyckades',
     st_not_loaded: 'Stoppad',
     st_other: 'Otillgänglig',
+    b_all_ok: 'Allt är bra',
+    b_no_batteries: 'Inga batterier hittades',
+    b_low: 'Lågt',
+    b_unavailable: 'Otillgängligt',
+    b_low_since: 'lågt i {d}',
+    b_unavailable_since: 'otillgängligt i {d}',
+    b_days_left: '≈ {d} kvar',
+    b_by_room: 'Per rum',
+    b_by_type: 'Per batterityp',
+    b_by_due: 'Efter bytesdatum',
+    b_no_room: 'Inget rum',
+    b_unknown_type: 'Okänd typ',
+    b_to_check: '{n} att kontrollera',
+    b_due_now: 'Byt nu',
+    b_due_month: 'Inom 30 dagar',
+    b_due_quarter: 'Inom 3 månader',
+    b_due_later: 'Senare',
+    b_due_none: 'Ingen prognos än',
+    b_replace_on: 'runt {date}',
+    b_next: 'Nästa byte',
+    b_count: '{n} batterier',
+    b_count_one: '1 batteri',
+    b_low_n: '{n} låga',
+    b_low_one: '{n} lågt',
+    b_unavailable_n: '{n} otillgängliga',
+    b_unavailable_one: '{n} otillgängligt',
+    b_only_alert: 'Dölj batterier som är okej',
+    b_drain: '−{n} % per dag',
+    b_search: 'Sök',
+    b_no_match: 'Inget batteri matchar',
+    b_sensor_missing: 'Battery Monitors sensor är inte tillgänglig',
   },
   bg: {
     title: 'Battery Monitor',
@@ -720,6 +1062,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Настройката е неуспешна',
     st_not_loaded: 'Спряна',
     st_other: 'Недостъпна',
+    b_all_ok: 'Всичко е наред',
+    b_no_batteries: 'Не са открити батерии',
+    b_low: 'Изтощена',
+    b_unavailable: 'Недостъпна',
+    b_low_since: 'изтощена от {d}',
+    b_unavailable_since: 'недостъпна от {d}',
+    b_days_left: '≈ остават {d}',
+    b_by_room: 'По стаи',
+    b_by_type: 'По тип батерия',
+    b_by_due: 'По дата на смяна',
+    b_no_room: 'Без стая',
+    b_unknown_type: 'Неизвестен тип',
+    b_to_check: '{n} за проверка',
+    b_due_now: 'За смяна сега',
+    b_due_month: 'До 30 дни',
+    b_due_quarter: 'До 3 месеца',
+    b_due_later: 'По-късно',
+    b_due_none: 'Все още няма прогноза',
+    b_replace_on: 'около {date}',
+    b_next: 'Следваща смяна',
+    b_count: '{n} батерии',
+    b_count_one: '1 батерия',
+    b_low_n: '{n} изтощени',
+    b_low_one: '{n} изтощена',
+    b_unavailable_n: '{n} недостъпни',
+    b_unavailable_one: '{n} недостъпна',
+    b_only_alert: 'Скриване на батериите в добро състояние',
+    b_drain: '−{n} % на ден',
+    b_search: 'Търсене',
+    b_no_match: 'Няма съвпадаща батерия',
+    b_sensor_missing: 'Сензорът на Battery Monitor не е достъпен',
   },
   ru: {
     title: 'Battery Monitor',
@@ -779,6 +1152,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Ошибка настройки',
     st_not_loaded: 'Остановлена',
     st_other: 'Недоступна',
+    b_all_ok: 'Всё в порядке',
+    b_no_batteries: 'Батареи не найдены',
+    b_low: 'Разряжена',
+    b_unavailable: 'Недоступна',
+    b_low_since: 'разряжена {d}',
+    b_unavailable_since: 'недоступна {d}',
+    b_days_left: '≈ осталось {d}',
+    b_by_room: 'По помещениям',
+    b_by_type: 'По типу',
+    b_by_due: 'По дате замены',
+    b_no_room: 'Без помещения',
+    b_unknown_type: 'Неизвестный тип',
+    b_to_check: 'Проверить: {n}',
+    b_due_now: 'Заменить сейчас',
+    b_due_month: 'В течение 30 дней',
+    b_due_quarter: 'В течение 3 месяцев',
+    b_due_later: 'Позже',
+    b_due_none: 'Прогноза пока нет',
+    b_replace_on: 'около {date}',
+    b_next: 'Следующая замена',
+    b_count: 'Батареи: {n}',
+    b_count_one: '1 батарея',
+    b_low_n: 'Разряжены: {n}',
+    b_low_one: '{n} разряжена',
+    b_unavailable_n: 'Недоступны: {n}',
+    b_unavailable_one: '{n} недоступна',
+    b_only_alert: 'Скрыть батареи в порядке',
+    b_drain: '−{n} % в день',
+    b_search: 'Поиск',
+    b_no_match: 'Нет подходящих батарей',
+    b_sensor_missing: 'Датчик Battery Monitor недоступен',
   },
   uk: {
     title: 'Battery Monitor',
@@ -838,6 +1242,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Помилка налаштування',
     st_not_loaded: 'Зупинена',
     st_other: 'Недоступна',
+    b_all_ok: 'Усе гаразд',
+    b_no_batteries: 'Батареї не знайдено',
+    b_low: 'Розряджена',
+    b_unavailable: 'Недоступна',
+    b_low_since: 'розряджена {d}',
+    b_unavailable_since: 'недоступна {d}',
+    b_days_left: '≈ залишилось {d}',
+    b_by_room: 'За приміщеннями',
+    b_by_type: 'За типом',
+    b_by_due: 'За датою заміни',
+    b_no_room: 'Без приміщення',
+    b_unknown_type: 'Невідомий тип',
+    b_to_check: 'Перевірити: {n}',
+    b_due_now: 'Замінити зараз',
+    b_due_month: 'Протягом 30 днів',
+    b_due_quarter: 'Протягом 3 місяців',
+    b_due_later: 'Пізніше',
+    b_due_none: 'Прогнозу ще немає',
+    b_replace_on: 'близько {date}',
+    b_next: 'Наступна заміна',
+    b_count: 'Батареї: {n}',
+    b_count_one: '1 батарея',
+    b_low_n: 'Розряджені: {n}',
+    b_low_one: '{n} розряджена',
+    b_unavailable_n: 'Недоступні: {n}',
+    b_unavailable_one: '{n} недоступна',
+    b_only_alert: 'Приховати батареї в доброму стані',
+    b_drain: '−{n} % на день',
+    b_search: 'Пошук',
+    b_no_match: 'Немає відповідних батарей',
+    b_sensor_missing: 'Датчик Battery Monitor недоступний',
   },
   hu: {
     title: 'Battery Monitor',
@@ -897,6 +1332,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'A beállítás sikertelen',
     st_not_loaded: 'Leállítva',
     st_other: 'Nem érhető el',
+    b_all_ok: 'Minden rendben',
+    b_no_batteries: 'Nem található elem',
+    b_low: 'Gyenge',
+    b_unavailable: 'Nem elérhető',
+    b_low_since: '{d} óta gyenge',
+    b_unavailable_since: '{d} óta nem elérhető',
+    b_days_left: '≈ még {d}',
+    b_by_room: 'Helyiségenként',
+    b_by_type: 'Típusonként',
+    b_by_due: 'Csere dátuma szerint',
+    b_no_room: 'Nincs helyiség',
+    b_unknown_type: 'Ismeretlen típus',
+    b_to_check: '{n} ellenőrizendő',
+    b_due_now: 'Most cserélendő',
+    b_due_month: '30 napon belül',
+    b_due_quarter: '3 hónapon belül',
+    b_due_later: 'Később',
+    b_due_none: 'Még nincs előrejelzés',
+    b_replace_on: '{date} körül',
+    b_next: 'Következő csere',
+    b_count: '{n} elem',
+    b_count_one: '1 elem',
+    b_low_n: '{n} gyenge',
+    b_low_one: '{n} gyenge',
+    b_unavailable_n: '{n} nem elérhető',
+    b_unavailable_one: '{n} nem elérhető',
+    b_only_alert: 'A rendben lévő elemek elrejtése',
+    b_drain: '−{n} % naponta',
+    b_search: 'Keresés',
+    b_no_match: 'Nincs egyező elem',
+    b_sensor_missing: 'A Battery Monitor érzékelője nem érhető el',
   },
   sk: {
     title: 'Battery Monitor',
@@ -956,6 +1422,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Nastavenie zlyhalo',
     st_not_loaded: 'Zastavená',
     st_other: 'Nedostupná',
+    b_all_ok: 'Všetko v poriadku',
+    b_no_batteries: 'Nenašla sa žiadna batéria',
+    b_low: 'Slabá',
+    b_unavailable: 'Nedostupná',
+    b_low_since: 'slabá už {d}',
+    b_unavailable_since: 'nedostupná už {d}',
+    b_days_left: '≈ zostáva {d}',
+    b_by_room: 'Podľa miestnosti',
+    b_by_type: 'Podľa typu',
+    b_by_due: 'Podľa dátumu výmeny',
+    b_no_room: 'Bez miestnosti',
+    b_unknown_type: 'Neznámy typ',
+    b_to_check: 'Na kontrolu: {n}',
+    b_due_now: 'Vymeniť teraz',
+    b_due_month: 'Do 30 dní',
+    b_due_quarter: 'Do 3 mesiacov',
+    b_due_later: 'Neskôr',
+    b_due_none: 'Zatiaľ bez predpovede',
+    b_replace_on: 'okolo {date}',
+    b_next: 'Ďalšia výmena',
+    b_count: 'Batérie: {n}',
+    b_count_one: '1 batéria',
+    b_low_n: 'Slabé: {n}',
+    b_low_one: '{n} slabá',
+    b_unavailable_n: 'Nedostupné: {n}',
+    b_unavailable_one: '{n} nedostupná',
+    b_only_alert: 'Skryť batérie v dobrom stave',
+    b_drain: '−{n} % za deň',
+    b_search: 'Hľadať',
+    b_no_match: 'Žiadna batéria nezodpovedá',
+    b_sensor_missing: 'Senzor Battery Monitor nie je dostupný',
   },
   cs: {
     title: 'Battery Monitor',
@@ -1015,6 +1512,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Nastavení selhalo',
     st_not_loaded: 'Zastavena',
     st_other: 'Nedostupná',
+    b_all_ok: 'Vše v pořádku',
+    b_no_batteries: 'Nebyla nalezena žádná baterie',
+    b_low: 'Slabá',
+    b_unavailable: 'Nedostupná',
+    b_low_since: 'slabá již {d}',
+    b_unavailable_since: 'nedostupná již {d}',
+    b_days_left: '≈ zbývá {d}',
+    b_by_room: 'Podle místnosti',
+    b_by_type: 'Podle typu',
+    b_by_due: 'Podle data výměny',
+    b_no_room: 'Bez místnosti',
+    b_unknown_type: 'Neznámý typ',
+    b_to_check: 'Ke kontrole: {n}',
+    b_due_now: 'Vyměnit teď',
+    b_due_month: 'Do 30 dnů',
+    b_due_quarter: 'Do 3 měsíců',
+    b_due_later: 'Později',
+    b_due_none: 'Zatím bez předpovědi',
+    b_replace_on: 'kolem {date}',
+    b_next: 'Další výměna',
+    b_count: 'Baterie: {n}',
+    b_count_one: '1 baterie',
+    b_low_n: 'Slabé: {n}',
+    b_low_one: '{n} slabá',
+    b_unavailable_n: 'Nedostupné: {n}',
+    b_unavailable_one: '{n} nedostupná',
+    b_only_alert: 'Skrýt baterie v pořádku',
+    b_drain: '−{n} % za den',
+    b_search: 'Hledat',
+    b_no_match: 'Žádná baterie neodpovídá',
+    b_sensor_missing: 'Senzor Battery Monitor není dostupný',
   },
   sl: {
     title: 'Battery Monitor',
@@ -1074,6 +1602,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Nastavitev ni uspela',
     st_not_loaded: 'Ustavljena',
     st_other: 'Nedosegljiva',
+    b_all_ok: 'Vse je v redu',
+    b_no_batteries: 'Ni najdenih baterij',
+    b_low: 'Šibka',
+    b_unavailable: 'Ni na voljo',
+    b_low_since: 'šibka že {d}',
+    b_unavailable_since: 'ni na voljo že {d}',
+    b_days_left: '≈ še {d}',
+    b_by_room: 'Po prostorih',
+    b_by_type: 'Po vrsti',
+    b_by_due: 'Po datumu zamenjave',
+    b_no_room: 'Brez prostora',
+    b_unknown_type: 'Neznana vrsta',
+    b_to_check: 'Za preverjanje: {n}',
+    b_due_now: 'Zamenjaj zdaj',
+    b_due_month: 'V 30 dneh',
+    b_due_quarter: 'V 3 mesecih',
+    b_due_later: 'Pozneje',
+    b_due_none: 'Še ni napovedi',
+    b_replace_on: 'okoli {date}',
+    b_next: 'Naslednja zamenjava',
+    b_count: 'Baterije: {n}',
+    b_count_one: '1 baterija',
+    b_low_n: 'Šibke: {n}',
+    b_low_one: '{n} šibka',
+    b_unavailable_n: 'Ni na voljo: {n}',
+    b_unavailable_one: '{n} ni na voljo',
+    b_only_alert: 'Skrij baterije, ki so v redu',
+    b_drain: '−{n} % na dan',
+    b_search: 'Iskanje',
+    b_no_match: 'Nobena baterija se ne ujema',
+    b_sensor_missing: 'Senzor Battery Monitor ni na voljo',
   },
   lv: {
     title: 'Battery Monitor',
@@ -1133,6 +1692,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Iestatīšana neizdevās',
     st_not_loaded: 'Apturēta',
     st_other: 'Nav pieejama',
+    b_all_ok: 'Viss kārtībā',
+    b_no_batteries: 'Nav atrasta neviena baterija',
+    b_low: 'Izlādēta',
+    b_unavailable: 'Nav pieejama',
+    b_low_since: 'izlādēta {d}',
+    b_unavailable_since: 'nav pieejama {d}',
+    b_days_left: '≈ atlikuši {d}',
+    b_by_room: 'Pa telpām',
+    b_by_type: 'Pa veidiem',
+    b_by_due: 'Pēc nomaiņas datuma',
+    b_no_room: 'Bez telpas',
+    b_unknown_type: 'Nezināms veids',
+    b_to_check: 'Jāpārbauda: {n}',
+    b_due_now: 'Jānomaina tagad',
+    b_due_month: '30 dienu laikā',
+    b_due_quarter: '3 mēnešu laikā',
+    b_due_later: 'Vēlāk',
+    b_due_none: 'Vēl nav prognozes',
+    b_replace_on: 'ap {date}',
+    b_next: 'Nākamā nomaiņa',
+    b_count: 'Baterijas: {n}',
+    b_count_one: '1 baterija',
+    b_low_n: 'Izlādētas: {n}',
+    b_low_one: '{n} izlādēta',
+    b_unavailable_n: 'Nav pieejamas: {n}',
+    b_unavailable_one: '{n} nav pieejama',
+    b_only_alert: 'Paslēpt baterijas, kas ir kārtībā',
+    b_drain: '−{n} % dienā',
+    b_search: 'Meklēt',
+    b_no_match: 'Neviena baterija neatbilst',
+    b_sensor_missing: 'Battery Monitor sensors nav pieejams',
   },
   el: {
     title: 'Battery Monitor',
@@ -1192,6 +1782,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Η ρύθμιση απέτυχε',
     st_not_loaded: 'Σταματημένη',
     st_other: 'Μη διαθέσιμη',
+    b_all_ok: 'Όλα εντάξει',
+    b_no_batteries: 'Δεν βρέθηκε καμία μπαταρία',
+    b_low: 'Χαμηλή',
+    b_unavailable: 'Μη διαθέσιμη',
+    b_low_since: 'χαμηλή επί {d}',
+    b_unavailable_since: 'μη διαθέσιμη επί {d}',
+    b_days_left: '≈ απομένουν {d}',
+    b_by_room: 'Ανά δωμάτιο',
+    b_by_type: 'Ανά τύπο',
+    b_by_due: 'Κατά ημερομηνία αντικατάστασης',
+    b_no_room: 'Χωρίς δωμάτιο',
+    b_unknown_type: 'Άγνωστος τύπος',
+    b_to_check: '{n} για έλεγχο',
+    b_due_now: 'Για αντικατάσταση τώρα',
+    b_due_month: 'Εντός 30 ημερών',
+    b_due_quarter: 'Εντός 3 μηνών',
+    b_due_later: 'Αργότερα',
+    b_due_none: 'Δεν υπάρχει ακόμη πρόβλεψη',
+    b_replace_on: 'γύρω στις {date}',
+    b_next: 'Επόμενη αντικατάσταση',
+    b_count: '{n} μπαταρίες',
+    b_count_one: '1 μπαταρία',
+    b_low_n: '{n} χαμηλές',
+    b_low_one: '{n} χαμηλή',
+    b_unavailable_n: '{n} μη διαθέσιμες',
+    b_unavailable_one: '{n} μη διαθέσιμη',
+    b_only_alert: 'Απόκρυψη των μπαταριών που είναι εντάξει',
+    b_drain: '−{n} % την ημέρα',
+    b_search: 'Αναζήτηση',
+    b_no_match: 'Καμία μπαταρία δεν ταιριάζει',
+    b_sensor_missing: 'Ο αισθητήρας του Battery Monitor δεν είναι διαθέσιμος',
   },
   sr: {
     title: 'Battery Monitor',
@@ -1251,6 +1872,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Подешавање није успело',
     st_not_loaded: 'Заустављена',
     st_other: 'Недоступна',
+    b_all_ok: 'Све је у реду',
+    b_no_batteries: 'Није пронађена ниједна батерија',
+    b_low: 'Слаба',
+    b_unavailable: 'Недоступна',
+    b_low_since: 'слаба већ {d}',
+    b_unavailable_since: 'недоступна већ {d}',
+    b_days_left: '≈ преостало {d}',
+    b_by_room: 'По просторији',
+    b_by_type: 'По типу батерије',
+    b_by_due: 'По датуму замене',
+    b_no_room: 'Без просторије',
+    b_unknown_type: 'Непознат тип',
+    b_to_check: '{n} за проверу',
+    b_due_now: 'Заменити сада',
+    b_due_month: 'У року од 30 дана',
+    b_due_quarter: 'У року од 3 месеца',
+    b_due_later: 'Касније',
+    b_due_none: 'Још нема прогнозе',
+    b_replace_on: 'око {date}',
+    b_next: 'Следећа замена',
+    b_count: 'Батерија: {n}',
+    b_count_one: '1 батерија',
+    b_low_n: 'Слабе: {n}',
+    b_low_one: '{n} слаба',
+    b_unavailable_n: 'Недоступне: {n}',
+    b_unavailable_one: '{n} недоступна',
+    b_only_alert: 'Сакриј батерије које су у реду',
+    b_drain: '−{n} % дневно',
+    b_search: 'Претрага',
+    b_no_match: 'Ниједна батерија се не поклапа',
+    b_sensor_missing: 'Сензор за Battery Monitor није доступан',
   },
   'sr-Latn': {
     title: 'Battery Monitor',
@@ -1310,6 +1962,37 @@ var BatteryMonitorPanelI18n = {
     st_setup_error: 'Podešavanje nije uspelo',
     st_not_loaded: 'Zaustavljena',
     st_other: 'Nedostupna',
+    b_all_ok: 'Sve je u redu',
+    b_no_batteries: 'Nije pronađena nijedna baterija',
+    b_low: 'Slaba',
+    b_unavailable: 'Nedostupna',
+    b_low_since: 'slaba već {d}',
+    b_unavailable_since: 'nedostupna već {d}',
+    b_days_left: '≈ preostalo {d}',
+    b_by_room: 'Po prostoriji',
+    b_by_type: 'Po tipu baterije',
+    b_by_due: 'Po datumu zamene',
+    b_no_room: 'Bez prostorije',
+    b_unknown_type: 'Nepoznat tip',
+    b_to_check: '{n} za proveru',
+    b_due_now: 'Zameniti sada',
+    b_due_month: 'U roku od 30 dana',
+    b_due_quarter: 'U roku od 3 meseca',
+    b_due_later: 'Kasnije',
+    b_due_none: 'Još nema prognoze',
+    b_replace_on: 'oko {date}',
+    b_next: 'Sledeća zamena',
+    b_count: 'Baterija: {n}',
+    b_count_one: '1 baterija',
+    b_low_n: 'Slabe: {n}',
+    b_low_one: '{n} slaba',
+    b_unavailable_n: 'Nedostupne: {n}',
+    b_unavailable_one: '{n} nedostupna',
+    b_only_alert: 'Sakrij baterije koje su u redu',
+    b_drain: '−{n} % dnevno',
+    b_search: 'Pretraga',
+    b_no_match: 'Nijedna baterija se ne poklapa',
+    b_sensor_missing: 'Senzor za Battery Monitor nije dostupan',
   },
 };
 
@@ -1317,6 +2000,49 @@ var BatteryMonitorPanelI18n = {
 var BM_PANEL_LIMITS = { threshold: [1, 99], duration: [0, 720] };
 var BM_PANEL_LISTS = ['notify_services', 'ignored_integrations', 'ignored_entities'];
 var BM_PANEL_TABS = ['batteries', 'actions', 'settings'];
+// How the Batteries tab groups the batteries
+var BM_PANEL_VIEWS = ['room', 'type', 'due'];
+// Days left under which a battery that is fine still shows its forecast
+var BM_PANEL_SOON = 60;
+
+// The integration's "Low batteries" sensor: the sensor of the entity registry whose state lists the batteries
+function bmPanelSensor(hass) {
+  var registry = hass?.entities || {};
+  return Object.keys(registry).find(
+    (id) => registry[id]?.platform === 'battery_monitor' && Array.isArray(hass?.states?.[id]?.attributes?.batteries),
+  );
+}
+
+// The group of a battery in each view: its key, its order among the groups and its label key (due view)
+function bmPanelBucket(battery) {
+  if (battery.alert) return { key: 'now', order: 0, label: 'b_due_now' };
+  var days = battery.days_left;
+  if (days === null || days === undefined) return { key: 'none', order: 4, label: 'b_due_none' };
+  if (days <= 30) return { key: 'month', order: 1, label: 'b_due_month' };
+  if (days <= 90) return { key: 'quarter', order: 2, label: 'b_due_quarter' };
+  return { key: 'later', order: 3, label: 'b_due_later' };
+}
+
+// Batteries that need attention first, then the lowest level (a binary battery last), then by name
+function bmPanelCompare(a, b) {
+  if (a.alert !== b.alert) return a.alert ? -1 : 1;
+  var la = a.level ?? 101;
+  var lb = b.level ?? 101;
+  return la - lb || String(a.name).localeCompare(String(b.name));
+}
+
+// The batteries that match every word of the search, in their name, room or type (accents and case ignored)
+function bmPanelMatch(battery, query) {
+  var fold = (v) => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  var text = fold(`${battery.name} ${battery.area || ''} ${battery.battery_type || ''}`);
+  return fold(query).split(/\s+/).filter(Boolean).every((word) => text.includes(word));
+}
+
+// Tone of a battery: unavailable or low needs attention, otherwise fine
+function bmPanelBatteryTone(battery) {
+  if (battery.unavailable) return 'warn';
+  return battery.low ? 'bad' : 'good';
+}
 
 function bmPanelT(lang, key, vars) {
   var table = BatteryMonitorPanelI18n[lang] || BatteryMonitorPanelI18n.en;
@@ -1348,6 +2074,9 @@ function bmPanelSameList(a, b) {
 }
 
 class BatteryMonitorPanel extends HTMLElement {
+  // The release checks it matches the other versions; the panel no longer loads the card with it
+  static VERSION = BATTERY_MONITOR_PANEL_VERSION;
+
   static STYLE = `
     :host { display:block; min-height:100%; background:var(--primary-background-color); color:var(--primary-text-color);
             --tone-good: var(--success-color, #43a047); --tone-warn: var(--warning-color, #ffa600); --tone-bad: var(--error-color, #db4437); }
@@ -1419,6 +2148,44 @@ class BatteryMonitorPanel extends HTMLElement {
     .act[disabled] { opacity:.5; cursor:default; }
     .row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
     .row .ctl { flex:1; min-width:200px; }
+    /* Batteries tab: summary tiles, the tools (view, search, filter), then the groups in a grid of cards */
+    .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; }
+    .tile { padding:12px 14px; display:flex; align-items:center; gap:12px; min-width:0; }
+    .tile .avatar { --mdc-icon-size:20px; color:var(--tone-text, var(--primary-color)); background:color-mix(in srgb, var(--tone, var(--primary-color)) 15%, transparent); }
+    .tile .who .n { font-size:15px; }
+    .tools { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+    .seg { display:inline-flex; padding:3px; gap:2px; border-radius:10px; background:var(--secondary-background-color, rgba(127,127,127,.12)); }
+    .seg button { border:0; background:none; color:var(--secondary-text-color); font:inherit; font-size:13px; padding:6px 12px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+    .seg button[aria-checked="true"] { background:var(--card-background-color, #fff); color:var(--primary-text-color); font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.15); }
+    .seg button:focus-visible { outline:2px solid var(--primary-color); outline-offset:1px; }
+    .tools .search { flex:1; min-width:180px; max-width:340px; padding-left:8px; --mdc-icon-size:18px; color:var(--secondary-text-color); }
+    .tools .search input { color:var(--primary-text-color); }
+    .check { display:inline-flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; user-select:none; }
+    .check input { accent-color:var(--primary-color); width:16px; height:16px; margin:0; }
+    .groups { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap:12px; align-items:start; }
+    .group { padding:6px 0; overflow:hidden; }
+    .ghead { display:flex; align-items:center; gap:10px; padding:8px 14px 6px; --mdc-icon-size:18px; color:var(--secondary-text-color); }
+    .ghead .gname { flex:1; min-width:0; font-size:14px; font-weight:500; color:var(--primary-text-color); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ghead .gcount { font-size:12px; white-space:nowrap; }
+    .bat { display:flex; align-items:center; gap:12px; width:100%; box-sizing:border-box; padding:8px 14px; border:0; background:none;
+           color:inherit; font:inherit; text-align:left; cursor:pointer; }
+    .bat:hover { background:var(--secondary-background-color, rgba(127,127,127,.08)); }
+    .bat:focus-visible { outline:2px solid var(--primary-color); outline-offset:-2px; }
+    .bat > ha-icon { flex:none; --mdc-icon-size:22px; color:var(--tone-text); }
+    .bat .who .n, .bat .who .s { display:block; }
+    .bat .who .s .alert { color:var(--tone-text); font-weight:500; }
+    .lvl { flex:none; width:58px; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+    .lvl b { font-size:14px; font-weight:500; font-variant-numeric:tabular-nums; }
+    .lvl i { display:block; width:100%; height:4px; border-radius:2px; background:color-mix(in srgb, var(--tone) 20%, transparent); position:relative; overflow:hidden; }
+    .lvl i::after { content:''; position:absolute; inset:0 auto 0 0; width:var(--p); background:var(--tone); border-radius:2px; }
+    .empty { padding:24px 16px; text-align:center; color:var(--secondary-text-color); }
+    @media (max-width: 600px) {
+      main { padding:12px 8px; }
+      .tools .search { max-width:none; order:-1; flex-basis:100%; }
+      .tile { padding:10px 12px; gap:10px; }
+      .tile .avatar { width:32px; height:32px; --mdc-icon-size:18px; }
+      .tile .who .n, .tile .who .s { white-space:normal; }
+    }
   `;
 
   constructor() {
@@ -1431,6 +2198,10 @@ class BatteryMonitorPanel extends HTMLElement {
     this._busy = null;
     this._exportPath = '';
     this._tab = 'batteries';
+    this._view = 'room';
+    this._query = '';
+    this._onlyAlert = false;
+    this._drawnState = null;
   }
 
   // /battery-monitor/<tab> opens that tab (Home Assistant sets the route; the base address is Batteries)
@@ -1473,10 +2244,11 @@ class BatteryMonitorPanel extends HTMLElement {
     var first = !this._hass;
     var langBefore = this._lang();
     this._hass = hass;
-    if (this._card) this._card.hass = hass;
     if (this._menu) this._menu.hass = hass;
     if (first) this._start();
     else if (this._lang() !== langBefore) this._render();
+    // Home Assistant makes a new state object only when the sensor changes: the list is drawn again only then
+    else if (this._batteriesState() !== this._drawnState) this._renderBatteries();
   }
 
   set narrow(narrow) {
@@ -1559,15 +2331,8 @@ class BatteryMonitorPanel extends HTMLElement {
     return bmPanelT(this._lang(), key, vars);
   }
 
-  async _start() {
+  _start() {
     this._render();
-    var version = this._panel?.config?.version || BATTERY_MONITOR_PANEL_VERSION;
-    try {
-      if (!customElements.get('battery-monitor-card')) await import(`/battery_monitor/battery-monitor-card.js?v=${version}`);
-    } catch (err) {
-      console.error('Battery Monitor panel: could not load the card', err);
-    }
-    this._mountCard();
     this._subscribe();
     this._watchConnection(this.isConnected);
     this._load();
@@ -1613,7 +2378,7 @@ class BatteryMonitorPanel extends HTMLElement {
       </div>
       <div class="tabs" role="tablist">${BM_PANEL_TABS.map((tab) => this._tabHtml(tab)).join('')}</div>
       <main>
-        <section class="column" id="tab-batteries" role="tabpanel" aria-labelledby="tabbtn-batteries"><div id="card"></div></section>
+        <section class="column" id="tab-batteries" role="tabpanel" aria-labelledby="tabbtn-batteries">${this._batteriesShell()}</section>
         <section class="column" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"></section>
         <section class="column" id="tab-actions" role="tabpanel" aria-labelledby="tabbtn-actions"></section>
       </main>`;
@@ -1632,7 +2397,8 @@ class BatteryMonitorPanel extends HTMLElement {
       });
     });
     this._showTab(this._tab);
-    if (this._card) root.getElementById('card').appendChild(this._card);
+    this._bindBatteries();
+    this._renderBatteries();
     this._renderSettings();
   }
 
@@ -1641,14 +2407,190 @@ class BatteryMonitorPanel extends HTMLElement {
     return `<button class="tab${selected ? ' active' : ''}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">${bmPanelEsc(this._t(tab))}</button>`;
   }
 
-  _mountCard() {
-    if (!customElements.get('battery-monitor-card')) return;
-    this._card = document.createElement('battery-monitor-card');
-    // The full screen content laid out in the card; its CSV export is in the Actions tab. No `language`: the card
-    // follows hass.language, so it switches language with the panel.
-    this._card.setConfig({ expanded: true, csv_button: false });
-    this._card.hass = this._hass;
-    this.shadowRoot.getElementById('card')?.appendChild(this._card);
+  // ── Batteries tab ──────────────────────────────────────────────────────────
+  // The tools are written once (the search keeps its focus while typing); the summary and the groups are redrawn.
+  _batteriesShell() {
+    var esc = bmPanelEsc;
+    var views = { room: 'b_by_room', type: 'b_by_type', due: 'b_by_due' };
+    return `
+      <div class="tiles" id="bm-tiles"></div>
+      <div class="tools">
+        <div class="seg" role="radiogroup">${BM_PANEL_VIEWS.map(
+          (v) => `<button type="button" role="radio" data-view="${v}" aria-checked="${v === this._view}">${esc(this._t(views[v]))}</button>`,
+        ).join('')}</div>
+        <label class="box search"><ha-icon icon="mdi:magnify"></ha-icon><input type="search" id="bm-search" value="${esc(this._query)}"
+          placeholder="${esc(this._t('b_search'))}" aria-label="${esc(this._t('b_search'))}" autocomplete="off"></label>
+        <label class="check"><input type="checkbox" id="bm-only"${this._onlyAlert ? ' checked' : ''}>${esc(this._t('b_only_alert'))}</label>
+      </div>
+      <div class="groups" id="bm-list"></div>`;
+  }
+
+  _bindBatteries() {
+    var root = this.shadowRoot;
+    root.querySelectorAll?.('.seg button').forEach((button) => {
+      button.addEventListener('click', () => {
+        this._view = button.dataset.view;
+        root.querySelectorAll('.seg button').forEach((b) => {
+          b.setAttribute('aria-checked', String(b === button));
+        });
+        this._renderBatteries();
+      });
+    });
+    root.getElementById?.('bm-search')?.addEventListener('input', (ev) => {
+      this._query = ev.target.value;
+      this._renderBatteries();
+    });
+    root.getElementById?.('bm-only')?.addEventListener('change', (ev) => {
+      this._onlyAlert = ev.target.checked;
+      this._renderBatteries();
+    });
+    root.getElementById?.('bm-list')?.addEventListener('click', (ev) => {
+      var row = ev.target.closest?.('.bat');
+      if (!row) return;
+      // The battery's more-info dialog, as a click on an entity anywhere in Home Assistant
+      this.dispatchEvent(new CustomEvent('hass-more-info', { detail: { entityId: row.dataset.id }, bubbles: true, composed: true }));
+    });
+  }
+
+  // The sensor is looked up in the entity registry once, not at every state change of Home Assistant
+  _batteriesState() {
+    var states = this._hass?.states || {};
+    if (!Array.isArray(states[this._sensorId]?.attributes?.batteries)) this._sensorId = bmPanelSensor(this._hass);
+    return this._sensorId ? states[this._sensorId] : null;
+  }
+
+  // The groups of the current view: [{ key, name, icon, items }], sorted
+  _batteryGroups(batteries) {
+    var groups = new Map();
+    var areas = Object.values(this._hass?.areas || {});
+    batteries.forEach((battery) => {
+      var group;
+      if (this._view === 'type') {
+        var type = battery.battery_type || '';
+        group = { key: type, order: type ? 0 : 1, name: type || this._t('b_unknown_type'), icon: type ? 'mdi:battery' : 'mdi:battery-unknown' };
+      } else if (this._view === 'due') {
+        var bucket = bmPanelBucket(battery);
+        var icons = { now: 'mdi:battery-alert', month: 'mdi:calendar-alert', quarter: 'mdi:calendar-clock', later: 'mdi:calendar-check', none: 'mdi:help-circle-outline' };
+        group = { key: bucket.key, order: bucket.order, name: this._t(bucket.label), icon: icons[bucket.key] };
+      } else {
+        var area = battery.area || '';
+        var icon = area ? areas.find((a) => a?.name === area)?.icon || 'mdi:door-open' : 'mdi:home-outline';
+        group = { key: area, order: area ? 0 : 1, name: area || this._t('b_no_room'), icon };
+      }
+      if (!groups.has(group.key)) groups.set(group.key, { ...group, items: [] });
+      groups.get(group.key).items.push(battery);
+    });
+    var list = [...groups.values()];
+    list.forEach((g) => {
+      g.items.sort(bmPanelCompare);
+    });
+    return list.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+  }
+
+  // "3 h", "5 days": how long a battery has been low or unavailable, in the language of the page
+  _duration(iso) {
+    var hours = Math.max(0, (Date.now() - new Date(iso).getTime()) / 3600000);
+    var [value, unit] = hours < 48 ? [Math.max(1, Math.round(hours)), 'hour'] : [Math.round(hours / 24), 'day'];
+    try {
+      return new Intl.NumberFormat(this._hass?.language || 'en', { style: 'unit', unit, unitDisplay: 'long' }).format(value);
+    } catch (_err) {
+      return `${value} ${unit === 'hour' ? 'h' : 'd'}`;
+    }
+  }
+
+  _day(iso) {
+    try {
+      return new Intl.DateTimeFormat(this._hass?.language || 'en', { day: 'numeric', month: 'long' }).format(new Date(iso));
+    } catch (_err) {
+      return String(iso).slice(0, 10);
+    }
+  }
+
+  // The second line of a battery: what the current view does not already say, then its state
+  _batteryDetail(battery) {
+    var parts = [];
+    if (this._view !== 'room' && battery.area) parts.push(battery.area);
+    if (this._view !== 'type' && battery.battery_type) parts.push(battery.battery_type);
+    var alert = '';
+    if (battery.unavailable) {
+      alert = battery.below_since ? this._t('b_unavailable_since', { d: this._duration(battery.below_since) }) : this._t('b_unavailable');
+    } else if (battery.low) {
+      alert = battery.below_since ? this._t('b_low_since', { d: this._duration(battery.below_since) }) : this._t('b_low');
+    } else if (battery.replace_by && (this._view === 'due' || (battery.days_left ?? Infinity) <= BM_PANEL_SOON)) {
+      parts.push(this._t('b_replace_on', { date: this._day(battery.replace_by) }));
+    }
+    return { text: parts.join(' · '), alert };
+  }
+
+  _batteryRow(battery) {
+    var esc = bmPanelEsc;
+    var detail = this._batteryDetail(battery);
+    var level = battery.level === null || battery.level === undefined ? null : Math.round(battery.level);
+    var sub = [detail.alert && `<span class="alert">${esc(detail.alert)}</span>`, detail.text && esc(detail.text)].filter(Boolean).join(' · ');
+    return `
+      <button type="button" class="bat ${bmPanelBatteryTone(battery)}" data-id="${esc(battery.entity_id)}">
+        <ha-icon icon="${esc(battery.icon || 'mdi:battery')}"></ha-icon>
+        <span class="who"><span class="n">${esc(battery.name)}</span>${sub ? `<span class="s">${sub}</span>` : ''}</span>
+        ${level === null ? '' : `<span class="lvl"><b>${level} %</b><i style="--p:${Math.min(100, Math.max(0, level))}%"></i></span>`}
+      </button>`;
+  }
+
+  _tile(icon, tone, title, detail) {
+    var esc = bmPanelEsc;
+    return `<ha-card class="tile ${tone}"><div class="avatar"><ha-icon icon="${icon}"></ha-icon></div>
+      <div class="who"><div class="n">${esc(title)}</div>${detail ? `<div class="s">${esc(detail)}</div>` : ''}</div></ha-card>`;
+  }
+
+  _renderBatteries() {
+    var root = this.shadowRoot;
+    if (!root) return;
+    var tiles = root.getElementById?.('bm-tiles');
+    var list = root.getElementById?.('bm-list');
+    if (!tiles || !list) return;
+    var state = this._batteriesState();
+    this._drawnState = state;
+    var esc = bmPanelEsc;
+    if (!state) {
+      tiles.innerHTML = '';
+      list.innerHTML = `<ha-card class="empty">${esc(this._t('b_sensor_missing'))}</ha-card>`;
+      return;
+    }
+    var batteries = state.attributes.batteries;
+    var alerts = batteries.filter((b) => b.alert);
+    var low = batteries.filter((b) => b.low && !b.unavailable).length;
+    var unavailable = batteries.filter((b) => b.unavailable).length;
+    var next = batteries
+      .filter((b) => !b.alert && b.replace_by)
+      .sort((a, b) => String(a.replace_by).localeCompare(String(b.replace_by)))[0];
+    var count = (n, one, many) => this._t(n === 1 ? one : many, { n });
+    tiles.innerHTML = [
+      alerts.length
+        ? this._tile('mdi:battery-alert-variant-outline', 'bad', this._t('b_to_check', { n: alerts.length }), count(batteries.length, 'b_count_one', 'b_count'))
+        : this._tile('mdi:battery-check', 'good', this._t('b_all_ok'), count(batteries.length, 'b_count_one', 'b_count')),
+      this._tile('mdi:battery-low', low ? 'bad' : 'good', count(low, 'b_low_one', 'b_low_n')),
+      this._tile('mdi:battery-unknown', unavailable ? 'warn' : 'good', count(unavailable, 'b_unavailable_one', 'b_unavailable_n')),
+      next
+        ? this._tile('mdi:calendar-clock', 'warn', this._t('b_next'), `${this._day(next.replace_by)} · ${next.name}`)
+        : '',
+    ].join('');
+    if (!batteries.length) {
+      list.innerHTML = `<ha-card class="empty">${esc(this._t('b_no_batteries'))}</ha-card>`;
+      return;
+    }
+    var shown = batteries.filter((b) => (!this._onlyAlert || b.alert) && bmPanelMatch(b, this._query));
+    if (!shown.length) {
+      list.innerHTML = `<ha-card class="empty">${esc(this._t(this._onlyAlert && !this._query ? 'b_all_ok' : 'b_no_match'))}</ha-card>`;
+      return;
+    }
+    list.innerHTML = this._batteryGroups(shown)
+      .map(
+        (g) => `<ha-card class="group">
+          <div class="ghead"><ha-icon icon="${esc(g.icon)}"></ha-icon><span class="gname">${esc(g.name)}</span>
+            <span class="gcount">${esc(count(g.items.length, 'b_count_one', 'b_count'))}</span></div>
+          ${g.items.map((b) => this._batteryRow(b)).join('')}
+        </ha-card>`,
+      )
+      .join('');
   }
 
   // The form: the fields the user typed over the stored values (so a change made elsewhere shows up)

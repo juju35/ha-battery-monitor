@@ -27,10 +27,10 @@ const context = {
 const timers = [];
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList };`,
+  `${source}\nthis.panel = { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList, bmPanelSensor, bmPanelMatch, bmPanelBatteryTone };`,
   context,
 );
-const { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList } =
+const { BatteryMonitorPanel, BatteryMonitorPanelI18n, BM_PANEL_LIMITS, BM_PANEL_TABS, bmPanelT, bmPanelEsc, bmPanelTone, bmPanelClock, bmPanelSameList, bmPanelSensor, bmPanelMatch, bmPanelBatteryTone } =
   context.panel;
 
 const LANGUAGES = [
@@ -196,16 +196,71 @@ test('list choices: notify actions without their prefix, integrations by name, b
   assert.doesNotMatch(html, /<option value="notify.phone">/);
 });
 
-test('the Batteries tab mounts the card expanded, without its CSV export', () => {
+test('the Batteries tab finds the sensor, groups the batteries by room, type or replacement date, attention first', () => {
+  const batteries = [
+    { entity_id: 'sensor.a', name: 'Door', area: 'Hall', level: 80, alert: false, battery_type: 'CR2032', days_left: 200 },
+    { entity_id: 'sensor.b', name: 'Motion', area: 'Hall', level: 12, low: true, alert: true, battery_type: 'AA' },
+    { entity_id: 'sensor.c', name: 'Leak', area: null, level: 55, alert: false, days_left: 20, replace_by: '2026-12-01T00:00:00+00:00' },
+    { entity_id: 'sensor.d', name: 'Remote', area: 'Living room', level: null, unavailable: true, alert: true },
+  ];
+  const hass = {
+    language: 'en',
+    entities: { 'sensor.other': { platform: 'zha' }, 'sensor.bm_low': { platform: 'battery_monitor' }, 'sensor.bm_last': { platform: 'battery_monitor' } },
+    states: { 'sensor.bm_low': { attributes: { batteries } }, 'sensor.bm_last': { attributes: {} } },
+    areas: { hall: { name: 'Hall', icon: 'mdi:coat-rack' } },
+  };
+  assert.equal(bmPanelSensor(hass), 'sensor.bm_low');
+  const panel = new BatteryMonitorPanel();
+  panel._hass = hass;
+  assert.equal(panel._batteriesState(), hass.states['sensor.bm_low']);
+  const names = (groups) => plain(groups.map((g) => [g.name, g.items.map((b) => b.name)]));
+  assert.deepEqual(names(panel._batteryGroups(batteries)), [
+    ['Hall', ['Motion', 'Door']],
+    ['Living room', ['Remote']],
+    ['No room', ['Leak']],
+  ]);
+  assert.equal(panel._batteryGroups(batteries)[0].icon, 'mdi:coat-rack');
+  panel._view = 'type';
+  assert.deepEqual(names(panel._batteryGroups(batteries)), [
+    ['AA', ['Motion']],
+    ['CR2032', ['Door']],
+    ['Unknown type', ['Remote', 'Leak']],
+  ]);
+  panel._view = 'due';
+  assert.deepEqual(names(panel._batteryGroups(batteries)), [
+    ['To replace now', ['Motion', 'Remote']],
+    ['Within 30 days', ['Leak']],
+    ['Later', ['Door']],
+  ]);
+});
+
+test('the Batteries tab search matches every word in the name, room or type, accents and case ignored', () => {
+  const battery = { name: 'Détecteur fumée', area: 'Séjour', battery_type: 'CR123A' };
+  assert.ok(bmPanelMatch(battery, ''));
+  assert.ok(bmPanelMatch(battery, 'sejour FUMEE'));
+  assert.ok(bmPanelMatch(battery, 'cr123'));
+  assert.ok(!bmPanelMatch(battery, 'cuisine'));
+  assert.equal(bmPanelBatteryTone({ unavailable: true }), 'warn');
+  assert.equal(bmPanelBatteryTone({ low: true }), 'bad');
+  assert.equal(bmPanelBatteryTone({ level: 90 }), 'good');
+});
+
+test('a battery row says what the view does not, its state, and escapes the names', () => {
   const panel = new BatteryMonitorPanel();
   panel._hass = { language: 'en' };
-  let config;
-  const created = { setConfig: (c) => (config = c), set hass(_h) {} };
-  context.document = { createElement: () => created };
-  panel._mountCard();
-  context.document = undefined;
-  assert.deepEqual(plain(config), { expanded: true, csv_button: false });
-  assert.equal(panel._card, created);
+  const low = { entity_id: 'sensor.x', name: '<Door>', area: 'Hall', battery_type: 'AA', level: 9, low: true, alert: true, icon: 'mdi:battery-10' };
+  const html = panel._batteryRow(low);
+  assert.match(html, /&#60;Door&#62;/);
+  assert.match(html, /data-id="sensor.x"/);
+  assert.match(html, /9 %/);
+  assert.match(html, /class="bat bad"/);
+  assert.deepEqual(plain(panel._batteryDetail(low)), { text: 'AA', alert: 'Low' });
+  panel._view = 'type';
+  assert.equal(panel._batteryDetail(low).text, 'Hall');
+  const soon = { name: 'Leak', level: 40, days_left: 10, replace_by: '2026-12-01T12:00:00+00:00' };
+  assert.match(panel._batteryDetail(soon).text, /^around /);
+  assert.equal(panel._batteryDetail({ name: 'Far', level: 90, days_left: 300, replace_by: '2027-09-01T12:00:00+00:00' }).text, '');
+  assert.doesNotMatch(panel._batteryRow({ entity_id: 'binary_sensor.y', name: 'Y', level: null }), /class="lvl"/);
 });
 
 test('tabs: the address picks the tab, a selection updates the address and hides the other panels', () => {
