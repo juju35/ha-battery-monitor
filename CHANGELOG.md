@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.18.4 - 2026-11-10
+
+### Fixes
+- Panel empty on its first opening (fine when coming back to it): in the release, the panel is only defined once the page's language file has loaded, and Home Assistant had already handed it the connection, the address and the layout by then; they were lost and nothing was drawn. They are now taken up when the panel is defined.
+
 ## 1.18.3 - 2026-11-09
 
 ### Improvements
