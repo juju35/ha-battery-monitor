@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.19.0 - 2026-11-10
+
+### Improvements
+- Panel, **Batteries** tab: drawn by the panel itself instead of embedding the card, so it shows at the first opening. A summary (batteries to check, low, unavailable, the next replacement), every battery by room, by battery type or by replacement date with its level bar, how long it has been low or unavailable and its replacement forecast, a search (name, room or type) and **Hide the batteries that are fine**. The groups are laid out in a grid on a wide screen and one under the other on a phone.
+- Panel shown at once: the release keeps its languages in the panel file instead of a separate file to wait for.
+
 ## 1.18.4 - 2026-11-10
 
 ### Fixes
