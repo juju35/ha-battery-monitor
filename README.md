@@ -1,5 +1,7 @@
 # ha-battery-monitor
 
+<p align="center"><img src="https://raw.githubusercontent.com/juju35/ha-battery-monitor/main/images/archived.svg" alt="Archived: no longer updated, now part of System Hub" width="800"></p>
+
 > [!WARNING]
 > **Deprecated, this repository is archived.** Battery Monitor is now part of [System Hub](https://github.com/juju35/ha-system-hub), which takes over its settings and keeps its cards. No more updates are published here: install System Hub, then remove Battery Monitor. See [Migrating](https://github.com/juju35/ha-system-hub#migrating).
 

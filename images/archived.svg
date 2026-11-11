@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 170" width="1200" height="170" role="img" aria-label="Archived: no longer updated, now part of System Hub">
+  <title>Archived: no longer updated, now part of System Hub</title>
+  <defs>
+    <filter id="s" x="-5%" y="-40%" width="110%" height="180%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity=".35"/>
+    </filter>
+    <g id="tape1">
+      <rect x="-200" y="-24" width="1600" height="48" fill="#f7d117"/>
+      <rect x="-200" y="-24" width="1600" height="5" fill="#111"/>
+      <rect x="-200" y="19" width="1600" height="5" fill="#111"/>
+      <text x="-180" y="9" fill="#111" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="22" letter-spacing="4">ARCHIVED · NO LONGER UPDATED · ARCHIVED · NO LONGER UPDATED · ARCHIVED · NO LONGER UPDATED · ARCHIVED · NO LONGER UPDATED ·</text>
+    </g>
+    <g id="tape2">
+      <rect x="-200" y="-24" width="1600" height="48" fill="#f7d117"/>
+      <rect x="-200" y="-24" width="1600" height="5" fill="#111"/>
+      <rect x="-200" y="19" width="1600" height="5" fill="#111"/>
+      <text x="-60" y="9" fill="#111" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="22" letter-spacing="4">NOW PART OF SYSTEM HUB · DO NOT INSTALL · NOW PART OF SYSTEM HUB · DO NOT INSTALL · NOW PART OF SYSTEM HUB · DO NOT INSTALL ·</text>
+    </g>
+  </defs>
+  <g filter="url(#s)" transform="translate(0 85) rotate(-4.5 600 0)"><use href="#tape1"/></g>
+  <g filter="url(#s)" transform="translate(0 85) rotate(4.5 600 0)"><use href="#tape2"/></g>
+</svg>
