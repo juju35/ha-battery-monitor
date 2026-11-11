@@ -11,7 +11,7 @@
  *
  * https://github.com/juju35/ha-battery-monitor
  */
-var BATTERY_MONITOR_PANEL_VERSION = '1.19.0';
+var BATTERY_MONITOR_PANEL_VERSION = '1.20.0';
 
 var BatteryMonitorPanelI18n = {
   en: {

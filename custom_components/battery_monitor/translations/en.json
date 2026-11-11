@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Spare batteries to buy: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} is now part of System Hub",
+      "description": "System Hub is set up on this Home Assistant and runs {name} as one of its modules. This repository is no longer maintained.\n\nWith both set up, {name} runs twice and its cards are registered twice. Turn the module on in System Hub (it takes over the settings of {name}), then remove {name} and its card resource. See [Migrating]({url})."
+    }
   }
 }

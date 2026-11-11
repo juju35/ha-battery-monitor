@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Batterie di ricambio da comprare: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} ora fa parte di System Hub",
+      "description": "System Hub è configurato in questo Home Assistant ed esegue {name} come uno dei suoi moduli. Questo repository non è più mantenuto.\n\nCon entrambi configurati, {name} viene eseguito due volte e le sue schede vengono registrate due volte. Attiva il modulo in System Hub (riprende le impostazioni di {name}), poi rimuovi {name} e la risorsa della sua scheda. Vedi [Migrating]({url})."
+    }
   }
 }

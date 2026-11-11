@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Te kopen reservebatterijen: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} maakt nu deel uit van System Hub",
+      "description": "System Hub is ingesteld in deze Home Assistant en draait {name} als een van zijn modules. Deze repository wordt niet meer onderhouden.\n\nMet beide ingesteld draait {name} twee keer en worden de kaarten twee keer geregistreerd. Schakel de module in System Hub in (die neemt de instellingen van {name} over) en verwijder daarna {name} en de bron van de kaart. Zie [Migrating]({url})."
+    }
   }
 }

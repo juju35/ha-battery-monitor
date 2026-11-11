@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Náhradní baterie ke koupi: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} je nyní součástí System Hub",
+      "description": "System Hub je nastaven v tomto Home Assistant a spouští {name} jako jeden ze svých modulů. Tento repozitář se již neudržuje.\n\nKdyž jsou nastaveny oba, {name} běží dvakrát a jeho karty se registrují dvakrát. Zapněte modul v System Hub (převezme nastavení {name}) a poté odeberte {name} a prostředek jeho karty. Viz [Migrating]({url})."
+    }
   }
 }

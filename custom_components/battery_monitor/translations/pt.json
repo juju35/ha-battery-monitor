@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Pilhas de reserva a comprar: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} faz agora parte do System Hub",
+      "description": "O System Hub está configurado neste Home Assistant e executa {name} como um dos seus módulos. Este repositório já não é mantido.\n\nCom ambos configurados, {name} é executado duas vezes e os seus cartões são registados duas vezes. Ative o módulo no System Hub (retoma as definições de {name}) e depois remova {name} e o recurso do seu cartão. Consulte [Migrating]({url})."
+    }
   }
 }

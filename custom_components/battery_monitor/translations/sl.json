@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Rezervne baterije za nakup: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} je zdaj del System Hub",
+      "description": "System Hub je nastavljen v tem Home Assistantu in izvaja {name} kot enega od svojih modulov. Ta repozitorij se ne vzdržuje več.\n\nČe sta nastavljena oba, {name} teče dvakrat, njegove kartice pa so registrirane dvakrat. Vklopite modul v System Hub (prevzame nastavitve {name}), nato odstranite {name} in vir njegove kartice. Glejte [Migrating]({url})."
+    }
   }
 }
