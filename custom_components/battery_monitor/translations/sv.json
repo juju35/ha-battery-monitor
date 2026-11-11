@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Reservbatterier att köpa: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} är nu en del av System Hub",
+      "description": "System Hub är konfigurerat i denna Home Assistant och kör {name} som en av sina moduler. Detta repository underhålls inte längre.\n\nNär båda är konfigurerade körs {name} två gånger och dess kort registreras två gånger. Aktivera modulen i System Hub (den tar över inställningarna från {name}) och ta sedan bort {name} och resursen för dess kort. Se [Migrating]({url})."
+    }
   }
 }

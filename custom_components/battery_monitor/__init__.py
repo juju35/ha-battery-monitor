@@ -22,6 +22,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
+from . import system_hub_notice
 from .const import (
     ATTR_BATTERY_TYPE,
     ATTR_COUNT,
@@ -169,6 +170,8 @@ async def _async_register_resource(hass: HomeAssistant) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BatteryMonitorConfigEntry) -> bool:
+    # Replaced by a System Hub module: a repair while System Hub is set up too.
+    entry.async_on_unload(system_hub_notice.async_watch(hass, entry, "Battery Monitor"))
     options = entry.options
     monitor = BatteryMonitor(
         hass,

@@ -1,5 +1,8 @@
 # ha-battery-monitor
 
+> [!WARNING]
+> **Deprecated, this repository is archived.** Battery Monitor is now part of [System Hub](https://github.com/juju35/ha-system-hub), which takes over its settings and keeps its cards. No more updates are published here: install System Hub, then remove Battery Monitor. See [Migrating](https://github.com/juju35/ha-system-hub#migrating).
+
 [![Marketplace](https://img.shields.io/badge/Marketplace-Custom-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/)
 [![HACS Validation](https://github.com/juju35/ha-battery-monitor/actions/workflows/hacs.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/hacs.yml)
 [![Validate](https://github.com/juju35/ha-battery-monitor/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-battery-monitor/actions/workflows/validate.yml)

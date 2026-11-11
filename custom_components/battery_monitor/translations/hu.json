@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Vásárolandó tartalék elemek: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "A(z) {name} mostantól a System Hub része",
+      "description": "A System Hub be van állítva ebben a Home Assistantban, és a(z) {name} funkciót az egyik moduljaként futtatja. Ez a tároló már nincs karbantartva.\n\nHa mindkettő be van állítva, a(z) {name} kétszer fut, és a kártyái kétszer kerülnek regisztrálásra. Kapcsold be a modult a System Hubban (átveszi a(z) {name} beállításait), majd távolítsd el a(z) {name} integrációt és a kártyája erőforrását. Lásd: [Migrating]({url})."
+    }
   }
 }

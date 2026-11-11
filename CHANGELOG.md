@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.20.0 - 2026-11-11
+
+### Deprecated
+- **Battery Monitor is now a module of [System Hub](https://github.com/juju35/ha-system-hub)**, and this repository is archived: no more updates here. Turned on in System Hub, the module takes over the settings of Battery Monitor. While both are set up, Battery Monitor raises a repair in **Settings → Repairs**, as it would otherwise run twice and register its cards twice: remove Battery Monitor and its card resource once the module is on. See [Migrating](https://github.com/juju35/ha-system-hub#migrating) ([juju35/ha-system-hub#49](https://github.com/juju35/ha-system-hub/issues/49), thanks @FredM67).
+
 ## 1.19.0 - 2026-11-10
 
 ### Improvements

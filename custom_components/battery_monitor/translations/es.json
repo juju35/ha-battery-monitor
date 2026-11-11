@@ -198,5 +198,11 @@
     "spares_short": {
       "message": "Pilas de repuesto que comprar: {spares}"
     }
+  },
+  "issues": {
+    "system_hub_installed": {
+      "title": "{name} ahora forma parte de System Hub",
+      "description": "System Hub está configurado en este Home Assistant y ejecuta {name} como uno de sus módulos. Este repositorio ya no se mantiene.\n\nCon ambos configurados, {name} se ejecuta dos veces y sus tarjetas se registran dos veces. Activa el módulo en System Hub (recupera los ajustes de {name}) y después elimina {name} y el recurso de su tarjeta. Consulta [Migrating]({url})."
+    }
   }
 }
